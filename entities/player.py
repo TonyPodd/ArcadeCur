@@ -18,19 +18,38 @@ class Player(arcade.Sprite):
         self.friction = config.PLAYER_FRICTION
 
         # Направление движения
-        self.move_direction_x = 0
-        self.move_direction_y = 0
+        self.direction = {
+            'left': False,
+            'right': False,
+            'up': False,
+            'down': False
+        }
 
     def update(self) -> None:
+        
+        if self.direction['left']:
+            move_direction_x = -1
+        elif self.direction['right']:
+            move_direction_x = 1
+        else:
+            move_direction_x = 0
+        
+        if self.direction['down']:
+            move_direction_y = -1
+        elif self.direction['up']:
+            move_direction_y = 1
+        else:
+            move_direction_y = 0
+        
         # Применяем ускорение в направлении движения
-        if self.move_direction_x != 0:
-            self.change_x += self.move_direction_x * self.acceleration
+        if move_direction_x != 0:
+            self.change_x += move_direction_x * self.acceleration
         else:
             # Применяем трение когда нет ввода
             self.change_x *= (1 - self.friction)
 
-        if self.move_direction_y != 0:
-            self.change_y += self.move_direction_y * self.acceleration
+        if move_direction_y != 0:
+            self.change_y += move_direction_y * self.acceleration
         else:
             # Применяем трение когда нет ввода
             self.change_y *= (1 - self.friction)
