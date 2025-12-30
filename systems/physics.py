@@ -8,9 +8,6 @@ class PhysicsSystem:
     """Управление физикой и коллизиями"""
 
     def __init__(self, player: arcade.Sprite, wall_list: arcade.SpriteList):
-        """
-        Инициализация физической системы
-        """
         self.player = player
         self.wall_list = wall_list
 
@@ -20,23 +17,14 @@ class PhysicsSystem:
             self.wall_list
         )
 
-    def update(self):
-        """Обновление физики"""
+    def update(self) -> None:
         self.physics_engine.update()
 
-    def add_wall(self, wall):
-        """Добавление стены в физическую систему"""
+    def add_wall(self, wall: arcade.Sprite) -> None:
         self.wall_list.append(wall)
 
-    def check_collision(self, sprite, sprite_list):
+    def check_collision(self, sprite: arcade.Sprite, sprite_list:arcade.SpriteList) -> list[arcade.Sprite]:
         """
         Проверка столкновения спрайта со списком спрайтов
-
-        Args:
-            sprite: Спрайт для проверки
-            sprite_list: Список спрайтов
-
-        Returns:
-            Список спрайтов, с которыми произошло столкновение
         """
         return arcade.check_for_collision_with_list(sprite, sprite_list)
