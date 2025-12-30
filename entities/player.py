@@ -33,14 +33,14 @@ class Player(arcade.Sprite):
             move_direction_x = 1
         else:
             move_direction_x = 0
-        
+
         if self.direction['down']:
             move_direction_y = -1
         elif self.direction['up']:
             move_direction_y = 1
         else:
             move_direction_y = 0
-        
+
         # Применяем ускорение в направлении движения
         if move_direction_x != 0:
             self.change_x += move_direction_x * self.acceleration

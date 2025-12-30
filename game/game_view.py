@@ -1,6 +1,6 @@
 import arcade
 
-from entities import Player
+from entities import Player, Wall
 from systems import PhysicsSystem, GameCamera
 import config
 
@@ -20,12 +20,12 @@ class GameView(arcade.View):
         self.player_list.append(self.player)
 
         # other sprites
-        self.enemy_list = arcade.SpriteList()
-        self.item_list = arcade.SpriteList()
-        self.wall_list = arcade.SpriteList()
+        self.enemy_sprites = arcade.SpriteList()
+        self.item_sprites = arcade.SpriteList()
+        self.wall_sprites = arcade.SpriteList()
 
         # пока что просто коллизи со стенами
-        self.physics_system = PhysicsSystem(self.player, self.wall_list)
+        self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
 
     def on_draw(self):
         self.clear()
@@ -33,9 +33,9 @@ class GameView(arcade.View):
         # Отрисовка игрового мира с камерой
         self.camera.use()
 
-        self.wall_list.draw()
-        self.item_list.draw()
-        self.enemy_list.draw()
+        self.wall_sprites.draw()
+        self.item_sprites.draw()
+        self.enemy_sprites.draw()
         self.player_list.draw()
 
         # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
