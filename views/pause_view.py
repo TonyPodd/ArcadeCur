@@ -1,4 +1,3 @@
-
 import arcade
 
 
@@ -42,6 +41,7 @@ class PauseView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ENTER:
             self.window.show_view(self.game_view)
+
         elif key == arcade.key.ESCAPE:
             from views.menu_view import MenuView
             menu = MenuView()
