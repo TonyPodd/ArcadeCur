@@ -11,7 +11,7 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.DARK_GREEN)
 
     def setup(self):
-        self.camera = GameCamera(self.window.width, self.window.height)  # камера игрока
+        self.camera = GameCamera()  # камера игрока
         self.gui_camera = arcade.camera.Camera2D()  # камера интерфейса
 
         # Player
