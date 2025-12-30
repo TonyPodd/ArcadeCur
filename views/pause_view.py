@@ -1,15 +1,18 @@
 import arcade
 
+from views import MenuView
+
 
 class PauseView(arcade.View):
     def __init__(self, game_view):
         super().__init__()
+
         self.game_view = game_view
 
-    def on_draw(self):
+    def on_draw(self) -> None:
         self.clear()
 
-        self.game_view.on_draw()
+        self.game_view.on_draw()  # Отрисовка процесса игры на задний фон паузы
 
         arcade.draw_text(
             "ПАУЗА",
@@ -38,11 +41,12 @@ class PauseView(arcade.View):
             anchor_x="center"
         )
 
-    def on_key_press(self, key, modifiers):
+    def on_key_press(self, key, modifiers) -> None:
+        # Вернутся в игру
         if key == arcade.key.ENTER:
             self.window.show_view(self.game_view)
 
+        # Перейти в меню
         elif key == arcade.key.ESCAPE:
-            from views import MenuView
             menu = MenuView()
             self.window.show_view(menu)
