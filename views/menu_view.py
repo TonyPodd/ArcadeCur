@@ -8,10 +8,10 @@ from views import GameView
 """
 class MenuView(arcade.View):
 
-    def on_show_view(self):
+    def on_show_view(self) -> None:
         arcade.set_background_color(arcade.color.BLACK)
 
-    def on_draw(self):
+    def on_draw(self) -> None:
         self.clear()
 
         arcade.draw_text(
@@ -41,7 +41,7 @@ class MenuView(arcade.View):
             anchor_x="center"
         )
 
-    def on_key_press(self, key, modifiers):
+    def on_key_press(self, key, modifiers) -> None:
         # Перейти в игру
         if key == arcade.key.ENTER:
             game_view = GameView()
