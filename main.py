@@ -1,5 +1,6 @@
 import arcade
-from game.game import Game
+
+from game import Game
 import config
 
 

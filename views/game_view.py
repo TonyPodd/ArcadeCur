@@ -1,7 +1,7 @@
 import arcade
-from entities.player import Player
-from systems.camera import GameCamera
-from systems.physics import PhysicsSystem
+
+from entities import Player
+from systems import PhysicsSystem, GameCamera
 import config
 
 
@@ -63,7 +63,7 @@ class GameView(arcade.View):
         elif key == arcade.key.D:
             self.player.move_direction_x = 1
         elif key == arcade.key.ESCAPE:
-            from views.pause_view import PauseView
+            from views import PauseView
             pause = PauseView(self)
             self.window.show_view(pause)
 

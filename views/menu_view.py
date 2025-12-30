@@ -2,7 +2,7 @@
 Главное меню игры
 """
 import arcade
-from views.game_view import GameView
+from views import GameView
 
 
 class MenuView(arcade.View):

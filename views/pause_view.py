@@ -43,6 +43,6 @@ class PauseView(arcade.View):
             self.window.show_view(self.game_view)
 
         elif key == arcade.key.ESCAPE:
-            from views.menu_view import MenuView
+            from views import MenuView
             menu = MenuView()
             self.window.show_view(menu)
