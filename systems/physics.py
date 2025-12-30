@@ -1,6 +1,3 @@
-"""
-Система физики и коллизий
-"""
 import arcade
 
 
@@ -24,7 +21,5 @@ class PhysicsSystem:
         self.wall_list.append(wall)
 
     def check_collision(self, sprite: arcade.Sprite, sprite_list:arcade.SpriteList) -> list[arcade.Sprite]:
-        """
-        Проверка столкновения спрайта со списком спрайтов
-        """
+        # Проверка столкновения спрайта со списком спрайтов
         return arcade.check_for_collision_with_list(sprite, sprite_list)
