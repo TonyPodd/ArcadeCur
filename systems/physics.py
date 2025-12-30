@@ -7,13 +7,9 @@ import arcade
 class PhysicsSystem:
     """Управление физикой и коллизиями"""
 
-    def __init__(self, player, wall_list):
+    def __init__(self, player: arcade.Sprite, wall_list: arcade.SpriteList):
         """
         Инициализация физической системы
-
-        Args:
-            player: Спрайт игрока
-            wall_list: Список стен/препятствий
         """
         self.player = player
         self.wall_list = wall_list
