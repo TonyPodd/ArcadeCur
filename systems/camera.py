@@ -1,4 +1,5 @@
 import arcade
+
 import config
 
 

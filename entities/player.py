@@ -1,5 +1,7 @@
 import arcade
+
 import config
+
 
 class Player(arcade.Sprite):
     def __init__(self, x, y):

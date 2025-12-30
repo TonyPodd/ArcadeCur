@@ -1,5 +1,6 @@
 import arcade
-from views.menu_view import MenuView
+
+from views import MenuView
 import config
 
 
