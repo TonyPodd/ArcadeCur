@@ -1,4 +1,4 @@
 """
 Основной пакет игры
 """
-from .game import Game
+from .game_view import GameView

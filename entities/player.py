@@ -4,7 +4,7 @@ import config
 
 
 class Player(arcade.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x: float, y: float):
         super().__init__()
 
         # Временный квадрат вместо спрайта
@@ -21,7 +21,7 @@ class Player(arcade.Sprite):
         self.move_direction_x = 0
         self.move_direction_y = 0
 
-    def update(self):
+    def update(self) -> None:
         # Применяем ускорение в направлении движения
         if self.move_direction_x != 0:
             self.change_x += self.move_direction_x * self.acceleration
