@@ -59,16 +59,16 @@ class GameView(arcade.View):
         # Передвижение игрока
         if key == arcade.key.W:
             self.player.move_direction_y = 1
-        elif key == arcade.key.S:
+        if key == arcade.key.S:
             self.player.move_direction_y = -1
-        elif key == arcade.key.A:
+        if key == arcade.key.A:
             self.player.move_direction_x = -1
-        elif key == arcade.key.D:
+        if key == arcade.key.D:
             self.player.move_direction_x = 1
 
         # Взаимодействия с интерфейсом
         # Пауза
-        elif key == arcade.key.ESCAPE:
+        if key == arcade.key.ESCAPE:
             from views import PauseView
             pause = PauseView(self)
             self.window.show_view(pause)
@@ -76,5 +76,5 @@ class GameView(arcade.View):
     def on_key_release(self, key, modifiers):
         if key in (arcade.key.W, arcade.key.S):
             self.player.move_direction_y = 0
-        elif key in (arcade.key.A, arcade.key.D):
+        if key in (arcade.key.A, arcade.key.D):
             self.player.move_direction_x = 0
