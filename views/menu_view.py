@@ -1,10 +1,11 @@
-"""
-Главное меню игры
-"""
 import arcade
+
 from views import GameView
 
 
+"""
+Главное меню игры
+"""
 class MenuView(arcade.View):
 
     def on_show_view(self):
@@ -41,9 +42,12 @@ class MenuView(arcade.View):
         )
 
     def on_key_press(self, key, modifiers):
+        # Перейти в игру
         if key == arcade.key.ENTER:
             game_view = GameView()
             game_view.setup()
             self.window.show_view(game_view)
+
+        # выйти из игры
         elif key == arcade.key.ESCAPE:
             arcade.close_window()
