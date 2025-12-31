@@ -51,7 +51,7 @@ class GameView(arcade.View):
         )
 
     def on_update(self, delta_time: float) -> None:
-        self.player.update()
+        self.player.update(delta_time)
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.04)
 
