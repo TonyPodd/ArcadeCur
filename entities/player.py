@@ -27,7 +27,7 @@ class Player(arcade.Sprite):
         self.last_direction_x = None  # 'left' или 'right'
         self.last_direction_y = None  # 'up' или 'down'
 
-    def update(self) -> None:
+    def update(self, delta_time: float) -> None:
         move_direction_x = 0
         if self.direction['right'] and self.direction['left']:
             # Обе клавиши нажаты - используем последнюю
@@ -51,5 +51,5 @@ class Player(arcade.Sprite):
         elif self.direction['down']:
             move_direction_y = -1
 
-        self.change_x = move_direction_x * self.max_speed
-        self.change_y = move_direction_y * self.max_speed
+        self.change_x = move_direction_x * self.max_speed * delta_time
+        self.change_y = move_direction_y * self.max_speed * delta_time
