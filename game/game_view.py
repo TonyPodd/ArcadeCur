@@ -2,6 +2,7 @@ import arcade
 
 from entities import Player, Wall
 from systems import PhysicsSystem, GameCamera
+from scripts import load_level
 import config
 
 
@@ -22,9 +23,13 @@ class GameView(arcade.View):
         # other sprites
         self.enemy_sprites = arcade.SpriteList()
         self.item_sprites = arcade.SpriteList()
-        self.wall_sprites = arcade.SpriteList()
+        
+        # Загрузка тестого уровня
+        self.objects = load_level('test')
+        self.wall_sprites = self.objects['wall']
+        self.floor_sprites = self.objects['floor']
 
-        # пока что просто коллизи со стенами
+        # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
 
     def on_draw(self):
