@@ -53,3 +53,6 @@ class Player(arcade.Sprite):
 
         self.change_x = move_direction_x * self.max_speed * delta_time
         self.change_y = move_direction_y * self.max_speed * delta_time
+
+    def do_roll(self):
+        pass

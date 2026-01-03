@@ -74,6 +74,10 @@ class GameView(arcade.View):
         if key == arcade.key.D:
             self.player.direction['right'] = True
             self.player.last_direction_x = 'right'
+        
+        # дэш/перекат
+        if key == arcade.key.LCTRL:
+            self.player.do_roll()
 
         # Взаимодействия с интерфейсом
         # Пауза
