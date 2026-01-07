@@ -54,7 +54,7 @@ class GameView(arcade.View):
             arcade.color.WHITE,
             14
         )
-
+        
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
         self.physics_system.update()
@@ -75,9 +75,10 @@ class GameView(arcade.View):
             self.player.direction['right'] = True
             self.player.last_direction_x = 'right'
         
-        # дэш/перекат
-        if key == arcade.key.LCTRL:
-            self.player.do_roll()
+        # дэш/перекат/рывок
+        if key == arcade.key.LCTRL and not self.player.is_roll:
+            if self.player.direction['left'] or self.player.direction['right'] or self.player.direction['up'] or self.player.direction['down']:
+                self.player.do_roll()
 
         # Взаимодействия с интерфейсом
         # Пауза
