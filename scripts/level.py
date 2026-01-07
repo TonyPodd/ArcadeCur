@@ -14,13 +14,26 @@ def load_level(level_type: str='start', num_room: int=2) -> dict:
     num_room - количество комнат на уравле, не считая лифт и комнату босса
     """
     # Спрайты всех объектов комнаты
-    object_data = {
-        'floor': arcade.SpriteList(),
-        'wall': arcade.SpriteList(),
-    }
-    
+    object_data = {}
+
     # загрузка спрайтов с лифта
+    objects_from_room = load_room('elevator', 'elevator', 0, 0)
+    for key in objects_from_room:
+        if key not in object_data:
+            object_data[key] = arcade.SpriteList()
+        for sprite in objects_from_room[key].sprite_list:
+            object_data[key].append(sprite)
     
+    # загрузка спрайтов с комнаты босса
+    objects_from_room = load_room('test', 'boss', 700, 700)
+    for key in objects_from_room:
+        if key not in object_data:
+            object_data[key] = arcade.SpriteList()
+        for sprite in objects_from_room[key].sprite_list:
+            object_data[key].append(sprite)
+    
+    # загрузка спрайтов с комнат
+
     return object_data
 
 
@@ -41,6 +54,7 @@ def load_room(name: str, room_type: str='fight', dx: float=0.0, dy: float=0.0) -
         
         for line in reader:
             text_map.append(line)
+        text_map = text_map[::-1]
     
     # Спрайты всех объектов комнаты
     object_data = {
