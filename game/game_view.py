@@ -77,7 +77,8 @@ class GameView(arcade.View):
         
         # дэш/перекат/рывок
         if key == arcade.key.LCTRL and not self.player.is_roll:
-            if self.player.direction['left'] or self.player.direction['right'] or self.player.direction['up'] or self.player.direction['down']:
+            if self.player.direction['left'] or self.player.direction['right'] \
+                or self.player.direction['up'] or self.player.direction['down']:
                 self.player.do_roll()
 
         # Взаимодействия с интерфейсом

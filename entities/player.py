@@ -71,9 +71,9 @@ class Player(arcade.Sprite):
             self.change_y = self.roll_speed * self.roll_direction['y'] * delta_time
             self.roll_timer -= delta_time
             
-            if move_direction_x == 1:
+            if self.roll_direction['x'] == 1:
                 self.angle += 20
-            elif move_direction_x == -1:
+            elif self.roll_direction['x'] == -1:
                 self.angle -= 20
             else:
                 self.angle += 20
