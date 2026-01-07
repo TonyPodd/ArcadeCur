@@ -25,7 +25,7 @@ class GameView(arcade.View):
         self.item_sprites = arcade.SpriteList()
         
         # Загрузка тестого уровня
-        self.objects = load_level('test')
+        self.objects = load_level('elevator')
         self.wall_sprites = self.objects['wall']
         self.floor_sprites = self.objects['floor']
 
