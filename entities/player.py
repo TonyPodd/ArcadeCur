@@ -22,6 +22,15 @@ class Player(arcade.Sprite):
             'up': False,
             'down': False
         }
+        
+        # Перекат
+        self.is_roll = False
+        self.roll_speed = config.PLAYER_ROLL_SPEED
+        self.roll_timer = config.PLAYER_ROLL_TIMER
+        self.roll_direction = {
+            'x': 0,  # Направление переката по X
+            'y': 0   # Направление переката по Y
+        }
 
         # Последнее нажатое направление
         self.last_direction_x = None  # 'left' или 'right'
@@ -51,8 +60,44 @@ class Player(arcade.Sprite):
         elif self.direction['down']:
             move_direction_y = -1
 
-        self.change_x = move_direction_x * self.max_speed * delta_time
-        self.change_y = move_direction_y * self.max_speed * delta_time
-
+        # передвижение
+        if not self.is_roll:
+            self.change_x = move_direction_x * self.max_speed * delta_time
+            self.change_y = move_direction_y * self.max_speed * delta_time
+        
+        # перекат
+        elif self.is_roll:
+            self.change_x = self.roll_speed * self.roll_direction['x'] * delta_time
+            self.change_y = self.roll_speed * self.roll_direction['y'] * delta_time
+            self.roll_timer -= delta_time
+            
+            if move_direction_x == 1:
+                self.angle += 20
+            elif move_direction_x == -1:
+                self.angle -= 20
+            else:
+                self.angle += 20
+            
+            if self.roll_timer <= 0:
+                self.roll_timer = config.PLAYER_ROLL_TIMER
+                self.is_roll = False
+                self.angle = 0
+    
     def do_roll(self):
-        pass
+        # Определяем направление по X
+        if self.direction['left']:
+            self.roll_direction['x'] = -1
+        elif self.direction['right']:
+            self.roll_direction['x'] = 1
+        else:
+            self.roll_direction['x'] = 0
+        
+        # Определяем направление по Y
+        if self.direction['up']:
+            self.roll_direction['y'] = 1
+        elif self.direction['down']:
+            self.roll_direction['y'] = -1
+        else:
+            self.roll_direction['y'] = 0
+    
+        self.is_roll = True
