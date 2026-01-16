@@ -37,28 +37,7 @@ class Player(arcade.Sprite):
         self.last_direction_y = None  # 'up' или 'down'
 
     def update(self, delta_time: float) -> None:
-        move_direction_x = 0
-        if self.direction['right'] and self.direction['left']:
-            # Обе клавиши нажаты - используем последнюю
-            if self.last_direction_x == 'right':
-                move_direction_x = 1
-            elif self.last_direction_x == 'left':
-                move_direction_x = -1
-        elif self.direction['right']:
-            move_direction_x = 1
-        elif self.direction['left']:
-            move_direction_x = -1
-
-        move_direction_y = 0
-        if self.direction['up'] and self.direction['down']:
-            if self.last_direction_y == 'up':
-                move_direction_y = 1
-            elif self.last_direction_y == 'down':
-                move_direction_y = -1
-        elif self.direction['up']:
-            move_direction_y = 1
-        elif self.direction['down']:
-            move_direction_y = -1
+        move_direction_x, move_direction_y = self.move()
 
         # передвижение
         if not self.is_roll:
@@ -101,3 +80,31 @@ class Player(arcade.Sprite):
             self.roll_direction['y'] = 0
     
         self.is_roll = True
+    
+    def move(self) -> tuple[int, int]:
+        """ Определет направления игрока """
+        move_direction_x, move_direction_y = 0, 0
+        
+        if self.direction['right'] and self.direction['left']:
+            # Обе клавиши нажаты - используем последнюю
+            if self.last_direction_x == 'right':
+                move_direction_x = 1
+            elif self.last_direction_x == 'left':
+                move_direction_x = -1
+        elif self.direction['right']:
+            move_direction_x = 1
+        elif self.direction['left']:
+            move_direction_x = -1
+
+        move_direction_y = 0
+        if self.direction['up'] and self.direction['down']:
+            if self.last_direction_y == 'up':
+                move_direction_y = 1
+            elif self.last_direction_y == 'down':
+                move_direction_y = -1
+        elif self.direction['up']:
+            move_direction_y = 1
+        elif self.direction['down']:
+            move_direction_y = -1
+        
+        return (move_direction_x, move_direction_y)
