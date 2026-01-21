@@ -20,3 +20,6 @@ ENEMY_SPEED = 120
 VIEWPORT_MARGIN = 200
 
 FPS = 60
+
+LEVEL_SIZE = (10, 10)  # Размер карты чанков
+CHUNCK_SIZE = (16, 16)  # размер одного чанка
