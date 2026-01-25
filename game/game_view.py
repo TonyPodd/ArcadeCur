@@ -25,9 +25,9 @@ class GameView(arcade.View):
         self.item_sprites = arcade.SpriteList()
         
         # Загрузка тестого уровня
-        self.objects = Level('start')
-
-        self.wall_sprites = arcade.SpriteList()
+        self.current_level = Level('start')
+        self.all_sprites = self.current_level.get_sprites()
+        self.wall_sprites = self.all_sprites['wall']
     
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
