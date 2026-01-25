@@ -41,6 +41,8 @@ class Room:
         # координаты первого тайла в чанке
         tile_x, tile_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
 
+        print(f'Создана дверь комнаты №{self.room_number} направление: {dir}, координаты чанка: x={x} y={y}\n')
+
     def create_corner_walls(self):
         for y in range(len(self.text_map)):
             for x in range(len(self.text_map[y])):
@@ -80,6 +82,10 @@ class Room:
                         None, 1, wall_x, wall_y + TILE_SIZE * (CHUNCK_SIZE[1] - 1)
                     ))
 
+        print(f'Угловые стены комнаты №{self.room_number} созданы\n')
+
     def create_wall(self, x: int, y: int, dir: str) -> None:
         # координаты первого тайла в чанке
         tile_x, tile_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
+
+        print(f'Создана стена комнаты №{self.room_number} направление: {dir}, координаты чанка: x={x} y={y}\n')
