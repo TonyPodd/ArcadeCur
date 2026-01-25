@@ -43,6 +43,62 @@ class Room:
         # координаты первого тайла в чанке
         tile_x, tile_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
 
+        # Сдвиги координат начального тайла
+        if dir == 'right':
+            tile_x += (CHUNCK_SIZE[0] - 1) * TILE_SIZE
+        if dir == 'up':
+            tile_y += (CHUNCK_SIZE[1] - 1) * TILE_SIZE
+
+        if dir in ['right', 'left']:
+            door_lenth = 4
+            wall_lenth = (CHUNCK_SIZE[1] - 2 - door_lenth) // 2
+            
+            # нижняя стена
+            for i in range(wall_lenth):
+                tile_y += TILE_SIZE
+                self.all_sprites['wall'].append(Wall(
+                    None, 1, tile_x, tile_y
+                ))
+
+            # дверь
+            for i in range(door_lenth):
+                tile_y += TILE_SIZE
+                self.all_sprites['door'].append(Door(
+                    1, tile_x, tile_y
+                ))
+            
+            # верхняя стена
+            for i in range(wall_lenth + door_lenth, CHUNCK_SIZE[1] - 2):
+                tile_y += TILE_SIZE
+                self.all_sprites['wall'].append(Wall(
+                    None, 1, tile_x, tile_y
+                ))
+        
+        if dir in ['up', 'down']:
+            door_lenth = 4
+            wall_lenth = (CHUNCK_SIZE[0] - 2 - door_lenth) // 2
+            
+            # левая стена
+            for i in range(wall_lenth):
+                tile_x += TILE_SIZE
+                self.all_sprites['wall'].append(Wall(
+                    None, 1, tile_x, tile_y
+                ))
+
+            # дверь
+            for i in range(door_lenth):
+                tile_x += TILE_SIZE
+                self.all_sprites['door'].append(Door(
+                    1, tile_x, tile_y
+                ))
+            
+            # правая стена
+            for i in range(wall_lenth + door_lenth, CHUNCK_SIZE[1] - 2):
+                tile_x += TILE_SIZE
+                self.all_sprites['wall'].append(Wall(
+                    None, 1, tile_x, tile_y
+                ))
+
     def create_corner_walls(self):
         for y in range(len(self.text_map)):
             for x in range(len(self.text_map[y])):
@@ -96,7 +152,6 @@ class Room:
         # Сдвиги координат начального тайла
         if dir == 'right':
             tile_x += (CHUNCK_SIZE[0] - 1) * TILE_SIZE
-            print(self.room_number)
         if dir == 'up':
             tile_y += (CHUNCK_SIZE[1] - 1) * TILE_SIZE
 
