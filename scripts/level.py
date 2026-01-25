@@ -72,9 +72,7 @@ class Level:
             )
 
             self.current_room += 1  # новый номер для ледующей комнаты
-    
-        for i in self.text_map:
-            print(i)
+
 
     def create_room(
         self,
@@ -159,8 +157,6 @@ class Level:
                 if x1 + j >= 0 and x2 + j < LEVEL_SIZE[0] and y3 + i >= 0 and y4 + i < LEVEL_SIZE[1]:
                     if self.text_map[y1][x1] == 0 and self.text_map[y2][x2] == 0 and self.text_map[y3][x3] == 0 and self.text_map[y4][x4] == 0:
                         output.append([(x1, y1), (x2, y2), (x3, y3), (x4, y4)])
-        
-        print(output)
 
         return output
 
