@@ -11,7 +11,7 @@ class Level:
         self.level_type = level_type  # Тип уровня 
 
         # Спрайты всех объектов комнаты
-        self.object_data = {}
+        self.all_sprites = dict()
 
         # Карта чанков
         self.text_map = list()
@@ -34,6 +34,8 @@ class Level:
         self.load_rooms()
         # Загрузка стен и дверей
         self.load_walls_and_doors()
+        # Загрузка спрайтов с комнат
+        self.load_sprites()
 
     def load_rooms(self):
         """ Функция случайной загруски комнат """
@@ -72,7 +74,6 @@ class Level:
             )
 
             self.current_room += 1  # новый номер для ледующей комнаты
-
 
     def create_room(
         self,
@@ -242,3 +243,15 @@ class Level:
                         elif (dx, dy, dir) not in pathes:
                             room.create_door(dx, dy, dir)
 
+    def load_sprites(self):
+        for room_num in self.rooms:
+            room_sprites = self.rooms[room_num].get_sprites()
+            for key in room_sprites:
+                if key not in self.all_sprites:
+                    self.all_sprites[key] = room_sprites[key]
+                else:
+                    for sprite in room_sprites[key].sprite_list:
+                        self.all_sprites[key].append(sprite)
+
+    def get_sprites(self):
+        return self.all_sprites
