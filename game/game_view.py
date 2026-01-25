@@ -2,7 +2,7 @@ import arcade
 
 from entities import Player, Wall
 from systems import PhysicsSystem, GameCamera
-from scripts import load_level
+from scripts import Level
 import config
 
 
@@ -25,10 +25,10 @@ class GameView(arcade.View):
         self.item_sprites = arcade.SpriteList()
         
         # Загрузка тестого уровня
-        self.objects = load_level('elevator')
-        self.wall_sprites = self.objects['wall']
-        self.floor_sprites = self.objects['floor']
+        self.objects = Level('start')
 
+        self.wall_sprites = arcade.SpriteList()
+    
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
 
@@ -54,7 +54,7 @@ class GameView(arcade.View):
             arcade.color.WHITE,
             14
         )
-        
+
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
         self.physics_system.update()
