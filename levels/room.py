@@ -47,7 +47,7 @@ class Room:
         for y in range(len(self.text_map)):
             for x in range(len(self.text_map[y])):
                 if y == 0:
-                    wall_x, wall_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (CHUNCK_SIZE[1] - 1)
+                    wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (CHUNCK_SIZE[1] - 1)
                     self.all_sprites['wall'].append(Wall(
                         None, 1, wall_x, wall_y
                     ))
@@ -56,7 +56,7 @@ class Room:
                     ))
                     
                 if y == len(self.text_map) - 1:
-                    wall_x, wall_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
+                    wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE
                     self.all_sprites['wall'].append(Wall(
                         None, 1, wall_x, wall_y
                     ))
@@ -65,7 +65,7 @@ class Room:
                     ))
                 
                 if x == 0:
-                    wall_x, wall_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
+                    wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE
                     self.all_sprites['wall'].append(Wall(
                         None, 1, wall_x, wall_y
                     ))
@@ -74,7 +74,7 @@ class Room:
                     ))
 
                 if x == len(self.text_map[y]) - 1:
-                    wall_x, wall_y = x * CHUNCK_SIZE[0] * TILE_SIZE + (CHUNCK_SIZE[0] - 1) * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
+                    wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE + (CHUNCK_SIZE[0] - 1) * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE
                     self.all_sprites['wall'].append(Wall(
                         None, 1, wall_x, wall_y
                     ))
@@ -88,4 +88,24 @@ class Room:
         # координаты первого тайла в чанке
         tile_x, tile_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
 
+        # Сдвиги координат начального тайла
+        if dir == 'rgiht':
+            tile_x += (CHUNCK_SIZE[0] - 1) * TILE_SIZE
+        if dir == 'up':
+            tile_y += (CHUNCK_SIZE[1] - 1) * TILE_SIZE
+
+        if dir in ['right', 'left']:
+            for i in range(CHUNCK_SIZE[1] - 2):
+                tile_y += TILE_SIZE
+                self.all_sprites['wall'].append(Wall(
+                    None, 1, tile_x, tile_y
+                ))
+        
+        if dir in ['up', 'down']:
+            for j in range(CHUNCK_SIZE[0] - 2):
+                tile_x += TILE_SIZE
+                self.all_sprites['wall'].append(Wall(
+                    None, 1, tile_x, tile_y
+                ))
+        
         print(f'Создана стена комнаты №{self.room_number} направление: {dir}, координаты чанка: x={x} y={y}\n')
