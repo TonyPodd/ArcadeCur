@@ -30,6 +30,7 @@ class GameView(arcade.View):
         self.player = Player(spawn_coords[0], spawn_coords[1])
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player)
+        self.camera.set_position(spawn_coords[0], spawn_coords[1])
     
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.wall_sprites)

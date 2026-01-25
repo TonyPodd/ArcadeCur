@@ -19,13 +19,14 @@ class Level:
         self.text_map = list()
         for i in range(CHUNCK_SIZE[1]):
             self.text_map.append(list())
+
             for j in range(CHUNCK_SIZE[0]):
                 self.text_map[i].append(0)
                 # 0 - Пустой чанк
 
         self.rooms = dict()    # Все комнаты
         self.current_room = 1  # номер текущей комнаты
-        self.room_path = dict()
+        self.room_path = dict()  # Проходы между комнатами
         self.number_of_rooms = {  # количество комнат определённого типа
             'fight': 0,
             'loot': 0,
@@ -39,6 +40,7 @@ class Level:
         # Загрузка спрайтов с комнат
         self.load_sprites()
         
+        # Вывод карты чанков и проходов между комнатами
         for i in self.text_map[::-1]:
             print(i)
         print(self.room_path)
@@ -47,20 +49,20 @@ class Level:
         """ Функция случайной загруски комнат """
 
         # Стартовая комната (лифт)
-        x, y = random.randint(0, LEVEL_SIZE[0] - 1), random.randint(0, LEVEL_SIZE[1] - 1)
-        self.spawn_coords = (x * CHUNCK_SIZE[0] * TILE_SIZE + 100, y * CHUNCK_SIZE[1] * TILE_SIZE + 100)
-
-        self.create_room(
+        x, y = self.create_room(
             'spawn',
             self.current_room,
-            x, y
+            random.randint(0, LEVEL_SIZE[0] - 1),
+            random.randint(0, LEVEL_SIZE[1] - 1)
         )
+        self.spawn_coords = (x * CHUNCK_SIZE[0] * TILE_SIZE + 100, y * CHUNCK_SIZE[1] * TILE_SIZE + 100)
         self.room_path[self.current_room] = list()
         self.current_room += 1
         
         # Выбираем положение комнат чанков
-        for i in range(random.randint(6, 13)):
+        for i in range(random.randint(8, 13)):
             x, y, possible_directions = self.choose_dir(x, y)  # Ищем новый путь для комнаты
+            print(x, y)
             dir = random.choice(possible_directions)  # выбираем, в каком направление будет следующая комната
             room_num_from = self.text_map[y][x]  # номер комнаты из которой будем переходить в следующую
 
@@ -73,7 +75,7 @@ class Level:
                 room_type = random.choice(['fight', 'loot'])
             self.number_of_rooms[room_type] += 1
             
-            self.create_room(
+            x, y = self.create_room(
                 room_type,
                 self.current_room,
                 x, y,
@@ -113,6 +115,7 @@ class Level:
             )
             self.text_map[y_from][x_from] = current_room_number
             self.room_path[current_room_number] = list()
+
             print(f'Создана комната №{current_room_number}\n')
             return (x_from, y_from)
 
@@ -147,7 +150,8 @@ class Level:
             
             # Заполнение чанков
             for coords in size:
-                x, y = coords[0], coords[1]
+                x = coords[0]
+                y = coords[1]
                 self.text_map[y][x] = current_room_number
 
             # Создание комнаты
@@ -160,7 +164,8 @@ class Level:
 
     def check_room_size(self, x: int, y: int) -> list[list[tuple]]:
         """
-        Проверка: какие размеры комнаты могут быть
+        Проверка: какие размеры комнаты могут быть\n
+        x, y - координаты будущей комнаты\n 
         """
 
         output = [[(x, y)]]
@@ -173,6 +178,7 @@ class Level:
                 if x1 >= 0 and x2 < LEVEL_SIZE[0] and y3 >= 0 and y4 < LEVEL_SIZE[1]:
                     if self.text_map[y1][x1] == 0 and self.text_map[y2][x2] == 0 and self.text_map[y3][x3] == 0 and self.text_map[y4][x4] == 0:
                         output.append([(x1, y1), (x2, y2), (x3, y3), (x4, y4)])
+        print(output)
         return output
 
     def choose_dir(self, x: int, y: int) -> tuple[int, int, list]:
@@ -189,11 +195,11 @@ class Level:
             possible_directions.append('right')
 
         # up
-        if self.text_map[y + 1][x] == 0 and y + 1 >= 0:
+        if self.text_map[y + 1][x] == 0 and y + 1 < LEVEL_SIZE[1]:
             possible_directions.append('up')
 
         # down
-        if self.text_map[y - 1][x] == 0 and y - 1 < LEVEL_SIZE[1]:
+        if self.text_map[y - 1][x] == 0 and y - 1 >= 0:
             possible_directions.append('down')
 
         if possible_directions:
@@ -220,7 +226,7 @@ class Level:
                         dy = y
                         dir = 'left'
 
-                        if (x, y, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
+                        if ((x, y, dir) not in pathes and self.text_map[dy][dx] != current_room_number) or self.text_map[dy][dx] == 0:
                             room.create_wall(x, y, dir)
                         elif (x, y, dir) in pathes:
                             room.create_door(x, y, dir)
@@ -269,6 +275,7 @@ class Level:
         print('Загрузка дверей и стен закончилась\n')
 
     def load_sprites(self):
+        """ Загрузка спрайтов со всех комнат """
         for room_num in self.rooms:
             room_sprites = self.rooms[room_num].get_sprites()
             for key in room_sprites:

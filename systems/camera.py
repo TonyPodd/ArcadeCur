@@ -33,3 +33,10 @@ class GameCamera:
     def zoom(self, zoom_level):
         # TODO: Реализовать масштабирование
         ...
+
+    def set_position(self, x, y):
+        self.camera.position = arcade.math.lerp_2d(
+            self.camera.position,
+            (x, y),
+            1
+        )
