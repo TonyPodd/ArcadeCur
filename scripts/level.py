@@ -213,6 +213,8 @@ class Level:
                             room.create_wall(dx, dy, dir)
                         elif (dx, dy, dir) not in pathes:
                             room.create_door(dx, dy, dir)
+                    else:
+                        room.create_wall(x - 1, y, 'left')
                     
                     # right
                     if x + 1 < LEVEL_SIZE[0]:
@@ -224,6 +226,8 @@ class Level:
                             room.create_wall(dx, dy, dir)
                         elif (dx, dy, dir) not in pathes:
                             room.create_door(dx, dy, dir)
+                    else:
+                        room.create_wall(x + 1, y, 'right')
                     
                     # up
                     if y - 1 >= 0:
@@ -235,6 +239,8 @@ class Level:
                             room.create_wall(dx, dy, dir)
                         elif (dx, dy, dir) not in pathes:
                             room.create_door(dx, dy, dir)
+                    else:
+                        room.create_wall(x, y - 1, 'up')
                     
                     # down
                     if y + 1 < LEVEL_SIZE[1]:
@@ -246,6 +252,8 @@ class Level:
                             room.create_wall(dx, dy, dir)
                         elif (dx, dy, dir) not in pathes:
                             room.create_door(dx, dy, dir)
+                    else:
+                        room.create_wall(x, y + 1, 'down')
 
         print('Загрузка дверей и стен закончилась\n')
 
