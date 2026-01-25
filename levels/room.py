@@ -174,9 +174,9 @@ class Room:
             for x in range(len(self.text_map[y])):
                 chunck_x, chunck_y = self.text_map[y][x]
                 
-                for i in range(CHUNCK_SIZE[1] - 2):
-                    for j in range(CHUNCK_SIZE[0] - 2):
-                        tile_x = chunck_x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE + TILE_SIZE * j
-                        tile_y = chunck_y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE + TILE_SIZE * i
+                for i in range(CHUNCK_SIZE[1]):
+                    for j in range(CHUNCK_SIZE[0]):
+                        tile_x = chunck_x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE * j
+                        tile_y = chunck_y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * i
                         floor = Floor(None, 1, tile_x, tile_y)
                         self.all_sprites['floor'].append(floor)
