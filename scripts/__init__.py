@@ -1,1 +1,1 @@
-from .level import load_level
+from .level import Level

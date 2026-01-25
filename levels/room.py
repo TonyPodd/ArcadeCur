@@ -3,7 +3,7 @@ import arcade
 from config import *
 
 class Room:
-    def __init__(self, room_type: str, room_number: int, x: int, y: int):
+    def __init__(self, room_type: str, room_number: int, x: int, y: int, rooms_coords: tuple[tuple]):
         self.x = x
         self.y = y
         self.room_type = room_type
@@ -12,8 +12,8 @@ class Room:
     def get_sprites(self):
         pass
 
-    def create_door(self):
+    def create_door(self, x: int, y: int, dir: str) -> None:
         pass
 
-    def create_wall(self):
+    def create_wall(self, x: int, y: int, dir: str) -> None:
         pass

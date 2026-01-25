@@ -21,5 +21,5 @@ VIEWPORT_MARGIN = 200
 
 FPS = 60
 
-LEVEL_SIZE = (10, 10)  # Размер карты чанков
+LEVEL_SIZE = (10, 10)  # Размер карты чанков [x, y]
 CHUNCK_SIZE = (16, 16)  # размер одного чанка
