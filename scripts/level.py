@@ -12,6 +12,8 @@ class Level:
 
         # Спрайты всех объектов комнаты
         self.all_sprites = dict()
+        
+        self.spawn_coords = None
 
         # Карта чанков
         self.text_map = list()
@@ -42,6 +44,7 @@ class Level:
 
         # Стартовая комната (лифт)
         x, y = random.randint(0, LEVEL_SIZE[0] - 1), random.randint(0, LEVEL_SIZE[1] - 1)
+        self.spawn_coords = (x * CHUNCK_SIZE[0] * TILE_SIZE + 100, y * CHUNCK_SIZE[1] * TILE_SIZE + 100)
         self.create_room(
             'spawn',
             self.current_room,
@@ -270,3 +273,6 @@ class Level:
 
     def get_sprites(self):
         return self.all_sprites
+
+    def get_spawn_coords(self) -> tuple[int, int]:
+        return self.spawn_coords
