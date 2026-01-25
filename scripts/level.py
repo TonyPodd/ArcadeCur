@@ -12,7 +12,7 @@ class Level:
 
         # Спрайты всех объектов комнаты
         self.all_sprites = dict()
-        
+
         self.spawn_coords = None
 
         # Карта чанков
@@ -38,6 +38,10 @@ class Level:
         self.load_walls_and_doors()
         # Загрузка спрайтов с комнат
         self.load_sprites()
+        
+        for i in self.text_map[::-1]:
+            print(i)
+        print(self.room_path)
 
     def load_rooms(self):
         """ Функция случайной загруски комнат """
@@ -45,6 +49,7 @@ class Level:
         # Стартовая комната (лифт)
         x, y = random.randint(0, LEVEL_SIZE[0] - 1), random.randint(0, LEVEL_SIZE[1] - 1)
         self.spawn_coords = (x * CHUNCK_SIZE[0] * TILE_SIZE + 100, y * CHUNCK_SIZE[1] * TILE_SIZE + 100)
+
         self.create_room(
             'spawn',
             self.current_room,
@@ -54,7 +59,7 @@ class Level:
         self.current_room += 1
         
         # Выбираем положение комнат чанков
-        for i in range(random.randint(6, 11)):
+        for i in range(random.randint(6, 13)):
             x, y, possible_directions = self.choose_dir(x, y)  # Ищем новый путь для комнаты
             dir = random.choice(possible_directions)  # выбираем, в каком направление будет следующая комната
             room_num_from = self.text_map[y][x]  # номер комнаты из которой будем переходить в следующую
@@ -88,7 +93,7 @@ class Level:
         y_from: int,
         room_number_from: int=None,
         direction: str=None
-        ) -> None:
+        ) -> tuple[int, int]:
         """
         Создание комнаты\n
         room_type - тип комнаты(fight/loot/shop/boss/spawn) \n
@@ -104,10 +109,12 @@ class Level:
                 room_type,
                 current_room_number,
                 x_from, y_from,
-                ((x_from, y_from))
+                [(x_from, y_from)]
             )
             self.text_map[y_from][x_from] = current_room_number
             self.room_path[current_room_number] = list()
+            print(f'Создана комната №{current_room_number}\n')
+            return (x_from, y_from)
 
         # остольные комнаты
         else:
@@ -123,12 +130,12 @@ class Level:
                 self.room_path[room_number_from].append((x_from, y_from, 'right'))
 
             if direction == 'up':
-                next_x, next_y = x_from, y_from - 1
+                next_x, next_y = x_from, y_from + 1
                 self.room_path[current_room_number] = [(next_x, next_y, 'down')]
                 self.room_path[room_number_from].append((x_from, y_from, 'up'))
 
             if direction == 'down':
-                next_x, next_y = x_from, y_from + 1
+                next_x, next_y = x_from, y_from - 1
                 self.room_path[current_room_number] = [(next_x, next_y, 'up')]
                 self.room_path[room_number_from].append((x_from, y_from, 'down'))
             
@@ -147,8 +154,9 @@ class Level:
             self.rooms[current_room_number] = Room(
                 room_type, current_room_number, next_x, next_y, size
             )
-        
+
         print(f'Создана комната №{current_room_number}\n')
+        return (next_x, next_y)
 
     def check_room_size(self, x: int, y: int) -> list[list[tuple]]:
         """
@@ -181,11 +189,11 @@ class Level:
             possible_directions.append('right')
 
         # up
-        if self.text_map[y - 1][x] == 0 and y - 1 >= 0:
+        if self.text_map[y + 1][x] == 0 and y + 1 >= 0:
             possible_directions.append('up')
 
         # down
-        if self.text_map[y + 1][x] == 0 and y + 1 < LEVEL_SIZE[1]:
+        if self.text_map[y - 1][x] == 0 and y - 1 < LEVEL_SIZE[1]:
             possible_directions.append('down')
 
         if possible_directions:
@@ -212,12 +220,12 @@ class Level:
                         dy = y
                         dir = 'left'
 
-                        if (dx, dy, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
-                            room.create_wall(dx, dy, dir)
-                        elif (dx, dy, dir) not in pathes:
-                            room.create_door(dx, dy, dir)
+                        if (x, y, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
+                            room.create_wall(x, y, dir)
+                        elif (x, y, dir) in pathes:
+                            room.create_door(x, y, dir)
                     else:
-                        room.create_wall(x - 1, y, 'left')
+                        room.create_wall(x, y, 'left')
                     
                     # right
                     if x + 1 < LEVEL_SIZE[0]:
@@ -225,38 +233,38 @@ class Level:
                         dy = y
                         dir = 'right'
                         
-                        if (dx, dy, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
-                            room.create_wall(dx, dy, dir)
-                        elif (dx, dy, dir) not in pathes:
-                            room.create_door(dx, dy, dir)
+                        if (x, y, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
+                            room.create_wall(x, y, dir)
+                        elif (x, y, dir) in pathes:
+                            room.create_door(x, y, dir)
                     else:
-                        room.create_wall(x + 1, y, 'right')
+                        room.create_wall(x, y, 'right')
                     
                     # up
-                    if y - 1 >= 0:
-                        dy = y - 1
+                    if y + 1 >= 0:
+                        dy = y + 1
                         dx = x
                         dir = 'up'
                         
-                        if (dx, dy, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
-                            room.create_wall(dx, dy, dir)
-                        elif (dx, dy, dir) not in pathes:
-                            room.create_door(dx, dy, dir)
+                        if (x, y, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
+                            room.create_wall(x, y, dir)
+                        elif (x, y, dir) in pathes:
+                            room.create_door(x, y, dir)
                     else:
-                        room.create_wall(x, y - 1, 'up')
+                        room.create_wall(x, y, 'up')
                     
                     # down
-                    if y + 1 < LEVEL_SIZE[1]:
+                    if y - 1 < LEVEL_SIZE[1]:
                         dy = y - 1
                         dx = x
                         dir = 'down'
                         
-                        if (dx, dy, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
-                            room.create_wall(dx, dy, dir)
-                        elif (dx, dy, dir) not in pathes:
-                            room.create_door(dx, dy, dir)
+                        if (x, y, dir) not in pathes and self.text_map[dy][dx] != current_room_number:
+                            room.create_wall(x, y, dir)
+                        elif (x, y, dir) in pathes:
+                            room.create_door(x, y, dir)
                     else:
-                        room.create_wall(x, y + 1, 'down')
+                        room.create_wall(x, y, 'down')
 
         print('Загрузка дверей и стен закончилась\n')
 

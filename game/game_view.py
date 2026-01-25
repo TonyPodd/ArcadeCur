@@ -15,11 +15,6 @@ class GameView(arcade.View):
         self.camera = GameCamera()  # камера игрока
         self.gui_camera = arcade.camera.Camera2D()  # камера интерфейса
 
-        # Player
-        self.player = Player(100, 100)
-        self.player_list = arcade.SpriteList()
-        self.player_list.append(self.player)
-
         # other sprites
         self.enemy_sprites = arcade.SpriteList()
         self.item_sprites = arcade.SpriteList()
@@ -28,6 +23,13 @@ class GameView(arcade.View):
         self.current_level = Level('start')
         self.all_sprites = self.current_level.get_sprites()
         self.wall_sprites = self.all_sprites['wall']
+        self.floor_sprites = self.all_sprites['floor']
+
+        # Player
+        spawn_coords = self.current_level.get_spawn_coords()
+        self.player = Player(spawn_coords[0], spawn_coords[1])
+        self.player_list = arcade.SpriteList()
+        self.player_list.append(self.player)
     
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
@@ -38,7 +40,9 @@ class GameView(arcade.View):
         # Отрисовка игрового мира с камерой
         self.camera.use()
 
+        self.floor_sprites.draw_hit_boxes(arcade.color.BLUE)
         self.wall_sprites.draw()
+        self.wall_sprites.draw_hit_boxes(arcade.color.RED)
         self.item_sprites.draw()
         self.enemy_sprites.draw()
         self.player_list.draw()

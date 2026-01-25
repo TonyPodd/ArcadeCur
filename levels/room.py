@@ -1,7 +1,7 @@
 import arcade
 
 from config import *
-from entities import Door, Wall
+from entities import Door, Wall, Floor
 
 class Room:
     def __init__(self, room_type: str, room_number: int, x: int, y: int, rooms_coords: tuple[tuple]):
@@ -33,6 +33,8 @@ class Room:
 
         # Загрузка угловых стен в чанка
         self.create_corner_walls()
+        # Загрузка пола
+        self.create_floor()
 
     def get_sprites(self):
         return self.all_sprites
@@ -41,21 +43,12 @@ class Room:
         # координаты первого тайла в чанке
         tile_x, tile_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
 
-        print(f'Создана дверь комнаты №{self.room_number} направление: {dir}, координаты чанка: x={x} y={y}\n')
-
     def create_corner_walls(self):
         for y in range(len(self.text_map)):
             for x in range(len(self.text_map[y])):
+                
+                # down
                 if y == 0:
-                    wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (CHUNCK_SIZE[1] - 1)
-                    self.all_sprites['wall'].append(Wall(
-                        None, 1, wall_x, wall_y
-                    ))
-                    self.all_sprites['wall'].append(Wall(
-                        None, 1, wall_x + TILE_SIZE * (CHUNCK_SIZE[0] - 1), wall_y
-                    ))
-                    
-                if y == len(self.text_map) - 1:
                     wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE
                     self.all_sprites['wall'].append(Wall(
                         None, 1, wall_x, wall_y
@@ -63,7 +56,18 @@ class Room:
                     self.all_sprites['wall'].append(Wall(
                         None, 1, wall_x + TILE_SIZE * (CHUNCK_SIZE[0] - 1), wall_y
                     ))
-                
+
+                # up
+                if y == len(self.text_map) - 1:
+                    wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (CHUNCK_SIZE[1] - 1)
+                    self.all_sprites['wall'].append(Wall(
+                        None, 1, wall_x, wall_y
+                    ))
+                    self.all_sprites['wall'].append(Wall(
+                        None, 1, wall_x + TILE_SIZE * (CHUNCK_SIZE[0] - 1), wall_y
+                    ))
+
+                # left
                 if x == 0:
                     wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE
                     self.all_sprites['wall'].append(Wall(
@@ -73,6 +77,7 @@ class Room:
                         None, 1, wall_x, wall_y + TILE_SIZE * (CHUNCK_SIZE[1] - 1)
                     ))
 
+                # right
                 if x == len(self.text_map[y]) - 1:
                     wall_x, wall_y = self.text_map[y][x][0] * CHUNCK_SIZE[0] * TILE_SIZE + (CHUNCK_SIZE[0] - 1) * TILE_SIZE, self.text_map[y][x][1] * CHUNCK_SIZE[1] * TILE_SIZE
                     self.all_sprites['wall'].append(Wall(
@@ -89,8 +94,9 @@ class Room:
         tile_x, tile_y = x * CHUNCK_SIZE[0] * TILE_SIZE, y * CHUNCK_SIZE[1] * TILE_SIZE
 
         # Сдвиги координат начального тайла
-        if dir == 'rgiht':
+        if dir == 'right':
             tile_x += (CHUNCK_SIZE[0] - 1) * TILE_SIZE
+            print(self.room_number)
         if dir == 'up':
             tile_y += (CHUNCK_SIZE[1] - 1) * TILE_SIZE
 
@@ -107,5 +113,15 @@ class Room:
                 self.all_sprites['wall'].append(Wall(
                     None, 1, tile_x, tile_y
                 ))
-        
-        print(f'Создана стена комнаты №{self.room_number} направление: {dir}, координаты чанка: x={x} y={y}\n')
+
+    def create_floor(self):
+        for y in range(len(self.text_map)):
+            for x in range(len(self.text_map[y])):
+                chunck_x, chunck_y = self.text_map[y][x]
+                
+                for i in range(CHUNCK_SIZE[1] - 2):
+                    for j in range(CHUNCK_SIZE[0] - 2):
+                        tile_x = chunck_x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE + TILE_SIZE * j
+                        tile_y = chunck_y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE + TILE_SIZE * i
+                        floor = Floor(None, 1, tile_x, tile_y)
+                        self.all_sprites['floor'].append(floor)
