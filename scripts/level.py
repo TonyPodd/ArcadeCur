@@ -74,6 +74,8 @@ class Level:
             )
 
             self.current_room += 1  # новый номер для ледующей комнаты
+        
+        print('Комнаты загружены\n')
 
     def create_room(
         self,
@@ -142,6 +144,8 @@ class Level:
             self.rooms[current_room_number] = Room(
                 room_type, current_room_number, next_x, next_y, size
             )
+        
+        print(f'Создана комната №{current_room_number}\n')
 
     def check_room_size(self, x: int, y: int) -> list[list[tuple]]:
         """
@@ -243,6 +247,8 @@ class Level:
                         elif (dx, dy, dir) not in pathes:
                             room.create_door(dx, dy, dir)
 
+        print('Загрузка дверей и стен закончилась\n')
+
     def load_sprites(self):
         for room_num in self.rooms:
             room_sprites = self.rooms[room_num].get_sprites()
@@ -252,6 +258,7 @@ class Level:
                 else:
                     for sprite in room_sprites[key].sprite_list:
                         self.all_sprites[key].append(sprite)
+        print('Спрайты с комнат загружены\n')
 
     def get_sprites(self):
         return self.all_sprites
