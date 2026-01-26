@@ -1,4 +1,6 @@
 import arcade
+import random
+import csv
 
 from config import *
 from entities import Door, Wall, Floor
@@ -33,8 +35,6 @@ class Room:
 
         # Загрузка угловых стен в чанка
         self.create_corner_walls()
-        # Загрузка пола
-        self.create_floor()
 
     def get_sprites(self):
         """ Получить все спрайты с комнаты """
@@ -192,16 +192,60 @@ class Room:
                     None, 1, tile_x, tile_y
                 ))
 
-    def create_floor(self):
-        """ Создание пола в комнате """
+    def data_from_file(self, room_type: str) -> dict:
+        """
+        Загрузка объектов с комнаты\n
+        room_type - тип комнаты
+        """
+        file_name = f'levels/{room_type}/{random.choice(ROOM_FILE_NAMES[room_type])}'
+        with open(file=file_name, mode='r', encoding='UTF-8') as file:
+            reader = csv.reader(file, delimiter=',')
+            data = list(map(lambda x: list(map(int, x)), list(reader)))
 
-        for y in range(len(self.text_map)):
-            for x in range(len(self.text_map[y])):
-                chunck_x, chunck_y = self.text_map[y][x]
+            for i in range(len(data)):
+                line = data[i]
+        
+        return self.load_sprites_from_data(data)
+    
+    def load_sprites_from_data(self, data: list[list]) -> dict:
+        sprites = {
+            'floor': arcade.SpriteList(),
+            'wall': arcade.SpriteList(), 
+        }
+        
+        for i in range(len(data)):
+            for j in range(len(data[i])):
+                tile_type = data[i][j]
+                tile_x = self.x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE * (j + 1)
+                tile_y = self.y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (i + 1)
                 
-                for i in range(CHUNCK_SIZE[1]):
-                    for j in range(CHUNCK_SIZE[0]):
-                        tile_x = chunck_x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE * j
-                        tile_y = chunck_y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * i
-
-                        self.all_sprites['floor'].append(Floor(None, 1, tile_x, tile_y))
+                if tile_type == 1:
+                    sprites['floor'].append(Floor(
+                        None,
+                        1,
+                        tile_x,
+                        tile_y
+                    ))
+                
+                if tile_type == 2:
+                    sprites['wall'].append(Wall(
+                        None,
+                        1,
+                        tile_x,
+                        tile_y
+                    ))
+        
+        self.add_new_sprites(sprites)
+    
+    def add_new_sprites(self, sprites: dict) -> None:
+        """
+        Добавление новых спрайтов\n
+        sprites - словарь с новыми спрайтами
+        """
+        for sprite_name in sprites:
+            sprite_list = sprites[sprite_name].sprite_list
+            
+            for sprite in sprite_list:
+                if sprite_name not in self.all_sprites:
+                    self.all_sprites[sprite_name] = arcade.SpriteList()
+                self.all_sprites[sprite_name].append(sprite)
