@@ -38,7 +38,7 @@ class Level:
         # Загрузка стен и дверей
         self.load_walls_and_doors()
         # Загрузка спрайтов с комнат
-        self.load_sprites()
+        self.load_sprites_from_rooms()
         
     def load_rooms(self):
         """ Функция случайной загруски комнат """
@@ -50,7 +50,6 @@ class Level:
             random.randint(0, LEVEL_SIZE[0] - 1),
             random.randint(0, LEVEL_SIZE[1] - 1)
         )
-        self.spawn_coords = (x * CHUNCK_SIZE[0] * TILE_SIZE + 100, y * CHUNCK_SIZE[1] * TILE_SIZE + 100)
         self.room_path[self.current_room] = list()
         self.current_room += 1
         
@@ -274,7 +273,7 @@ class Level:
                     else:
                         room.create_wall(x, y, 'down')
 
-    def load_sprites(self):
+    def load_sprites_from_rooms(self):
         """ Загрузка спрайтов со всех комнат """
         for room_num in self.rooms:
             room_sprites = self.rooms[room_num].get_sprites()
@@ -289,4 +288,5 @@ class Level:
         return self.all_sprites
 
     def get_spawn_coords(self) -> tuple[int, int]:
-        return self.spawn_coords
+        spawn_sprite = self.rooms[1].get_spawn()
+        return (spawn_sprite.center_x, spawn_sprite.center_y)
