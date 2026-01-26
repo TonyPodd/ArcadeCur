@@ -161,8 +161,6 @@ class Room:
                         None, 1, wall_x, wall_y + TILE_SIZE * (CHUNCK_SIZE[1] - 1)
                     ))
 
-        print(f'Угловые стены комнаты №{self.room_number} созданы\n')
-
     def create_wall(self, x: int, y: int, dir: str) -> None:
         """
         Функция создание стены в чанке с определнной стороны\n

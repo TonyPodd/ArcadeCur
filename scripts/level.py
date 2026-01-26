@@ -40,11 +40,6 @@ class Level:
         # Загрузка спрайтов с комнат
         self.load_sprites()
         
-        # Вывод карты чанков и проходов между комнатами
-        for i in self.text_map[::-1]:
-            print(i)
-        print(self.room_path)
-
     def load_rooms(self):
         """ Функция случайной загруски комнат """
 
@@ -62,7 +57,6 @@ class Level:
         # Выбираем положение комнат чанков
         for i in range(random.randint(8, 13)):
             x, y, possible_directions = self.choose_dir(x, y)  # Ищем новый путь для комнаты
-            print(x, y)
             dir = random.choice(possible_directions)  # выбираем, в каком направление будет следующая комната
             room_num_from = self.text_map[y][x]  # номер комнаты из которой будем переходить в следующую
 
@@ -85,8 +79,6 @@ class Level:
 
             self.current_room += 1  # новый номер для ледующей комнаты
         
-        print('Комнаты загружены\n')
-
     def create_room(
         self,
         room_type: str,
@@ -116,7 +108,6 @@ class Level:
             self.text_map[y_from][x_from] = current_room_number
             self.room_path[current_room_number] = list()
 
-            print(f'Создана комната №{current_room_number}\n')
             return (x_from, y_from)
 
         # остольные комнаты
@@ -159,7 +150,6 @@ class Level:
                 room_type, current_room_number, next_x, next_y, size
             )
 
-        print(f'Создана комната №{current_room_number}\n')
         return (next_x, next_y)
 
     def check_room_size(self, x: int, y: int) -> list[list[tuple]]:
@@ -178,7 +168,6 @@ class Level:
                 if x1 >= 0 and x2 < LEVEL_SIZE[0] and y3 >= 0 and y4 < LEVEL_SIZE[1]:
                     if self.text_map[y1][x1] == 0 and self.text_map[y2][x2] == 0 and self.text_map[y3][x3] == 0 and self.text_map[y4][x4] == 0:
                         output.append([(x1, y1), (x2, y2), (x3, y3), (x4, y4)])
-        print(output)
         return output
 
     def choose_dir(self, x: int, y: int) -> tuple[int, int, list]:
@@ -272,8 +261,6 @@ class Level:
                     else:
                         room.create_wall(x, y, 'down')
 
-        print('Загрузка дверей и стен закончилась\n')
-
     def load_sprites(self):
         """ Загрузка спрайтов со всех комнат """
         for room_num in self.rooms:
@@ -284,7 +271,6 @@ class Level:
                 else:
                     for sprite in room_sprites[key].sprite_list:
                         self.all_sprites[key].append(sprite)
-        print('Спрайты с комнат загружены\n')
 
     def get_sprites(self):
         return self.all_sprites
