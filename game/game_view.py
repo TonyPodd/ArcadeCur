@@ -2,7 +2,7 @@ import arcade
 
 from entities import Player, Wall
 from systems import PhysicsSystem, GameCamera
-from scripts import Level
+from levels import Level
 import config
 
 
