@@ -17,5 +17,5 @@ class SpawnRoom(Room):
         spawn_y = self.y * CHUNCK_SIZE[1] * TILE_SIZE + (CHUNCK_SIZE[1] * TILE_SIZE) // 2
         self.spawn = Floor(None, 1, spawn_x, spawn_y)
     
-    def get_spawn(self):
+    def get_spawn(self) -> arcade.Sprite:
         return self.all_sprites['spawn']
