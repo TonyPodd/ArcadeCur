@@ -3,7 +3,7 @@ import csv
 import random
 
 from entities import Wall, Floor
-from levels import Room
+from levels import Room, BossRoom, FightRoom, ShopRoom, LootRoom, SpawnRoom
 from config import *
 
 class Level:
