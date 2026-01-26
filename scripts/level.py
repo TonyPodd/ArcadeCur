@@ -3,7 +3,7 @@ import csv
 import random
 
 from entities import Wall, Floor
-from levels import Room, BossRoom, FightRoom, ShopRoom, LootRoom, SpawnRoom
+from rooms import Room, BossRoom, FightRoom, ShopRoom, LootRoom, SpawnRoom
 from config import *
 
 class Level:
@@ -99,7 +99,7 @@ class Level:
 
         # Для создания лифта
         if room_type == 'spawn':
-            self.rooms[current_room_number] = Room(
+            self.rooms[current_room_number] = SpawnRoom(
                 room_type,
                 current_room_number,
                 x_from, y_from,
@@ -109,6 +109,10 @@ class Level:
             self.room_path[current_room_number] = list()
 
             return (x_from, y_from)
+        
+        # Комната босса
+        elif room_type == 'boss':
+            ...
 
         # остольные комнаты
         else:
@@ -146,9 +150,18 @@ class Level:
                 self.text_map[y][x] = current_room_number
 
             # Создание комнаты
-            self.rooms[current_room_number] = Room(
-                room_type, current_room_number, next_x, next_y, size
-            )
+            if room_type == 'shop':
+                self.rooms[current_room_number] = ShopRoom(
+                    room_type, current_room_number, next_x, next_y, size
+                )
+            if room_type == 'loot':
+                 self.rooms[current_room_number] = LootRoom(
+                    room_type, current_room_number, next_x, next_y, size
+                )
+            if room_type == 'fight':
+                 self.rooms[current_room_number] = FightRoom(
+                    room_type, current_room_number, next_x, next_y, size
+                )
 
         return (next_x, next_y)
 
