@@ -21,9 +21,12 @@ class GameView(arcade.View):
         
         # Загрузка тестого уровня
         self.current_level = Level('start')
+
+        # спрайты с уровня
         self.all_sprites = self.current_level.get_sprites()
         self.wall_sprites = self.all_sprites['wall']
         self.floor_sprites = self.all_sprites['floor']
+        self.door_sprites = self.all_sprites['door']
 
         # Player
         spawn_coords = self.current_level.get_spawn_coords()
@@ -41,9 +44,9 @@ class GameView(arcade.View):
         # Отрисовка игрового мира с камерой
         self.camera.use()
 
-        self.floor_sprites.draw_hit_boxes(arcade.color.BLUE)
+        self.floor_sprites.draw()
         self.wall_sprites.draw()
-        self.wall_sprites.draw_hit_boxes(arcade.color.RED)
+        self.door_sprites.draw()
         self.item_sprites.draw()
         self.enemy_sprites.draw()
         self.player_list.draw()
