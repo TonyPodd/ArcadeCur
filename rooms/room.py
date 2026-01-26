@@ -205,7 +205,7 @@ class Room:
             for i in range(len(data)):
                 line = data[i]
         
-        return self.load_sprites_from_data(data)
+        return data
     
     def load_sprites_from_data(self, data: list[list]) -> dict:
         sprites = {
@@ -235,7 +235,7 @@ class Room:
                         tile_y
                     ))
         
-        self.add_new_sprites(sprites)
+        return sprites
     
     def add_new_sprites(self, sprites: dict) -> None:
         """
