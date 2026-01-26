@@ -27,5 +27,6 @@ ROOM_FILE_NAMES = {
     'loot': ['test.cvs'],
     'shop': ['test.cvs'],
     'boss': ['test.cvs'],
-    'fight': ['test.cvs']
+    'fight11': ['test.cvs'],  # комната 1x1
+    'fight22': ['test.csv'],  # комната 2x2
 }
