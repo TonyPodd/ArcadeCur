@@ -18,4 +18,4 @@ class SpawnRoom(Room):
         self.spawn = Floor(None, 1, spawn_x, spawn_y)
     
     def get_spawn(self) -> arcade.Sprite:
-        return self.all_sprites['spawn']
+        return self.spawn
