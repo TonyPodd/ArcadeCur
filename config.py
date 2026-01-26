@@ -23,3 +23,9 @@ FPS = 60
 
 LEVEL_SIZE = (10, 10)  # Размер карты чанков [x, y]
 CHUNCK_SIZE = (16, 16)  # размер одного чанка
+ROOM_FILE_NAMES = {
+    'loot': ['test.cvs'],
+    'shop': ['test.cvs'],
+    'boss': ['test.cvs'],
+    'fight': ['test.cvs']
+}
