@@ -10,13 +10,6 @@ class FightRoom(Room):
     def __init__(self, room_type, room_number, x, y, rooms_coords):
         super().__init__(room_type, room_number, x, y, rooms_coords)
         
-        # изменяем координаты чанка на левую нижнюю часть комнаты
-        for i in range(len(self.text_map)):
-            for j in range(len(self.text_map[i])):
-                x, y = self.text_map[i][j]
-                self.x = min(x, self.x)
-                self.y = min(y, self.y)
-        
         data = self.data_from_file(self.room_type)
         sprites_from_data = self.load_sprites_from_data(data)
         self.add_new_sprites(sprites_from_data)

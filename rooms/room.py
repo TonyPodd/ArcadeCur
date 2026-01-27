@@ -32,6 +32,13 @@ class Room:
                 if i % 2 == 0:
                     self.text_map.append(list())
                 self.text_map[i // 2].append(rooms_coords[i])
+        if len(rooms_coords) == 9:
+            for i in range(9):
+                if i % 3 == 0:
+                    self.text_map.append(list())
+                self.text_map[i // 3].append(rooms_coords[i])
+
+        self.find_left_bottom_coords()
 
         # Загрузка угловых стен в чанка
         self.create_corner_walls()
@@ -253,3 +260,11 @@ class Room:
                 if sprite_name not in self.all_sprites:
                     self.all_sprites[sprite_name] = arcade.SpriteList()
                 self.all_sprites[sprite_name].append(sprite)
+    
+    def find_left_bottom_coords(self) -> None:
+        # изменяем координаты чанка на левую нижнюю часть комнаты
+        for i in range(len(self.text_map)):
+            for j in range(len(self.text_map[i])):
+                x, y = self.text_map[i][j]
+                self.x = min(x, self.x)
+                self.y = min(y, self.y)
