@@ -27,7 +27,7 @@ class GameView(arcade.View):
         self.camera = GameCamera()  # камера игрока
         self.gui_camera = arcade.camera.Camera2D()  # камера интерфейса
         self.camera.set_position(0, 0)
-        
+
         # Уровни
         self.all_levels = list()  # все уровни
         self.current_level_number = 0  # Какой сейчс уровень
@@ -45,7 +45,7 @@ class GameView(arcade.View):
         # Отрисовывается до игрока
         self.floor_sprites.draw()
         self.door_sprites.draw()
-        
+
         # отрисовывается вместе с игроком
         self.drawing_sprites.sort(key=lambda x: x.position[1], reverse=True)
         self.drawing_sprites.draw()
@@ -78,8 +78,16 @@ class GameView(arcade.View):
         self.player.update(delta_time)
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.04)
-        
-        print(self.player_angel_view)
+
+        # Обновляем сундуки и проверяем открытие
+        for chest in self.chest_sprites:
+            chest.update()
+            if not chest.is_open and arcade.check_for_collision(self.player, chest.trigger):
+                chest.open()
+                print("СУНДУК ОТКРЫТ")
+                item = chest.get_item()
+                self.item_sprites.append(item)
+                self.drawing_sprites.append(item)
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
@@ -95,7 +103,7 @@ class GameView(arcade.View):
         if key == arcade.key.D:
             self.player.direction['right'] = True
             self.player.last_direction_x = 'right'
-        
+
         # дэш/перекат/рывок
         if key == arcade.key.LCTRL and not self.player.is_roll:
             if self.player.direction['left'] or self.player.direction['right'] \
@@ -128,7 +136,7 @@ class GameView(arcade.View):
 
     def load_level_sprites(self, level_num: int) -> None:
         """ Загрузка спрайтов с уровня"""
-        
+
         try:
             self.all_sprites.clear()
         except Exception:
@@ -145,7 +153,7 @@ class GameView(arcade.View):
             self.door_sprites.clear()
         except Exception:
             print('Не спрайтов дверей')
-        
+
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
 
@@ -155,22 +163,26 @@ class GameView(arcade.View):
         self.wall_sprites = self.all_sprites['wall']
         self.floor_sprites = self.all_sprites['floor']
         self.door_sprites = self.all_sprites['door']
-        
-        # other sprites
+        self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
+
         self.enemy_sprites = arcade.SpriteList()
         self.item_sprites = arcade.SpriteList()
-        
+
         # спрайты для отрисовки, кроме пола
         for sprite in self.wall_sprites:
+            self.drawing_sprites.append(sprite)
+
+        # сундуки (если есть)
+        for sprite in self.chest_sprites:
             self.drawing_sprites.append(sprite)
 
     def create_level(self, level_type: str) -> None:
         level = Level(level_type)
         self.all_levels.append(level)
         self.current_level_number = len(self.all_levels) - 1
-        
+
         self.load_level_sprites(self.current_level_number)
-        
+
         player_x, player_y = level.get_spawn_coords()
         self.player.set_position(player_x, player_y)
         self.camera.set_position(player_x, player_y)

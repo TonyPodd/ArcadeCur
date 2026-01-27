@@ -7,8 +7,9 @@ class Weapon(arcade.Sprite):
     def __init__(self, scale=1, center_x=0, center_y=0, type='default_gun'):
         super().__init__(None, scale, center_x, center_y)
 
-        self.width = TILE_SIZE
-        self.height = TILE_SIZE
+        self.texture = arcade.make_soft_square_texture(TILE_SIZE, arcade.color.BUD_GREEN, outer_alpha=255)
+        self.width = 32
+        self.height = 32
 
 
 def get_default_gun():

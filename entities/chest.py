@@ -3,11 +3,11 @@ import arcade
 from random import choice, randint
 
 from config import *
-from weapon import Weapon
+from .weapon import Weapon
 
 
 class Chest(arcade.Sprite):
-    def __init__(self, scale=1, center_x=0, center_y=0, rarity='normal', type = 'weapon'):
+    def __init__(self, scale=1, center_x=0, center_y=0, rarity='normal', chest_type='weapon'):
         '''
             rarity - редкость,
             weapon - тип сундука, с обилками, с оружием и прочее
@@ -21,6 +21,8 @@ class Chest(arcade.Sprite):
 
         self.interacteble_area = 10 # на сколько надо подойти чтобы открыть (в пикселях)
         self.is_open = False
+        self.rarity = rarity
+        self.chest_type = chest_type
 
         # Отдельный спрайт-триггер для коллизий
         self.trigger = arcade.SpriteCircle(self.interacteble_area, arcade.color.WHITE)
@@ -37,17 +39,19 @@ class Chest(arcade.Sprite):
         self.is_open = True
 
     def get_item(self):
-        if type == "weapon":
-            return Weapon(center_x=self.center_x + randint(-5, 5), center_y=self.center_y + randint(-5, 5)) # айтем падает чуть в стороне от сундука
+        if self.chest_type == "weapon":
+            # айтем падает чуть в стороне от сундука
+            return Weapon(center_x=self.center_x + randint(20, 40) * choice([-1, 1]), center_y=self.center_y + randint(20, 40) * choice([-1, 1]))
+        return None
 
 
 
 
 def get_random_chest():
     rarity = choice(RARYTIES)
-    type = choice(CHEST_TYPES)
+    chest_type = choice(CHEST_TYPES)
 
-    return Chest(rarity=rarity, type=type)
+    return Chest(rarity=rarity, chest_type=chest_type)
 
 def get_normal_chest():
     ...
