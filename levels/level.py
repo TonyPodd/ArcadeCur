@@ -40,6 +40,9 @@ class Level:
         # Загрузка спрайтов с комнат
         self.load_sprites_from_rooms()
         
+        for i in self.text_map[::-1]:
+            print(i)
+        
     def load_rooms(self):
         """ Функция случайной загруски комнат """
 
@@ -47,8 +50,8 @@ class Level:
         x, y = self.create_room(
             'spawn',
             self.current_room,
-            random.randint(0, LEVEL_SIZE[0] - 1),
-            random.randint(0, LEVEL_SIZE[1] - 1)
+            LEVEL_SIZE[0] // 2,
+            LEVEL_SIZE[1] // 2
         )
         self.room_path[self.current_room] = list()
         self.current_room += 1
@@ -77,6 +80,23 @@ class Level:
             )
 
             self.current_room += 1  # новый номер для ледующей комнаты
+
+        # Комната босса
+        # координаты чанка для комнаты
+        boss_x = 0
+        boss_y = 0
+        for y in range(len(self.text_map)):
+            for x in range(len(self.text_map[y])):
+                if self.text_map[y][x] != 0:
+                    if boss_y <= y:
+                        boss_y = y + 1
+                        boss_x = x
+        self.create_room(
+            'boss',
+            self.current_room,
+            boss_x,
+            boss_y,
+        )
         
     def create_room(
         self,
@@ -111,8 +131,15 @@ class Level:
         
         # Комната босса
         elif room_type == 'boss':
-            ...
+            size = self.boss_room_size(x_from, y_from)
+            self.rooms[current_room_number] = BossRoom(
+                'boss', current_room_number, x_from, y_from, size
+            )
+            self.room_path[current_room_number] = [(x_from, y_from, 'down')]
+            print(self.text_map[y_from - 1][x_from])
+            self.room_path[self.text_map[y_from - 1][x_from]].append((x_from, y_from - 1, 'up'))
 
+            return (x_from, y_from)
         # остольные комнаты
         else:
             # Устанавлеваем координаты новой комнаты и указываем, где будет дверь в этой комнате
@@ -291,3 +318,18 @@ class Level:
     def get_spawn_coords(self) -> tuple[int, int]:
         spawn_sprite = self.rooms[1].get_spawn()
         return (spawn_sprite.center_x, spawn_sprite.center_y)
+
+    def boss_room_size(self, x, y) -> list[tuple]:
+        size = [
+            (x - 1, y), (x, y), (x + 1, y),
+            (x - 1, y + 1), (x, y + 1), (x + 1, y + 1),
+            (x - 1, y + 2), (x, y + 2), (x + 1, y + 2)
+        ]
+        for coords in size:
+                x = coords[0]
+                y = coords[1]
+                try:
+                    self.text_map[y][x] = self.current_room
+                except Exception:
+                    pass
+        return size
