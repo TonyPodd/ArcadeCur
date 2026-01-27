@@ -47,9 +47,6 @@ class GameView(arcade.View):
         self.item_sprites.draw()
         self.enemy_sprites.draw()
 
-        # self.player_list.draw()
-        # self.player_list.draw_hit_boxes()
-
         # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
         self.gui_camera.use()
 
