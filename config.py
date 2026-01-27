@@ -33,3 +33,16 @@ ROOM_FILE_NAMES = {
         '1x1': ['test.csv']
     }
 }
+
+RARYTIES = ['default', 'rare', 'legend']
+CHEST_TYPES = ['weapon', 'ability']
+
+WEAPON_TYPES = {
+    'default_gun' : {
+        'name' : 'пукалка',
+        'damage' : 15,
+        "weapon_type" : "gun",     # mili или gun или magiс
+        'damage_type' : "hitscan",    # я думаю прикольно сделать чтобы какие-то оружия хитсканили, а у каких-то с физикой были пульки
+        'bullet_radius' : 5,
+    }
+}
