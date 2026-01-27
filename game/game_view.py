@@ -13,9 +13,10 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.DARK_GREEN)
 
     def setup(self):
+        # Координаты мышки на экране
         self.mouse_x = 0
         self.mouse_y = 0
-        self.player_angel_view = 0
+        self.player_angel_view = 0  # Угол в под которым смотрит игрок
 
         # Player
         self.player = Player(0, 0)
@@ -122,6 +123,7 @@ class GameView(arcade.View):
         self.mouse_x = x
         self.mouse_y = y
 
+        # Расчет под каким углом сейчас игрок смотрит
         self.player_angel_view = math.atan2(self.mouse_y - self.center_y, self.mouse_x - self.center_x)
 
     def load_level_sprites(self, level_num: int) -> None:
