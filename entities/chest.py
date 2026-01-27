@@ -1,0 +1,59 @@
+import arcade
+
+from random import choice, randint
+
+from config import *
+from weapon import Weapon
+
+
+class Chest(arcade.Sprite):
+    def __init__(self, scale=1, center_x=0, center_y=0, rarity='normal', type = 'weapon'):
+        '''
+            rarity - редкость,
+            weapon - тип сундука, с обилками, с оружием и прочее
+        '''
+        super().__init__(None, scale, center_x, center_y)
+
+        # Временная зелёная текстура
+        self.texture = arcade.make_soft_square_texture(TILE_SIZE, arcade.color.GREEN, outer_alpha=255)
+        self.width = TILE_SIZE
+        self.height = TILE_SIZE
+
+        self.interacteble_area = 10 # на сколько надо подойти чтобы открыть (в пикселях)
+        self.is_open = False
+
+        # Отдельный спрайт-триггер для коллизий
+        self.trigger = arcade.SpriteCircle(self.interacteble_area, arcade.color.WHITE)
+        self.trigger.alpha = 0  # невидимый
+        self.trigger.center_x = center_x
+        self.trigger.center_y = center_y
+
+    def update(self):
+        # Держим триггер на позиции сундука
+        self.trigger.center_x = self.center_x
+        self.trigger.center_y = self.center_y
+
+    def open(self):
+        self.is_open = True
+
+    def get_item(self):
+        if type == "weapon":
+            return Weapon(center_x=self.center_x + randint(-5, 5), center_y=self.center_y + randint(-5, 5)) # айтем падает чуть в стороне от сундука
+
+
+
+
+def get_random_chest():
+    rarity = choice(RARYTIES)
+    type = choice(CHEST_TYPES)
+
+    return Chest(rarity=rarity, type=type)
+
+def get_normal_chest():
+    ...
+
+def get_rare_chest():
+    ...
+
+def get_legend_chest():
+    ...
