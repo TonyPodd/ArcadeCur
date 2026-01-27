@@ -1,6 +1,7 @@
 import arcade
 import random
 import csv
+from pathlib import Path
 
 from .room import Room
 from config import *
@@ -21,8 +22,10 @@ class FightRoom(Room):
         """
         n = len(self.text_map)
         # Загрузить случайную комнату
-        file_name = f'levels/{room_type}/{n}x{n}/{random.choice(ROOM_FILE_NAMES[room_type][f'{n}x{n}'])}'
-        with open(file=file_name, mode='r', encoding='UTF-8') as file:
+        size_key = f"{n}x{n}"
+        file_name = f"levels/{room_type}/{size_key}/{random.choice(ROOM_FILE_NAMES[room_type][size_key])}"
+        file_path = Path(__file__).resolve().parent.parent / file_name
+        with open(file=file_path, mode='r', encoding='UTF-8') as file:
             reader = csv.reader(file, delimiter=',')
             data = list(reader)
         
