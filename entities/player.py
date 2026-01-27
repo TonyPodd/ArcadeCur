@@ -9,6 +9,7 @@ class Player(arcade.Sprite):
 
         # Временный квадрат вместо спрайта
         self.texture = arcade.make_soft_square_texture(40, arcade.color.BLUE, outer_alpha=255)
+        self._hit_box._points = ((-20, -15), (20, -15), (20, 15), (-20, 15))
 
         self.center_x = x
         self.center_y = y
@@ -108,3 +109,8 @@ class Player(arcade.Sprite):
             move_direction_y = -1
         
         return (move_direction_x, move_direction_y)
+
+    def set_position(self, x: float, y: float) -> None:
+        """ Ставит новые координаты играка """
+        self.center_x = x
+        self.center_y = y
