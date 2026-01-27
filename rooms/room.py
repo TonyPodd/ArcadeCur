@@ -1,6 +1,7 @@
 import arcade
 import random
 import csv
+from pathlib import Path
 
 from config import *
 from entities import Door, Wall, Floor
@@ -207,7 +208,8 @@ class Room:
         
         # Загрузить случайную комнату
         file_name = f'levels/{room_type}/{random.choice(ROOM_FILE_NAMES[room_type])}'
-        with open(file=file_name, mode='r', encoding='UTF-8') as file:
+        file_path = Path(__file__).resolve().parent.parent / file_name
+        with open(file=file_path, mode='r', encoding='UTF-8') as file:
             reader = csv.reader(file, delimiter=',')
             data = list(reader)
         
