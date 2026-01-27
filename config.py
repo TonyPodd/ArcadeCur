@@ -25,9 +25,9 @@ LEVEL_SIZE = (10, 10)  # Размер карты чанков [x, y]
 CHUNCK_SIZE = (16, 16)  # размер одного чанка
 ROOM_FILE_NAMES = {
     'spawn': ['elevator.csv'],
-    'loot': ['test.cvs'],
-    'shop': ['test.cvs'],
-    'boss': ['test.cvs'],
+    'loot': ['test.csv'],
+    'shop': ['test.csv'],
+    'boss': ['test.csv'],
     'fight': {
         '2x2': ['test.csv'],
         '1x1': ['test.csv']
