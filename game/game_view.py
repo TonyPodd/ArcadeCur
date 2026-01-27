@@ -36,13 +36,19 @@ class GameView(arcade.View):
         # Отрисовка игрового мира с камерой
         self.camera.use()
 
+        # Отрисовывается до игрока
         self.floor_sprites.draw()
-        self.wall_sprites.draw()
         self.door_sprites.draw()
+        
+        # отрисовывается вместе с игроком
+        self.drawing_sprites.sort(key=lambda x: x.position[1], reverse=True)
+        self.drawing_sprites.draw()
+
         self.item_sprites.draw()
         self.enemy_sprites.draw()
-        self.player_list.draw()
-        self.player_list.draw_hit_boxes()
+
+        # self.player_list.draw()
+        # self.player_list.draw_hit_boxes()
 
         # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
         self.gui_camera.use()
@@ -121,7 +127,9 @@ class GameView(arcade.View):
         
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
-        self.drawing_sprites = arcade.SpriteList()
+
+        self.drawing_sprites = arcade.SpriteList()  # Спрайты для y-sort отрисовки
+        self.drawing_sprites.append(self.player)
 
         self.wall_sprites = self.all_sprites['wall']
         self.floor_sprites = self.all_sprites['floor']
@@ -133,8 +141,6 @@ class GameView(arcade.View):
         
         # спрайты для отрисовки, кроме пола
         for sprite in self.wall_sprites:
-            self.drawing_sprites.append(sprite)
-        for sprite in self.door_sprites:
             self.drawing_sprites.append(sprite)
 
     def create_level(self, level_type: str) -> None:
