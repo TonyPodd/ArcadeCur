@@ -1,4 +1,5 @@
 import arcade
+import math
 
 from entities import Player, Wall
 from systems import PhysicsSystem, GameCamera
@@ -12,6 +13,10 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.DARK_GREEN)
 
     def setup(self):
+        self.mouse_x = 0
+        self.mouse_y = 0
+        self.player_angel_view = 0
+
         # Player
         self.player = Player(0, 0)
         self.player_list = arcade.SpriteList()
@@ -47,6 +52,15 @@ class GameView(arcade.View):
         self.item_sprites.draw()
         self.enemy_sprites.draw()
 
+        arcade.draw_line(
+            self.player.center_x,
+            self.player.center_y,
+            self.player.center_x + math.cos(self.player_angel_view) * 100,
+            self.player.center_y + math.sin(self.player_angel_view) * 100,
+            arcade.color.RED,
+            3
+        )
+
         # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
         self.gui_camera.use()
 
@@ -63,6 +77,8 @@ class GameView(arcade.View):
         self.player.update(delta_time)
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.04)
+        
+        print(self.player_angel_view)
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
@@ -101,6 +117,12 @@ class GameView(arcade.View):
             self.player.direction['left'] = False
         if key == arcade.key.D:
             self.player.direction['right'] = False
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.mouse_x = x
+        self.mouse_y = y
+
+        self.player_angel_view = math.atan2(self.mouse_y - self.center_y, self.mouse_x - self.center_x)
 
     def load_level_sprites(self, level_num: int) -> None:
         """ Загрузка спрайтов с уровня"""
