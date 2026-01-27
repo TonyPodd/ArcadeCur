@@ -197,44 +197,48 @@ class Room:
         Загрузка объектов с комнаты\n
         room_type - тип комнаты
         """
+        
+        # Загрузить случайную комнату
         file_name = f'levels/{room_type}/{random.choice(ROOM_FILE_NAMES[room_type])}'
         with open(file=file_name, mode='r', encoding='UTF-8') as file:
             reader = csv.reader(file, delimiter=',')
-            data = list(map(lambda x: list(map(int, x)), list(reader)))
-
-            for i in range(len(data)):
-                line = data[i]
+            data = list(reader)
         
-        return self.load_sprites_from_data(data)
+        all_objects = dict()  # объекты 1: (x, y)
+
+        for i in range(len(data)):
+            for j in range(len(data[i])):
+                object_type = data[i][j]
+                
+                if object_type != '0':
+                    if object_type not in all_objects:
+                        all_objects[object_type] = list()
+                    
+                    all_objects[object_type].append((j, i))
+        
+        return all_objects
     
-    def load_sprites_from_data(self, data: list[list]) -> dict:
+    def load_sprites_from_data(self, data: dict) -> dict:
         sprites = {
             'floor': arcade.SpriteList(),
             'wall': arcade.SpriteList(), 
         }
         
-        for i in range(len(data)):
-            for j in range(len(data[i])):
-                tile_type = data[i][j]
+        for object_type in data:
+            for j, i in data[object_type]:
                 tile_x = self.x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE * (j + 1)
                 tile_y = self.y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (i + 1)
-                
-                if tile_type == 1:
+            
+                if object_type == '1':
                     sprites['floor'].append(Floor(
-                        None,
-                        1,
-                        tile_x,
-                        tile_y
+                        None, 1, tile_x, tile_y
                     ))
-                
-                if tile_type == 2:
-                    sprites['wall'].append(Wall(
-                        None,
-                        1,
-                        tile_x,
-                        tile_y
+                    
+                if object_type == '2':
+                    sprites['wall'].append(Floor(
+                        None, 1, tile_x, tile_y
                     ))
-        
+
         return sprites
     
     def add_new_sprites(self, sprites: dict) -> None:
