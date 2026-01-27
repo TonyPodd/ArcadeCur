@@ -177,9 +177,10 @@ class Level:
             for j in range(2):
                 x1, x2, x3, x4 = x - 1 + j, x + j, x - 1 + j, x + j
                 y1, y2, y3, y4 = y - 1 + i, y - 1 + i, y + i, y + i
-                if x1 >= 0 and x2 < LEVEL_SIZE[0] and y3 >= 0 and y4 < LEVEL_SIZE[1]:
+                if x1 >= 0 and x2 < LEVEL_SIZE[0] and y1 >= 0 and y4 < LEVEL_SIZE[1]:
                     if self.text_map[y1][x1] == 0 and self.text_map[y2][x2] == 0 and self.text_map[y3][x3] == 0 and self.text_map[y4][x4] == 0:
                         output.append([(x1, y1), (x2, y2), (x3, y3), (x4, y4)])
+        
         return output
 
     def choose_dir(self, x: int, y: int) -> tuple[int, int, list]:
