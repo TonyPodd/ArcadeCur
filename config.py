@@ -41,7 +41,7 @@ WEAPON_TYPES = {
     'default_gun' : {
         'name' : 'пукалка',
         'damage' : 15,
-        "weapon_type" : "gun",     # mili или gun или magiс
+        "weapon_type" : "gun",     # melee или gun или magiс
         'damage_type' : "hitscan",    # я думаю прикольно сделать чтобы какие-то оружия хитсканили, а у каких-то с физикой были пульки
         'bullet_radius' : 5,
     }
