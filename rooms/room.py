@@ -235,7 +235,7 @@ class Room:
                     ))
                     
                 if object_type == '2':
-                    sprites['wall'].append(Floor(
+                    sprites['wall'].append(Wall(
                         None, 1, tile_x, tile_y
                     ))
 
