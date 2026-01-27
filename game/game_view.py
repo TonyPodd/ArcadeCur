@@ -12,29 +12,21 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.DARK_GREEN)
 
     def setup(self):
-        self.camera = GameCamera()  # камера игрока
-        self.gui_camera = arcade.camera.Camera2D()  # камера интерфейса
-
-        # other sprites
-        self.enemy_sprites = arcade.SpriteList()
-        self.item_sprites = arcade.SpriteList()
-        
-        # Загрузка тестого уровня
-        self.current_level = Level('start')
-
-        # спрайты с уровня
-        self.all_sprites = self.current_level.get_sprites()
-        self.wall_sprites = self.all_sprites['wall']
-        self.floor_sprites = self.all_sprites['floor']
-        self.door_sprites = self.all_sprites['door']
-
         # Player
-        spawn_coords = self.current_level.get_spawn_coords()
-        self.player = Player(spawn_coords[0], spawn_coords[1])
+        self.player = Player(0, 0)
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player)
-        self.camera.set_position(spawn_coords[0], spawn_coords[1])
-    
+
+        # Камера
+        self.camera = GameCamera()  # камера игрока
+        self.gui_camera = arcade.camera.Camera2D()  # камера интерфейса
+        self.camera.set_position(0, 0)
+        
+        # Уровни
+        self.all_levels = list()  # все уровни
+        self.current_level_number = 0  # Какой сейчс уровень
+        self.create_level('start')  # Стартовый уровень
+
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
 
@@ -50,6 +42,7 @@ class GameView(arcade.View):
         self.item_sprites.draw()
         self.enemy_sprites.draw()
         self.player_list.draw()
+        self.player_list.draw_hit_boxes()
 
         # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
         self.gui_camera.use()
@@ -105,3 +98,52 @@ class GameView(arcade.View):
             self.player.direction['left'] = False
         if key == arcade.key.D:
             self.player.direction['right'] = False
+
+    def load_level_sprites(self, level_num: int) -> None:
+        """ Загрузка спрайтов с уровня"""
+        
+        try:
+            self.all_sprites.clear()
+        except Exception:
+            print('Нет спрайтов')
+        try:
+            self.wall_sprites.clear()
+        except Exception:
+            print('Нет спрайтов стен')
+        try:
+            self.floor_sprites.clear()
+        except Exception:
+            print('Нет спрайтов пола')
+        try:
+            self.door_sprites.clear()
+        except Exception:
+            print('Не спрайтов дверей')
+        
+        # спрайты с уровня
+        self.all_sprites = self.all_levels[level_num].get_sprites()
+        self.drawing_sprites = arcade.SpriteList()
+
+        self.wall_sprites = self.all_sprites['wall']
+        self.floor_sprites = self.all_sprites['floor']
+        self.door_sprites = self.all_sprites['door']
+        
+        # other sprites
+        self.enemy_sprites = arcade.SpriteList()
+        self.item_sprites = arcade.SpriteList()
+        
+        # спрайты для отрисовки, кроме пола
+        for sprite in self.wall_sprites:
+            self.drawing_sprites.append(sprite)
+        for sprite in self.door_sprites:
+            self.drawing_sprites.append(sprite)
+
+    def create_level(self, level_type: str) -> None:
+        level = Level(level_type)
+        self.all_levels.append(level)
+        self.current_level_number = len(self.all_levels) - 1
+        
+        self.load_level_sprites(self.current_level_number)
+        
+        player_x, player_y = level.get_spawn_coords()
+        self.player.set_position(player_x, player_y)
+        self.camera.set_position(player_x, player_y)
