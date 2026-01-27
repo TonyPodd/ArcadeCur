@@ -194,7 +194,7 @@ class Room:
 
     def data_from_file(self, room_type: str) -> dict:
         """
-        Загрузка объектов с комнаты\n
+        Загрузка объектов с файла комнаты\n
         room_type - тип комнаты
         """
         
