@@ -50,8 +50,22 @@ class GameView(arcade.View):
         self.drawing_sprites.sort(key=lambda x: x.position[1], reverse=True)
         self.drawing_sprites.draw()
 
-        self.item_sprites.draw()
+        self.item_sprites_on_floor.draw()
+
         self.enemy_sprites.draw()
+
+        # Подсказка подбора предмета
+        for item in self.item_sprites_on_floor:
+            if arcade.check_for_collision(self.player, item):
+                arcade.draw_text(
+                    f'E - подобрать "{item.name}"',
+                    item.center_x,
+                    item.center_y + 40,
+                    arcade.color.WHITE,
+                    font_size=14,
+                    anchor_x="center",
+                    anchor_y="center"
+                )
 
         arcade.draw_line(
             self.player.center_x,
@@ -86,8 +100,17 @@ class GameView(arcade.View):
                 chest.open()
                 print("СУНДУК ОТКРЫТ")
                 item = chest.get_item()
-                self.item_sprites.append(item)
-                self.drawing_sprites.append(item)
+                self.item_sprites_on_floor.append(item)
+                # self.drawing_sprites.append(item)
+
+        # Проверяем возможность подобрать айтем
+        for item in self.item_sprites_on_floor:
+            if item.is_on_floor and arcade.check_for_collision(self.player, item):
+                item.can_interact = True
+            else:
+                item.can_interact = False
+
+            item.update()
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
@@ -105,10 +128,49 @@ class GameView(arcade.View):
             self.player.last_direction_x = 'right'
 
         # дэш/перекат/рывок
-        if key == arcade.key.LCTRL and not self.player.is_roll:
+        if (key == arcade.key.LCTRL or key == arcade.key.LSHIFT)  and not self.player.is_roll:
             if self.player.direction['left'] or self.player.direction['right'] \
                 or self.player.direction['up'] or self.player.direction['down']:
                 self.player.do_roll()
+
+        # взаимодействие с предметом
+        if (key == arcade.key.E):
+            for item in self.item_sprites_on_floor:
+                if (item.player != None): continue
+                if arcade.check_for_collision(self.player, item):
+                    # пихаем в пустой слот если есть и переключаем на него, если нет то в активный
+                    item.grab(self.player)
+                    self.item_sprites_on_floor.remove(item) #отрисовывать подобраный предмет не надо
+                    self.item_sprites_in_enventory.append(item)
+
+                    print(f'поддобрали предмет {item.name}')
+
+                    if self.player.first_item == None:
+                        self.player.first_item = item
+                        self.player.current_slot = 0
+
+                    elif self.player.second_item == None:
+                        self.player.second_item = item
+                        self.player.current_slot = 1
+
+                    else:
+                        if self.player.current_slot == 0:
+                            self.player.first_item.drop()
+                            self.player.first_item = item
+                        else:
+                            self.player.second_item.drop()
+                            self.player.second_item = item
+
+                    break # прерываем чтобы не подбирать дохуя рядом лежащих предметов сразу
+
+        # переключение слотов
+        if key == arcade.key.NUM_1:
+            self.player.current_slot = 1
+
+        if key == arcade.key.NUM_0:
+            self.player.current_slot = 0
+
+
 
         # Взаимодействия с интерфейсом
         # Пауза
@@ -166,7 +228,9 @@ class GameView(arcade.View):
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
 
         self.enemy_sprites = arcade.SpriteList()
-        self.item_sprites = arcade.SpriteList()
+        self.item_sprites_on_floor = arcade.SpriteList()
+        self.item_sprites_in_enventory = arcade.SpriteList()
+
 
         # спрайты для отрисовки, кроме пола
         for sprite in self.wall_sprites:
