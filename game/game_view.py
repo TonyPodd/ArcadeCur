@@ -13,6 +13,9 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.DARK_GREEN)
 
     def setup(self):
+        # Алерты
+        self.alerts = []
+
         # Координаты мышки на экране
         self.mouse_x = 0
         self.mouse_y = 0
@@ -32,6 +35,7 @@ class GameView(arcade.View):
         self.all_levels = list()  # все уровни
         self.current_level_number = 0  # Какой сейчс уровень
         self.create_level('start')  # Стартовый уровень
+        self.push_alert("Локация: Старт")
 
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
@@ -88,10 +92,13 @@ class GameView(arcade.View):
             14
         )
 
+        self.draw_alerts()
+
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.04)
+        self.update_alerts(delta_time)
 
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
@@ -260,7 +267,7 @@ class GameView(arcade.View):
         for sprite in self.chest_sprites:
             self.drawing_sprites.append(sprite)
 
-    def create_level(self, level_type: str) -> None:
+    def create_level(self, level_type):
         level = Level(level_type)
         self.all_levels.append(level)
         self.current_level_number = len(self.all_levels) - 1
@@ -270,3 +277,84 @@ class GameView(arcade.View):
         player_x, player_y = level.get_spawn_coords()
         self.player.set_position(player_x, player_y)
         self.camera.set_position(player_x, player_y)
+
+    def push_alert(self, text, duration = 2.8):
+        self.alerts.append({
+            "text": text,
+            "time": 0.0,
+            "duration": duration,
+        })
+
+    def update_alerts(self, delta_time):
+        for alert in self.alerts:
+            alert["time"] += delta_time
+        self.alerts = [a for a in self.alerts if a["time"] < a["duration"]]
+
+    def draw_alerts(self):
+        if not self.alerts:
+            return
+
+        width = min(520, int(self.window.width * 0.6))
+        height = 56
+        padding = 12
+        top_margin = 24
+
+        for i, alert in enumerate(self.alerts):
+            t = alert["time"]
+            d = alert["duration"]
+            fade_in = 0.18
+            fade_out = 0.35
+
+            if t < fade_in:
+                alpha = t / fade_in
+            elif t > d - fade_out:
+                alpha = max(0.0, (d - t) / fade_out)
+            else:
+                alpha = 1.0
+
+            x = self.window.width / 2
+            y = self.window.height - top_margin - (height / 2) - i * (height + 10)
+
+            bg_color = (18, 18, 24, int(210 * alpha))
+            shadow_color = (0, 0, 0, int(120 * alpha))
+            border_color = (255, 255, 255, int(40 * alpha))
+            accent_color = (80, 220, 160, int(255 * alpha))
+
+            def draw_rect_filled(cx, cy, w, h, color):
+                left = cx - w / 2
+                right = cx + w / 2
+                bottom = cy - h / 2
+                top = cy + h / 2
+                arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, color)
+
+            def draw_rect_outline(cx, cy, w, h, color, border_width=1):
+                left = cx - w / 2
+                right = cx + w / 2
+                bottom = cy - h / 2
+                top = cy + h / 2
+                arcade.draw_lrbt_rectangle_outline(left, right, bottom, top, color, border_width)
+
+            # Тень
+            draw_rect_filled(x, y - 3, width, height, shadow_color)
+            # Фон
+            draw_rect_filled(x, y, width, height, bg_color)
+            # Левая полоска
+            draw_rect_filled(
+                x - width / 2 + 6,
+                y,
+                4,
+                height - 12,
+                accent_color
+            )
+            # рамка
+            draw_rect_outline(x, y, width, height, border_color, 2)
+
+            arcade.draw_text(
+                alert["text"],
+                x,
+                y,
+                arcade.color.WHITE,
+                font_size=16,
+                anchor_x="center",
+                anchor_y="center"
+            )
