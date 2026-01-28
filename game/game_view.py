@@ -54,6 +54,9 @@ class GameView(arcade.View):
         self.drawing_sprites.sort(key=lambda x: x.position[1], reverse=True)
         self.drawing_sprites.draw()
 
+        # Активный предмет у игрока
+        self.draw_active_item()
+
         self.item_sprites_on_floor.draw()
 
         self.enemy_sprites.draw()
@@ -93,6 +96,21 @@ class GameView(arcade.View):
         )
 
         self.draw_alerts()
+
+    def draw_active_item(self):
+        item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
+        if not item:
+            return
+
+        distance = 28
+        x = self.player.center_x + math.cos(self.player_angel_view) * distance
+        y = self.player.center_y + math.sin(self.player_angel_view) * distance
+
+        # Рисуем сам спрайт предмета поверх игрока в направлении взгляда
+        item.center_x = x
+        item.center_y = y
+        item.angle = math.degrees(self.player_angel_view)
+        arcade.draw_sprite(item)
 
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
@@ -191,10 +209,10 @@ class GameView(arcade.View):
 
 
         # переключение слотов
-        if key == arcade.key.NUM_1:
+        if key in (arcade.key.NUM_1, arcade.key.KEY_1):
             self.player.current_slot = 0
 
-        if key == arcade.key.NUM_2:
+        if key in (arcade.key.NUM_2, arcade.key.KEY_2):
             self.player.current_slot = 1
 
 
