@@ -19,7 +19,7 @@ class Chest(arcade.Sprite):
         self.width = TILE_SIZE
         self.height = TILE_SIZE
 
-        self.interacteble_area = 10 # на сколько надо подойти чтобы открыть (в пикселях)
+        self.interacteble_area = 30 # на сколько надо подойти чтобы открыть
         self.is_open = False
         self.rarity = rarity
         self.chest_type = chest_type
@@ -41,7 +41,7 @@ class Chest(arcade.Sprite):
     def get_item(self):
         if self.chest_type == "weapon":
             # айтем падает чуть в стороне от сундука
-            return Weapon(center_x=self.center_x + randint(20, 40) * choice([-1, 1]), center_y=self.center_y + randint(20, 40) * choice([-1, 1]))
+            return Weapon(center_x=int(self.center_x + randint(20, 40) * choice([-1, 1])), center_y=int(self.center_y + randint(20, 40) * choice([-1, 1])))
         return None
 
 

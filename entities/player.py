@@ -23,7 +23,7 @@ class Player(arcade.Sprite):
             'up': False,
             'down': False
         }
-        
+
         # Перекат
         self.is_roll = False
         self.roll_speed = config.PLAYER_ROLL_SPEED
@@ -37,6 +37,12 @@ class Player(arcade.Sprite):
         self.last_direction_x = None  # 'left' или 'right'
         self.last_direction_y = None  # 'up' или 'down'
 
+
+        # Храним подобранные игроком предметы
+        self.current_slot = 0
+        self.first_item = None
+        self.second_item = None
+
     def update(self, delta_time: float) -> None:
         move_direction_x, move_direction_y = self.move()
 
@@ -44,25 +50,25 @@ class Player(arcade.Sprite):
         if not self.is_roll:
             self.change_x = move_direction_x * self.max_speed * delta_time
             self.change_y = move_direction_y * self.max_speed * delta_time
-        
+
         # перекат
         elif self.is_roll:
             self.change_x = self.roll_speed * self.roll_direction['x'] * delta_time
             self.change_y = self.roll_speed * self.roll_direction['y'] * delta_time
             self.roll_timer -= delta_time
-            
+
             if self.roll_direction['x'] == 1:
                 self.angle += 20
             elif self.roll_direction['x'] == -1:
                 self.angle -= 20
             else:
                 self.angle += 20
-            
+
             if self.roll_timer <= 0:
                 self.roll_timer = config.PLAYER_ROLL_TIMER
                 self.is_roll = False
                 self.angle = 0
-    
+
     def do_roll(self):
         # Определяем направление по X
         if self.direction['left']:
@@ -71,7 +77,7 @@ class Player(arcade.Sprite):
             self.roll_direction['x'] = 1
         else:
             self.roll_direction['x'] = 0
-        
+
         # Определяем направление по Y
         if self.direction['up']:
             self.roll_direction['y'] = 1
@@ -79,13 +85,13 @@ class Player(arcade.Sprite):
             self.roll_direction['y'] = -1
         else:
             self.roll_direction['y'] = 0
-    
+
         self.is_roll = True
-    
+
     def move(self) -> tuple[int, int]:
         """ Определет направления игрока """
         move_direction_x, move_direction_y = 0, 0
-        
+
         if self.direction['right'] and self.direction['left']:
             # Обе клавиши нажаты - используем последнюю
             if self.last_direction_x == 'right':
@@ -107,7 +113,7 @@ class Player(arcade.Sprite):
             move_direction_y = 1
         elif self.direction['down']:
             move_direction_y = -1
-        
+
         return (move_direction_x, move_direction_y)
 
     def set_position(self, x: float, y: float) -> None:
