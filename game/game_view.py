@@ -112,6 +112,12 @@ class GameView(arcade.View):
 
             item.update()
 
+
+        # Айтемы в инвентаре двигаются вместе с игроком
+        for item in self.item_sprites_in_enventory:
+            item.update()
+            # print(item.center_x)
+
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
         if key == arcade.key.W:
@@ -163,12 +169,26 @@ class GameView(arcade.View):
 
                     break # прерываем чтобы не подбирать дохуя рядом лежащих предметов сразу
 
+        # Выбросить айтем
+        if (key == arcade.key.Q):
+            if self.player.current_slot == 0 and self.player.first_item != None:
+                self.item_sprites_in_enventory.remove(self.player.first_item)
+                self.item_sprites_on_floor.append(self.player.first_item)
+                self.player.first_item.drop()
+                self.player.first_item = None
+            elif self.player.current_slot == 1 and self.player.second_item != None:
+                self.item_sprites_in_enventory.remove(self.player.second_item)
+                self.item_sprites_on_floor.append(self.player.second_item)
+                self.player.second_item.drop()
+                self.player.second_item = None
+
+
         # переключение слотов
         if key == arcade.key.NUM_1:
-            self.player.current_slot = 1
-
-        if key == arcade.key.NUM_0:
             self.player.current_slot = 0
+
+        if key == arcade.key.NUM_2:
+            self.player.current_slot = 1
 
 
 

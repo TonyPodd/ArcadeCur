@@ -17,6 +17,8 @@ class Item(arcade.Sprite):
             self.center_x = self.player.center_x
             self.center_y = self.player.center_y
 
+        print(self.center_x, self.center_y)
+
     def drop(self):
         self.player = None
         self.is_on_floor = True
