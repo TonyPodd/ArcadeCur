@@ -219,12 +219,9 @@ class GameView(arcade.View):
 
         # Выбросить айтем
         if (key == arcade.key.Q):
-            if self.player.current_slot == 0 and self.player.first_item != None:
-                self.drop_inventory_item(self.player.first_item)
-                self.player.first_item = None
-            elif self.player.current_slot == 1 and self.player.second_item != None:
-                self.drop_inventory_item(self.player.second_item)
-                self.player.second_item = None
+            dropped_item = self.player.drop_item()
+            if dropped_item is not None:
+                self.drop_inventory_item(dropped_item)
 
         # переключение слотов
         if key in (arcade.key.NUM_1, arcade.key.KEY_1):
@@ -286,6 +283,7 @@ class GameView(arcade.View):
         if self.player.player_hp <= 0:
             self.player.on_die()
             return True
+        return False
 
     def load_level_sprites(self, level_num: int) -> None:
         """ Загрузка спрайтов с уровня"""
