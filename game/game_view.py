@@ -123,7 +123,9 @@ class GameView(arcade.View):
 
         # Проверка умер ли игрок
         if self.is_dead():
-            ...
+            from views import DeathView
+            deathview = DeathView()
+            self.window.show_view(deathview)
 
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
