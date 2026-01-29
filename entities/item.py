@@ -1,7 +1,7 @@
 import arcade
 
 from config import *
-from math import degrees
+from math import degrees, cos, sin
 
 class Item(arcade.Sprite):
     def __init__(self, scale=1, center_x=0, center_y=0, type=''):
@@ -34,3 +34,13 @@ class Item(arcade.Sprite):
         self.player = player
         self.is_on_floor = False
         self.can_interact = False
+
+    def draw(self):
+        distance = 28
+        x = self.player.center_x + cos(self.player.view_angle) * distance
+        y = self.player.center_y + sin(self.player.view_angle) * distance
+
+        # Рисуем сам спрайт предмета поверх игрока в направлении взгляда
+        self.center_x = x
+        self.center_y = y
+        arcade.draw_sprite(self)

@@ -63,7 +63,7 @@ class GameView(arcade.View):
         self.bullets.draw()
 
         # Активный предмет у игрока
-        self.draw_active_item()
+        self.player.draw_item()
 
         self.item_sprites_on_floor.draw()
 
@@ -107,19 +107,19 @@ class GameView(arcade.View):
 
         self.draw_alerts()
 
-    def draw_active_item(self):
-        item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
-        if not item:
-            return
+    # def draw_active_item(self):
+    #     item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
+    #     if not item:
+    #         return
 
-        distance = 28
-        x = self.player.center_x + math.cos(self.player_angel_view) * distance
-        y = self.player.center_y + math.sin(self.player_angel_view) * distance
+    #     distance = 28
+    #     x = self.player.center_x + math.cos(self.player_angel_view) * distance
+    #     y = self.player.center_y + math.sin(self.player_angel_view) * distance
 
-        # Рисуем сам спрайт предмета поверх игрока в направлении взгляда
-        item.center_x = x
-        item.center_y = y
-        arcade.draw_sprite(item)
+    #     # Рисуем сам спрайт предмета поверх игрока в направлении взгляда
+    #     item.center_x = x
+    #     item.center_y = y
+    #     arcade.draw_sprite(item)
 
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
