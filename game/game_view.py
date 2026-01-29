@@ -202,22 +202,26 @@ class GameView(arcade.View):
 
                 if item.player is None:
                     sprite = self.player.grab_item(item)
-                    self.add_item_to_inventory(item)
 
                     print(f'поддобрали предмет {item.name}')
                     
                     # Если есть свободные слоты
                     if sprite is True:
+                        self.add_item_to_inventory(item)
+                    # Если игрок умер
+                    elif sprite is False:
                         pass
-
                     # Если нет свободных слотов
                     else:
+                        self.add_item_to_inventory(item)
                         self.drop_inventory_item(sprite)
 
         # Выбросить айтем
         if (key == arcade.key.Q):
             dropped_item = self.player.drop_item()
-            if dropped_item is not None:
+            if dropped_item is False:
+                pass
+            elif dropped_item is not None:
                 self.drop_inventory_item(dropped_item)
 
         # переключение слотов

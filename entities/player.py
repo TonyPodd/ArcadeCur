@@ -139,12 +139,19 @@ class Player(arcade.Sprite):
     
     def draw_item(self):
         """ Отрисовывать предмет в руках """
+        ...
 
     def drop_item(self) -> arcade.Sprite:
         """
         Функция для выбрасывания item в руках \n
-        Возвращает спрайт в руках и удаляет его из инвентаря
+        Если игрок умер, возвращает False\n
+        Возвращает спрайт в руках и удаляет его из инвентаря\n
         """
+        # Если умер
+        if self.is_dead:
+            return False
+
+        # Проверяем есть ли item в слоту
         dropped_item = None
         if self.current_slot == 0 and self.first_item is not None:
             dropped_item = self.first_item
@@ -163,10 +170,16 @@ class Player(arcade.Sprite):
         Функция для добавления item в инвентарь \n
         item_sprite - спрайт, который хотим поднять \n
         Если  инвентарь переполнин, то скидываем предмет, который в руках, и поднимаем новый \n
-        Возвращаем True/Sprite:\n
+        Возвращаем True/False/Sprite:\n
         Если есть свободые слоты, то True \n
+        Если персонаж умер, то False\n
         Елси нет свободных слотов, то Sprite
         """
+        # Умер
+        if self.is_dead:
+            return False
+        
+        # Проверка свободных слотов
         if self.first_item is None:
             self.first_item = item_sprite
             self.current_slot = 0
@@ -175,6 +188,8 @@ class Player(arcade.Sprite):
             self.second_item = item_sprite
             self.current_slot = 1
             return True
+        
+        # Нет свободных слотов
         elif self.current_slot == 0:
             dropped_item = self.drop_item()
             self.first_item = item_sprite
