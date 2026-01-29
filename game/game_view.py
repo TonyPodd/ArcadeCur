@@ -123,10 +123,13 @@ class GameView(arcade.View):
         self.camera.center_on_sprite(self.player, 0.04)
         self.update_alerts(delta_time)
 
-        # Двигаем пули и удаляем при коллизии со стеной
-        for bullet in self.bullets:
+        # Двигаем пули и удаляем при коллизии со стеной / истечении времени
+        for bullet in list(self.bullets):
             bullet.update()
             if arcade.check_for_collision_with_list(bullet, self.wall_sprites):
+                self.bullets.remove(bullet)
+                continue
+            if getattr(bullet, "expired", False):
                 self.bullets.remove(bullet)
 
 
@@ -240,7 +243,7 @@ class GameView(arcade.View):
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
             item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
-            if item != None and item.clas == 'gun':
+            if item != None and hasattr(item, "shoot"):
                 new_bullets = item.shoot()
                 if new_bullets != None:
                     for cur_b in new_bullets:

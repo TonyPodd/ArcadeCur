@@ -12,6 +12,8 @@ class Bullet(arcade.Sprite):
         self.damage_type = ""
         self.bullet_radius = 0
         self.bullet_speed = 0
+        self.life_frames = None
+        self.expired = False
 
     def apply_stats(self):
         if self.bullet_speed:
@@ -22,5 +24,10 @@ class Bullet(arcade.Sprite):
             self.height = size
 
     def update(self):
+        if self.life_frames is not None:
+            self.life_frames -= 1
+            if self.life_frames <= 0:
+                self.expired = True
+
         self.center_x += cos(radians(self.angle)) * self.speed
         self.center_y += sin(radians(self.angle)) * -self.speed
