@@ -152,7 +152,7 @@ class Player(arcade.Sprite):
             return dropped_item
         
         elif self.current_slot == 1 and self.first_item is not None:
-            dropped_item = self.second
+            dropped_item = self.second_item
             self.second_item = None
             return dropped_item
 
