@@ -3,7 +3,7 @@ import arcade
 from config import *
 from .item import Item
 from .bullet import Bullet
-from math import degrees
+from math import degrees, cos, sin, radians
 import random
 
 class Weapon(Item):
@@ -11,7 +11,7 @@ class Weapon(Item):
         super().__init__(scale, center_x, center_y)
 
         self.bullets = arcade.SpriteList()
-        self.clas = clas
+        self.clas = WEAPON_TYPES[type]["weapon_type"]
         self.can_shoot = True
         self.shoot_timeout = WEAPON_TYPES[type]["shoot_timeout"] # Время между выстрелами
         self.name = WEAPON_TYPES[type]["name"]
@@ -27,7 +27,7 @@ class Weapon(Item):
         if self.can_shoot:
             self.can_shoot = False
             arcade.schedule_once(self.update_can_shoot, self.shoot_timeout)
-            bullets_to_return = [] 
+            bullets_to_return = []
             for _ in range(self.shots_per_tick):
                 temp_bullet = Bullet()
                 temp_bullet.center_x = self.center_x
@@ -40,6 +40,15 @@ class Weapon(Item):
                 # temp_bullet.dir_angel = self.angle
                 spread_offset = random.uniform(-self.spread, self.spread)
                 temp_bullet.angle = self.direct_angle + spread_offset
+
+                if self.clas == "melee":
+                    base_x = self.player.center_x if self.player else self.center_x
+                    base_y = self.player.center_y if self.player else self.center_y
+                    distance = max(self.bullet_radius, 8)
+                    temp_bullet.center_x = base_x + cos(radians(temp_bullet.angle)) * distance
+                    temp_bullet.center_y = base_y + sin(radians(temp_bullet.angle)) * -distance
+                    temp_bullet.speed = 0
+                    temp_bullet.life_frames = 2
                 bullets_to_return.append(temp_bullet)
 
             return bullets_to_return
