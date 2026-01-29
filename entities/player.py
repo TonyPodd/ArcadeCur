@@ -71,6 +71,9 @@ class Player(arcade.Sprite):
                     self.roll_timer = config.PLAYER_ROLL_TIMER
                     self.is_roll = False
                     self.angle = 0
+        else:
+            self.change_x = 0
+            self.change_y = 0
 
     def do_roll(self):
         if not self.is_dead:
