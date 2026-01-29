@@ -2,27 +2,29 @@
 Основные константы
 """
 
+# game settigns
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "rogalic)"
+FPS = 60
+VIEWPORT_MARGIN = 200
 
-TILE_SIZE = 64
-TILE_SCALING = 1.0
-
+# player
 PLAYER_MOVEMENT_SPEED = 120
 PLAYER_ROLL_SPEED = 400
 PLAYER_ROLL_TIMER = 0.3
 PLAYER_SCALING = 1.0
+PLAYER_HEALTH_POINTS = 100
 
+# enemy
 ENEMY_SCALING = 1.0
 ENEMY_SPEED = 120
 
 DEFAULT_BULLET_VELOCITY = 5
 
-VIEWPORT_MARGIN = 200
-
-FPS = 60
-
+# level
+TILE_SIZE = 64
+TILE_SCALING = 1.0
 LEVEL_SIZE = (10, 10)  # Размер карты чанков [x, y]
 CHUNCK_SIZE = (16, 16)  # размер одного чанка
 ROOM_FILE_NAMES = {
@@ -36,12 +38,14 @@ ROOM_FILE_NAMES = {
     }
 }
 
+# chest
 RARYTIES = ['default', 'rare', 'legend']
 CHEST_TYPES = ['weapon', 'ability']
 
 # Позиции сундуков в стартовой комнате (в координатах CSV, 0..13)
 SPAWN_CHEST_TILES = [(2, 2), (11, 2), (6, 10)]
 
+# weapon
 WEAPON_TYPES = {
     'default_gun' : {
         'name' : 'пукалка',

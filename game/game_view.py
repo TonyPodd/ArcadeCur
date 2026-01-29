@@ -3,6 +3,7 @@ import math
 
 from entities import Player, Wall
 from systems import PhysicsSystem, GameCamera
+from scripts import HealthBar
 from levels import Level
 import config
 
@@ -25,6 +26,7 @@ class GameView(arcade.View):
         self.player = Player(0, 0)
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player)
+        self.haelth_bar = HealthBar(self.player)
 
         # Камера
         self.camera = GameCamera()  # камера игрока
@@ -92,6 +94,8 @@ class GameView(arcade.View):
         # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
         self.gui_camera.use()
 
+        self.haelth_bar.draw()
+
         # Координаты игрока
         arcade.draw_text(
             f"X: {int(self.player.center_x)}, Y: {int(self.player.center_y)}",
@@ -132,6 +136,9 @@ class GameView(arcade.View):
             if getattr(bullet, "expired", False):
                 self.bullets.remove(bullet)
 
+        # Проверка умер ли игрок
+        if self.is_dead():
+            ...
 
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
@@ -152,11 +159,12 @@ class GameView(arcade.View):
 
             item.update()
 
-
         # Айтемы в инвентаре двигаются вместе с игроком
         for item in self.item_sprites_in_enventory:
             item.update()
-            # print(item.center_x)
+        
+        # Изменения GUI
+        self.haelth_bar.update(delta_time)
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
@@ -174,10 +182,14 @@ class GameView(arcade.View):
             self.player.last_direction_x = 'right'
 
         # дэш/перекат/рывок
-        if (key == arcade.key.LCTRL or key == arcade.key.LSHIFT)  and not self.player.is_roll:
+        if (key == arcade.key.LCTRL or key == arcade.key.LSHIFT) and not self.player.is_roll:
             if self.player.direction['left'] or self.player.direction['right'] \
                 or self.player.direction['up'] or self.player.direction['down']:
                 self.player.do_roll()
+
+        # Для теста урона
+        if key == arcade.key.R:
+            self.player.take_damage(10)
 
         # взаимодействие с предметом
         if (key == arcade.key.E):
@@ -221,8 +233,6 @@ class GameView(arcade.View):
         if key in (arcade.key.NUM_2, arcade.key.KEY_2):
             self.player.current_slot = 1
 
-
-
         # Взаимодействия с интерфейсом
         # Пауза
         if key == arcade.key.ESCAPE:
@@ -230,7 +240,7 @@ class GameView(arcade.View):
             pause = PauseView(self)
             self.window.show_view(pause)
 
-    def on_key_release(self, key, modifiers):
+    def on_key_release(self, key, modifiers) -> None:
         if key == arcade.key.W:
             self.player.direction['up'] = False
         if key == arcade.key.S:
@@ -263,11 +273,6 @@ class GameView(arcade.View):
             self.item_sprites_on_floor.append(item)
         item.drop()
 
-
-
-
-
-
     def on_mouse_motion(self, x, y, dx, dy):
         self.mouse_x = x
         self.mouse_y = y
@@ -275,6 +280,12 @@ class GameView(arcade.View):
         # Расчет под каким углом сейчас игрок смотрит
         self.player_angel_view = math.atan2(self.mouse_y - self.center_y, self.mouse_x - self.center_x)
         self.player.view_angle = self.player_angel_view
+
+    def is_dead(self) -> bool:
+        """ Проверка умер ли игрок """
+        if self.player.player_hp <= 0:
+            self.player.on_die()
+            return True
 
     def load_level_sprites(self, level_num: int) -> None:
         """ Загрузка спрайтов с уровня"""
