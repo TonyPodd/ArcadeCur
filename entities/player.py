@@ -9,6 +9,7 @@ class Player(arcade.Sprite):
         
         # settings
         self.player_hp = config.PLAYER_HEALTH_POINTS
+        self.max_speed = config.PLAYER_MOVEMENT_SPEED
 
         # Временный квадрат вместо спрайта
         self.texture = arcade.make_soft_square_texture(40, arcade.color.BLUE, outer_alpha=255)
