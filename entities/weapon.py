@@ -28,7 +28,7 @@ class Weapon(Item):
             temp_bullet.bullet_radius = self.bullet_radius
             temp_bullet.bullet_speed = self.bullet_speed
             # temp_bullet.dir_angel = self.angle
-            temp_bullet.angle = - degrees(self.angle)
+            temp_bullet.angle = self.direct_angle
 
 
             return temp_bullet
