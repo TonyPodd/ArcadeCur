@@ -11,11 +11,13 @@ class Item(arcade.Sprite):
         self.can_interact = False
         self.player = None
         self.name = '202'
+        self.angle = 0
 
     def update(self):
         if self.player:
             self.center_x = self.player.center_x
             self.center_y = self.player.center_y
+            self.angle = self.player.view_angle
 
         # print(self.center_x, self.center_y)
 

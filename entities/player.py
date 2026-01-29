@@ -16,6 +16,8 @@ class Player(arcade.Sprite):
 
         self.max_speed = config.PLAYER_MOVEMENT_SPEED
 
+        self.view_angle = 0.0
+
         # Направление движения
         self.direction = {
             'left': False,
