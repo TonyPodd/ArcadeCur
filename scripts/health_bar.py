@@ -6,7 +6,7 @@ from config import *
 class HealthBar:
     def __init__(self, player: arcade.sprite) -> None:
         # settigns
-        self.speed = 20 # скорость для анимации
+        self.speed = 100 # скорость для анимации
         self.player = player
 
         # Координаты на экране
@@ -59,3 +59,6 @@ class HealthBar:
         
         if self.display_hp - self.current_hp <= 0.1:
             self.display_hp = self.current_hp
+        
+        if self.display_hp <= 0:
+            self.display_hp = 0
