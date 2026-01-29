@@ -158,18 +158,28 @@ class Player(arcade.Sprite):
 
         return None
 
-    def grab_item(self, item_sprite: arcade.Sprite) -> bool:
+    def grab_item(self, item_sprite: arcade.Sprite):
         """ 
         Функция для добавления item в инвентарь \n
         item_sprite - спрайт, который хотим поднять \n
-        Возвращает: True если есть свободные места в инвентаре, иначе False 
+        Если  инвентарь переполнин, то скидываем предмет, который в руках, и поднимаем новый \n
+        Возвращаем True/Sprite:\n
+        Если есть свободые слоты, то True \n
+        Елси нет свободных слотов, то Sprite
         """
-        if self.first_item is not None:
+        if self.first_item is None:
             self.first_item = item_sprite
             self.current_slot = 0
             return True
-        elif self.second_item is not None:
+        elif self.second_item is None:
             self.second_item = item_sprite
             self.current_slot = 1
             return True
-        return False
+        elif self.current_slot == 0:
+            dropped_item = self.drop_item()
+            self.first_item = item_sprite
+            return dropped_item
+        elif self.current_slot == 1:
+            dropped_item = self.drop_item()
+            self.second_item = item_sprite
+            return dropped_item

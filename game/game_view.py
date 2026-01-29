@@ -193,29 +193,26 @@ class GameView(arcade.View):
 
         # взаимодействие с предметом
         if (key == arcade.key.E):
-            for item in self.item_sprites_on_floor:
-                if (item.player != None): continue
-                if arcade.check_for_collision(self.player, item):
-                    # пихаем в пустой слот если есть и переключаем на него, если нет то в активный
+            # Проверяем какие предметы есть на полу под игроком
+            items_for_grab = arcade.check_for_collision_with_list(
+                self.player, self.item_sprites_on_floor
+            )
+            if items_for_grab:
+                item = items_for_grab[0]  # Берём самый первый item
+
+                if item.player is None:
+                    sprite = self.player.grab_item(item)
                     self.add_item_to_inventory(item)
 
                     print(f'поддобрали предмет {item.name}')
+                    
+                    # Если есть свободные слоты
+                    if sprite is True:
+                        pass
 
-                    if self.player.first_item == None:
-                        self.player.first_item = item
-                        self.player.current_slot = 0
-                    elif self.player.second_item == None:
-                        self.player.second_item = item
-                        self.player.current_slot = 1
+                    # Если нет свободных слотов
                     else:
-                        if self.player.current_slot == 0:
-                            self.drop_inventory_item(self.player.first_item)
-                            self.player.first_item = item
-                        else:
-                            self.drop_inventory_item(self.player.second_item)
-                            self.player.second_item = item
-
-                    break # прерываем чтобы не подбирать дохуя рядом лежащих предметов сразу
+                        self.drop_inventory_item(sprite)
 
         # Выбросить айтем
         if (key == arcade.key.Q):
@@ -257,8 +254,7 @@ class GameView(arcade.View):
                         self.bullets.append(cur_b)
 
     def add_item_to_inventory(self, item):
-        if item in self.item_sprites_on_floor:
-            self.item_sprites_on_floor.remove(item)
+        self.item_sprites_on_floor.remove(item)
         if item not in self.item_sprites_in_enventory:
             self.item_sprites_in_enventory.append(item)
         item.grab(self.player)
