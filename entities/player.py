@@ -6,6 +6,9 @@ import config
 class Player(arcade.Sprite):
     def __init__(self, x: float, y: float):
         super().__init__()
+        
+        # settings
+        self.player_hp = config.PLAYER_HEALTH_POINTS
 
         # Временный квадрат вместо спрайта
         self.texture = arcade.make_soft_square_texture(40, arcade.color.BLUE, outer_alpha=255)
@@ -13,8 +16,6 @@ class Player(arcade.Sprite):
 
         self.center_x = x
         self.center_y = y
-
-        self.max_speed = config.PLAYER_MOVEMENT_SPEED
 
         # Направление движения
         self.direction = {
@@ -36,7 +37,6 @@ class Player(arcade.Sprite):
         # Последнее нажатое направление
         self.last_direction_x = None  # 'left' или 'right'
         self.last_direction_y = None  # 'up' или 'down'
-
 
         # Храним подобранные игроком предметы
         self.current_slot = 0
