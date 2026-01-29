@@ -139,7 +139,13 @@ class Player(arcade.Sprite):
     
     def draw_item(self):
         """ Отрисовывать предмет в руках """
-        ...
+        if not self.is_dead:
+            if self.current_slot == 0:
+                if self.first_item is not None:
+                    self.first_item.draw()
+            elif self.current_slot == 1:
+                if self.second_item is not None:
+                    self.second_item.draw()
 
     def drop_item(self) -> arcade.Sprite:
         """
