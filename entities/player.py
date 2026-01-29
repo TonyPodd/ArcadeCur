@@ -149,12 +149,14 @@ class Player(arcade.Sprite):
         if self.current_slot == 0 and self.first_item is not None:
             dropped_item = self.first_item
             self.first_item = None
+            return dropped_item
         
-        if self.current_slot == 1 and self.first_item is not None:
+        elif self.current_slot == 1 and self.first_item is not None:
             dropped_item = self.second
             self.second_item = None
-            
-        return dropped_item
+            return dropped_item
+
+        return None
 
     def grab_item(self, item_sprite: arcade.Sprite) -> bool:
         """ 
@@ -162,4 +164,12 @@ class Player(arcade.Sprite):
         item_sprite - спрайт, который хотим поднять \n
         Возвращает: True если есть свободные места в инвентаре, иначе False 
         """
-        if self.first_item
+        if self.first_item is not None:
+            self.first_item = item_sprite
+            self.current_slot = 0
+            return True
+        elif self.second_item is not None:
+            self.second_item = item_sprite
+            self.current_slot = 1
+            return True
+        return False
