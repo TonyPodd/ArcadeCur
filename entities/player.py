@@ -20,7 +20,6 @@ class Player(arcade.Sprite):
         self.center_x = x
         self.center_y = y
 
-
         # Направление движения
         self.direction = {
             'left': False,
@@ -137,3 +136,30 @@ class Player(arcade.Sprite):
     
     def on_die(self):
         self.is_dead = True
+    
+    def draw_item(self):
+        """ Отрисовывать предмет в руках """
+
+    def drop_item(self) -> arcade.Sprite:
+        """
+        Функция для выбрасывания item в руках \n
+        Возвращает спрайт в руках и удаляет его из инвентаря
+        """
+        dropped_item = None
+        if self.current_slot == 0 and self.first_item is not None:
+            dropped_item = self.first_item
+            self.first_item = None
+        
+        if self.current_slot == 1 and self.first_item is not None:
+            dropped_item = self.second
+            self.second_item = None
+            
+        return dropped_item
+
+    def grab_item(self, item_sprite: arcade.Sprite) -> bool:
+        """ 
+        Функция для добавления item в инвентарь \n
+        item_sprite - спрайт, который хотим поднять \n
+        Возвращает: True если есть свободные места в инвентаре, иначе False 
+        """
+        if self.first_item
