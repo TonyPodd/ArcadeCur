@@ -4,9 +4,10 @@ from config import *
 
 
 class HealthBar:
-    def __init__(self, player: arcade.sprite=None) -> None:
+    def __init__(self, player: arcade.sprite) -> None:
         # settigns
         self.speed = 20 # скорость для анимации
+        self.player = player
 
         # Координаты на экране
         self.x = 50
@@ -51,11 +52,10 @@ class HealthBar:
         )
 
     def update(self, delta_time: float= 1 / 60):
+        self.current_hp = self.player.player_hp
+        
         if self.display_hp > self.current_hp:
             self.display_hp -= self.speed * delta_time
         
         if self.display_hp - self.current_hp <= 0.1:
             self.display_hp = self.current_hp
-
-    def change_health_points(self, damage: float):
-        self.current_hp -= damage
