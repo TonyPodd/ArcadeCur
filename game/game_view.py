@@ -93,7 +93,6 @@ class GameView(arcade.View):
 
         # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
         self.gui_camera.use()
-
         self.haelth_bar.draw()
 
         # Координаты игрока
@@ -106,20 +105,6 @@ class GameView(arcade.View):
         )
 
         self.draw_alerts()
-
-    # def draw_active_item(self):
-    #     item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
-    #     if not item:
-    #         return
-
-    #     distance = 28
-    #     x = self.player.center_x + math.cos(self.player_angel_view) * distance
-    #     y = self.player.center_y + math.sin(self.player_angel_view) * distance
-
-    #     # Рисуем сам спрайт предмета поверх игрока в направлении взгляда
-    #     item.center_x = x
-    #     item.center_y = y
-    #     arcade.draw_sprite(item)
 
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
@@ -219,8 +204,11 @@ class GameView(arcade.View):
         # Выбросить айтем
         if (key == arcade.key.Q):
             dropped_item = self.player.drop_item()
+            # Если персонаж умер, то ничего не делать
             if dropped_item is False:
                 pass
+            
+            # Проверяем есть ли item в руках
             elif dropped_item is not None:
                 self.drop_inventory_item(dropped_item)
 
@@ -249,7 +237,7 @@ class GameView(arcade.View):
             self.player.direction['right'] = False
 
     def on_mouse_press(self, x, y, button, modifiers):
-        if button == arcade.MOUSE_BUTTON_LEFT:
+        if button == arcade.MOUSE_BUTTON_LEFT and not self.player.is_dead:
             item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
             if item != None and hasattr(item, "shoot"):
                 new_bullets = item.shoot()
