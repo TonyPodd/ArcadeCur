@@ -17,6 +17,8 @@ PLAYER_SCALING = 1.0
 ENEMY_SCALING = 1.0
 ENEMY_SPEED = 120
 
+DEFAULT_BULLET_VELOCITY = 5
+
 VIEWPORT_MARGIN = 200
 
 FPS = 60
@@ -44,5 +46,7 @@ WEAPON_TYPES = {
         "weapon_type" : "gun",     # melee или gun или magiс
         'damage_type' : "hitscan",    # я думаю прикольно сделать чтобы какие-то оружия хитсканили, а у каких-то с физикой были пульки
         'bullet_radius' : 5,
+        'shoot_timeout' : 1,
+        'bullet_speed' : 5,
     }
 }

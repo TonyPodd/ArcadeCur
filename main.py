@@ -20,6 +20,6 @@ def main():
     game.setup()
     game.run()
 
-    
+
 if __name__ == "__main__":
     main()

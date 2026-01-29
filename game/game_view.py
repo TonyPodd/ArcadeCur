@@ -37,6 +37,9 @@ class GameView(arcade.View):
         self.create_level('start')  # Стартовый уровень
         self.push_alert("Локация: Старт")
 
+        # Пули
+        self.bullets = arcade.SpriteList()
+
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
 
@@ -53,6 +56,9 @@ class GameView(arcade.View):
         # отрисовывается вместе с игроком
         self.drawing_sprites.sort(key=lambda x: x.position[1], reverse=True)
         self.drawing_sprites.draw()
+
+        # отрисовываем пули
+        self.bullets.draw()
 
         # Активный предмет у игрока
         self.draw_active_item()
@@ -109,7 +115,6 @@ class GameView(arcade.View):
         # Рисуем сам спрайт предмета поверх игрока в направлении взгляда
         item.center_x = x
         item.center_y = y
-        item.angle = math.degrees(self.player_angel_view)
         arcade.draw_sprite(item)
 
     def on_update(self, delta_time: float) -> None:
@@ -117,6 +122,13 @@ class GameView(arcade.View):
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.04)
         self.update_alerts(delta_time)
+
+        # Двигаем пули и удаляем при коллизии со стеной
+        for bullet in self.bullets:
+            bullet.update()
+            if arcade.check_for_collision_with_list(bullet, self.wall_sprites):
+                self.bullets.remove(bullet)
+
 
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
@@ -207,7 +219,6 @@ class GameView(arcade.View):
                 self.player.second_item.drop()
                 self.player.second_item = None
 
-
         # переключение слотов
         if key in (arcade.key.NUM_1, arcade.key.KEY_1):
             self.player.current_slot = 0
@@ -234,12 +245,26 @@ class GameView(arcade.View):
         if key == arcade.key.D:
             self.player.direction['right'] = False
 
+    def on_mouse_press(self, x, y, button, modifiers):
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
+            if item != None:
+                new_bullet = item.shoot()
+                if new_bullet != None:
+                    self.bullets.append(new_bullet)
+
+
+
+
+
+
     def on_mouse_motion(self, x, y, dx, dy):
         self.mouse_x = x
         self.mouse_y = y
 
         # Расчет под каким углом сейчас игрок смотрит
         self.player_angel_view = math.atan2(self.mouse_y - self.center_y, self.mouse_x - self.center_x)
+        self.player.view_angle = self.player_angel_view
 
     def load_level_sprites(self, level_num: int) -> None:
         """ Загрузка спрайтов с уровня"""
