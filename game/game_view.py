@@ -182,26 +182,22 @@ class GameView(arcade.View):
                 if (item.player != None): continue
                 if arcade.check_for_collision(self.player, item):
                     # пихаем в пустой слот если есть и переключаем на него, если нет то в активный
-                    item.grab(self.player)
-                    self.item_sprites_on_floor.remove(item) #отрисовывать подобраный предмет не надо
-                    self.item_sprites_in_enventory.append(item)
+                    self.add_item_to_inventory(item)
 
                     print(f'поддобрали предмет {item.name}')
 
                     if self.player.first_item == None:
                         self.player.first_item = item
                         self.player.current_slot = 0
-
                     elif self.player.second_item == None:
                         self.player.second_item = item
                         self.player.current_slot = 1
-
                     else:
                         if self.player.current_slot == 0:
-                            self.player.first_item.drop()
+                            self.drop_inventory_item(self.player.first_item)
                             self.player.first_item = item
                         else:
-                            self.player.second_item.drop()
+                            self.drop_inventory_item(self.player.second_item)
                             self.player.second_item = item
 
                     break # прерываем чтобы не подбирать дохуя рядом лежащих предметов сразу
@@ -209,14 +205,10 @@ class GameView(arcade.View):
         # Выбросить айтем
         if (key == arcade.key.Q):
             if self.player.current_slot == 0 and self.player.first_item != None:
-                self.item_sprites_in_enventory.remove(self.player.first_item)
-                self.item_sprites_on_floor.append(self.player.first_item)
-                self.player.first_item.drop()
+                self.drop_inventory_item(self.player.first_item)
                 self.player.first_item = None
             elif self.player.current_slot == 1 and self.player.second_item != None:
-                self.item_sprites_in_enventory.remove(self.player.second_item)
-                self.item_sprites_on_floor.append(self.player.second_item)
-                self.player.second_item.drop()
+                self.drop_inventory_item(self.player.second_item)
                 self.player.second_item = None
 
         # переключение слотов
@@ -248,10 +240,25 @@ class GameView(arcade.View):
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
             item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
-            if item != None:
-                new_bullet = item.shoot()
-                if new_bullet != None:
-                    self.bullets.append(new_bullet)
+            if item != None and item.clas == 'gun':
+                new_bullets = item.shoot()
+                if new_bullets != None:
+                    for cur_b in new_bullets:
+                        self.bullets.append(cur_b)
+
+    def add_item_to_inventory(self, item):
+        if item in self.item_sprites_on_floor:
+            self.item_sprites_on_floor.remove(item)
+        if item not in self.item_sprites_in_enventory:
+            self.item_sprites_in_enventory.append(item)
+        item.grab(self.player)
+
+    def drop_inventory_item(self, item):
+        if item in self.item_sprites_in_enventory:
+            self.item_sprites_in_enventory.remove(item)
+        if item not in self.item_sprites_on_floor:
+            self.item_sprites_on_floor.append(item)
+        item.drop()
 
 
 

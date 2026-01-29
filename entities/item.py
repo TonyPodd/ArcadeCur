@@ -10,7 +10,8 @@ class Item(arcade.Sprite):
         self.is_on_floor = True
         self.can_interact = False
         self.player = None
-        self.name = '202'
+        self.name = ''
+        self.clas = ''
         self.angle = 0
         self.direct_angle = 0
 
