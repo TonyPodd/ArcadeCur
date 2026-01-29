@@ -144,9 +144,9 @@ class GameView(arcade.View):
         # Айтемы в инвентаре двигаются вместе с игроком
         for item in self.item_sprites_in_enventory:
             item.update()
-            # print(item.center_x)
         
         # Изменения GUI
+        self.haelth_bar.update(delta_time)
         
 
     def on_key_press(self, key, modifiers) -> None:
@@ -165,10 +165,14 @@ class GameView(arcade.View):
             self.player.last_direction_x = 'right'
 
         # дэш/перекат/рывок
-        if (key == arcade.key.LCTRL or key == arcade.key.LSHIFT)  and not self.player.is_roll:
+        if (key == arcade.key.LCTRL or key == arcade.key.LSHIFT) and not self.player.is_roll:
             if self.player.direction['left'] or self.player.direction['right'] \
                 or self.player.direction['up'] or self.player.direction['down']:
                 self.player.do_roll()
+
+        # Для теста урона
+        if key == arcade.key.R:
+            self.player.take_damage(10)
 
         # взаимодействие с предметом
         if (key == arcade.key.E):
@@ -213,15 +217,12 @@ class GameView(arcade.View):
                 self.player.second_item.drop()
                 self.player.second_item = None
 
-
         # переключение слотов
         if key in (arcade.key.NUM_1, arcade.key.KEY_1):
             self.player.current_slot = 0
 
         if key in (arcade.key.NUM_2, arcade.key.KEY_2):
             self.player.current_slot = 1
-
-
 
         # Взаимодействия с интерфейсом
         # Пауза

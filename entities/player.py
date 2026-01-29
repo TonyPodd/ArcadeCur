@@ -121,3 +121,6 @@ class Player(arcade.Sprite):
         """ Ставит новые координаты играка """
         self.center_x = x
         self.center_y = y
+
+    def take_damage(self, damage: float):
+        self.player_hp -= damage
