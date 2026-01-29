@@ -14,4 +14,4 @@ class Bullet(arcade.Sprite):
 
     def update(self):
         self.center_x += cos(radians(self.angle)) * self.speed
-        self.center_y += sin(radians(self.angle)) * self.speed * -1
+        self.center_y += sin(radians(self.angle)) * -self.speed
