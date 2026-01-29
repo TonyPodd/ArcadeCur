@@ -8,6 +8,7 @@ class Player(arcade.Sprite):
         super().__init__()
         
         # settings
+        self.is_dead = False  # Умер ли игрок
         self.player_hp = config.PLAYER_HEALTH_POINTS
         self.max_speed = config.PLAYER_MOVEMENT_SPEED
 
@@ -45,49 +46,53 @@ class Player(arcade.Sprite):
         self.second_item = None
 
     def update(self, delta_time: float) -> None:
-        move_direction_x, move_direction_y = self.move()
+        if not self.is_dead:
+            move_direction_x, move_direction_y = self.move()
 
-        # передвижение
-        if not self.is_roll:
-            self.change_x = move_direction_x * self.max_speed * delta_time
-            self.change_y = move_direction_y * self.max_speed * delta_time
+            # передвижение
+            if not self.is_roll:
+                self.change_x = move_direction_x * self.max_speed * delta_time
+                self.change_y = move_direction_y * self.max_speed * delta_time
 
-        # перекат
-        elif self.is_roll:
-            self.change_x = self.roll_speed * self.roll_direction['x'] * delta_time
-            self.change_y = self.roll_speed * self.roll_direction['y'] * delta_time
-            self.roll_timer -= delta_time
+            # перекат
+            elif self.is_roll:
+                self.change_x = self.roll_speed * self.roll_direction['x'] * delta_time
+                self.change_y = self.roll_speed * self.roll_direction['y'] * delta_time
+                self.roll_timer -= delta_time
 
-            if self.roll_direction['x'] == 1:
-                self.angle += 20
-            elif self.roll_direction['x'] == -1:
-                self.angle -= 20
-            else:
-                self.angle += 20
+                if self.roll_direction['x'] == 1:
+                    self.angle += 20
+                elif self.roll_direction['x'] == -1:
+                    self.angle -= 20
+                else:
+                    self.angle += 20
 
-            if self.roll_timer <= 0:
-                self.roll_timer = config.PLAYER_ROLL_TIMER
-                self.is_roll = False
-                self.angle = 0
+                if self.roll_timer <= 0:
+                    self.roll_timer = config.PLAYER_ROLL_TIMER
+                    self.is_roll = False
+                    self.angle = 0
 
     def do_roll(self):
-        # Определяем направление по X
-        if self.direction['left']:
-            self.roll_direction['x'] = -1
-        elif self.direction['right']:
-            self.roll_direction['x'] = 1
-        else:
-            self.roll_direction['x'] = 0
+        if not self.is_dead:
+            # Определяем направление по X
+            if self.direction['left']:
+                self.roll_direction['x'] = -1
+            elif self.direction['right']:
+                self.roll_direction['x'] = 1
+            else:
+                self.roll_direction['x'] = 0
 
-        # Определяем направление по Y
-        if self.direction['up']:
-            self.roll_direction['y'] = 1
-        elif self.direction['down']:
-            self.roll_direction['y'] = -1
-        else:
-            self.roll_direction['y'] = 0
+            # Определяем направление по Y
+            if self.direction['up']:
+                self.roll_direction['y'] = 1
+            elif self.direction['down']:
+                self.roll_direction['y'] = -1
+            else:
+                self.roll_direction['y'] = 0
 
-        self.is_roll = True
+            self.is_roll = True
+        else:
+            self.is_roll = False
 
     def move(self) -> tuple[int, int]:
         """ Определет направления игрока """
@@ -122,5 +127,8 @@ class Player(arcade.Sprite):
         self.center_x = x
         self.center_y = y
 
-    def take_damage(self, damage: float):
+    def take_damage(self, damage: float) -> None:
         self.player_hp -= damage
+    
+    def on_die(self):
+        self.is_dead = True
