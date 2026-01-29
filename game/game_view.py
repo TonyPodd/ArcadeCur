@@ -121,6 +121,10 @@ class GameView(arcade.View):
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.04)
         self.update_alerts(delta_time)
+        
+        # Проверка умер ли игрок
+        if self.is_dead():
+            ...
 
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
@@ -147,7 +151,6 @@ class GameView(arcade.View):
         
         # Изменения GUI
         self.haelth_bar.update(delta_time)
-        
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
@@ -231,7 +234,7 @@ class GameView(arcade.View):
             pause = PauseView(self)
             self.window.show_view(pause)
 
-    def on_key_release(self, key, modifiers):
+    def on_key_release(self, key, modifiers) -> None:
         if key == arcade.key.W:
             self.player.direction['up'] = False
         if key == arcade.key.S:
@@ -241,12 +244,21 @@ class GameView(arcade.View):
         if key == arcade.key.D:
             self.player.direction['right'] = False
 
-    def on_mouse_motion(self, x, y, dx, dy):
+    def on_mouse_motion(self, x, y, dx, dy) -> None:
         self.mouse_x = x
         self.mouse_y = y
 
         # Расчет под каким углом сейчас игрок смотрит
         self.player_angel_view = math.atan2(self.mouse_y - self.center_y, self.mouse_x - self.center_x)
+    
+    def is_dead(self) -> bool:
+        """ Проверка умер ли игрок """
+        if self.player.player_hp <= 0:
+            self.player.on_die()
+            return True
+
+        return False
+        
 
     def load_level_sprites(self, level_num: int) -> None:
         """ Загрузка спрайтов с уровня"""
