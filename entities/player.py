@@ -204,3 +204,10 @@ class Player(arcade.Sprite):
             dropped_item = self.drop_item()
             self.second_item = item_sprite
             return dropped_item
+    
+    def get_items_texture(self) -> list[arcade.Sprite, arcade.Sprite]:
+        """
+        Возвращает массив текстур item'ов \n
+        """
+        
+        return [self.first_item.texture, self.second_item.texture]
