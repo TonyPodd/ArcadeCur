@@ -2,8 +2,7 @@ import arcade
 import csv
 import random
 
-from entities import Wall, Floor
-from rooms import Room, BossRoom, FightRoom, ShopRoom, LootRoom, SpawnRoom
+from rooms import BossRoom, FightRoom, ShopRoom, LootRoom, SpawnRoom
 from config import *
 
 class Level:
@@ -333,3 +332,12 @@ class Level:
                 except Exception:
                     pass
         return size
+
+    def check_room(self, player_sprite: arcade.Sprite) -> list[str, int]:
+        collide_floor = arcade.check_for_collision_with_list(player_sprite, self.all_sprites['floor'])
+        
+        try:
+            output = (collide_floor[0].room_number, self.rooms[collide_floor[0].room_number].room_type)
+        except Exception:
+            output = (0, 'None')
+        return output

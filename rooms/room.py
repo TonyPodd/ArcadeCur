@@ -259,6 +259,8 @@ class Room:
             sprite_list = sprites[sprite_name].sprite_list
             
             for sprite in sprite_list:
+                if sprite_name == 'floor':
+                    sprite.room_number = self.room_number
                 if sprite_name not in self.all_sprites:
                     self.all_sprites[sprite_name] = arcade.SpriteList()
                 self.all_sprites[sprite_name].append(sprite)

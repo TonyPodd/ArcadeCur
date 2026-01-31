@@ -39,6 +39,7 @@ class GameView(arcade.View):
         # Уровни
         self.all_levels = list()  # все уровни
         self.current_level_number = 0  # Какой сейчс уровень
+        self.current_room, self.current_room_type = 0, 'None'
         self.create_level('start')  # Стартовый уровень
         self.push_alert("Локация: Старт")
 
@@ -107,6 +108,14 @@ class GameView(arcade.View):
             arcade.color.WHITE,
             14
         )
+        # Комната в которой сейчас игрок
+        arcade.draw_text(
+            f"Номер комнаты: {self.current_room}, Тип комнаты: {self.current_room_type}",
+            10,
+            self.window.height - 70,
+            arcade.color.WHITE,
+            14
+        )
 
         self.draw_alerts()
 
@@ -115,6 +124,16 @@ class GameView(arcade.View):
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.04)
         self.update_alerts(delta_time)
+
+        # смортим в какой комнате игрок
+        self.current_room, self.current_room_type = self.all_levels[self.current_level_number].check_room(self.player)
+        print(self.current_room, self.current_room_type)
+
+        # Проверка умер ли игрок
+        if self.is_dead():
+            from views import DeathView
+            deathview = DeathView()
+            self.window.show_view(deathview)
 
         # Двигаем пули и удаляем при коллизии со стеной / истечении времени
         for bullet in list(self.bullets):
@@ -125,12 +144,6 @@ class GameView(arcade.View):
             if getattr(bullet, "expired", False):
                 self.bullets.remove(bullet)
 
-        # Проверка умер ли игрок
-        if self.is_dead():
-            from views import DeathView
-            deathview = DeathView()
-            self.window.show_view(deathview)
-
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
             chest.update()
@@ -139,7 +152,6 @@ class GameView(arcade.View):
                 print("СУНДУК ОТКРЫТ")
                 item = chest.get_item()
                 self.item_sprites_on_floor.append(item)
-                # self.drawing_sprites.append(item)
 
         # Проверяем возможность подобрать айтем
         for item in self.item_sprites_on_floor:
