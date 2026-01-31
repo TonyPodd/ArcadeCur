@@ -7,6 +7,11 @@ class Item(arcade.Sprite):
     def __init__(self, scale=1, center_x=0, center_y=0, type=''):
         super().__init__(":resources:images/topdown_tanks/tankDark_barrel3_outline.png", scale, center_x, center_y)
 
+        self.texture_sprite = arcade.Sprite(
+            self.texture,
+            self.scale,
+        )
+
         self.is_on_floor = True
         self.can_interact = False
         self.player = None
@@ -21,9 +26,6 @@ class Item(arcade.Sprite):
             self.center_y = self.player.center_y
             self.direct_angle = -degrees(self.player.view_angle)
             self.angle = -degrees(self.player.view_angle) + 90
-            # print(self.player.view_angle)
-
-        # print(self.center_x, self.center_y)
 
     def drop(self):
         self.player = None
@@ -44,3 +46,6 @@ class Item(arcade.Sprite):
         self.center_x = x
         self.center_y = y
         arcade.draw_sprite(self)
+
+    def get_texture(self):
+        return self.texture_sprite

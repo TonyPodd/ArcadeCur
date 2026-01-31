@@ -207,7 +207,15 @@ class Player(arcade.Sprite):
     
     def get_items_texture(self) -> list[arcade.Sprite, arcade.Sprite]:
         """
-        Возвращает массив текстур item'ов \n
+        Возвращает массив спрайтов с текстураим item'ов \n
         """
+        try:
+            first_texture = self.first_item.get_texture()
+        except Exception:
+            first_texture = None
+        try:
+            second_texture = self.second_item.get_texture()
+        except Exception:
+            second_texture = None
         
-        return [self.first_item.texture, self.second_item.texture]
+        return [first_texture, second_texture]
