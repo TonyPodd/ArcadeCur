@@ -14,3 +14,6 @@ class Door(arcade.Sprite):
     
     def close_door(self):
         self.is_close = True
+
+    def open_door(self):
+        self.is_close = False

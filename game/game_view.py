@@ -134,7 +134,7 @@ class GameView(arcade.View):
         if self.current_room not in self.all_levels[self.current_level_number].completed_rooms:
             if self.current_room_type == 'fight':
                 self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
-                self.current_room.begin_fight()
+                self.enemy_sprites = self.current_room.begin_fight()
                 
                 # Проверяем закрылись ли двери
                 self.check_close_doors()

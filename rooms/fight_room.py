@@ -47,16 +47,25 @@ class FightRoom(Room):
 
     def begin_fight(self):
         self.close_doors()
-        self.spawn_enemies()
+        return self.spawn_enemies()
     
     def end_fight(self):
+        self.status = 1
         self.open_doors()
         self.spawn_chest()
 
-    def spawn_enemies(self):
+    def spawn_enemies(self) -> arcade.SpriteList:
         """
         Спавн противников
         """
+        enemy_sprites = arcade.SpriteList()
+        num_of_enemy = random.randint(5, 10)
+        
+        for i in range(num_of_enemy):
+            floor = random.choice(self.all_sprites['floor'].sprite_list)
+            x, y = floor.center_x, floor.center_y
+        
+        return enemy_sprites
     
     def close_doors(self):
         for door in self.all_sprites['door']:
@@ -67,6 +76,8 @@ class FightRoom(Room):
         """
         Открытие всех дверей
         """
+        for door in self.all_sprites['door']:
+            door.open_door()
 
     def spawn_chest(self):
         """
