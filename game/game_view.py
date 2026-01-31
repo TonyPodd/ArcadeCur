@@ -3,7 +3,7 @@ import math
 
 from entities import Player, Wall
 from systems import PhysicsSystem, GameCamera
-from scripts import HealthBar
+from scripts.gui import HealthBar, InventorySlots
 from levels import Level
 import config
 
@@ -26,7 +26,10 @@ class GameView(arcade.View):
         self.player = Player(0, 0)
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player)
+
+        # UI
         self.haelth_bar = HealthBar(self.player)
+        self.inventory_ui = InventorySlots(self.player)
 
         # Камера
         self.camera = GameCamera()  # камера игрока
@@ -94,6 +97,7 @@ class GameView(arcade.View):
         # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
         self.gui_camera.use()
         self.haelth_bar.draw()
+        self.inventory_ui.draw()
 
         # Координаты игрока
         arcade.draw_text(
@@ -152,6 +156,7 @@ class GameView(arcade.View):
         
         # Изменения GUI
         self.haelth_bar.update(delta_time)
+        self.inventory_ui.update()
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
