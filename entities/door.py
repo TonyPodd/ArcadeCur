@@ -11,3 +11,6 @@ class Door(arcade.Sprite):
         self.height = TILE_SIZE
         
         self.is_close = False  # Закртыта ли дверь
+    
+    def close_door(self):
+        self.is_close = True

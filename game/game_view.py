@@ -47,7 +47,7 @@ class GameView(arcade.View):
         self.bullets = arcade.SpriteList()
 
         # Движок коллизии
-        self.physics_system = PhysicsSystem(self.player, self.wall_sprites)
+        self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
 
     def on_draw(self):
         self.clear()
@@ -130,7 +130,14 @@ class GameView(arcade.View):
         if self.current_room_num != 0:
             self.current_room = self.all_levels[self.current_level_number].rooms[self.current_room_num]
         
-        # Начинаем бой если тип комнаты - fight и она не зачищена
+        # Начинаем бой если тип комнаты - fight, и она не зачищена
+        if self.current_room not in self.all_levels[self.current_level_number].completed_rooms:
+            if self.current_room_type == 'fight':
+                self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
+                self.current_room.begin_fight()
+                
+                # Проверяем закрылись ли двери
+                self.check_close_doors()
 
         # Проверка умер ли игрок
         if self.is_dead():
@@ -320,6 +327,8 @@ class GameView(arcade.View):
 
         self.drawing_sprites = arcade.SpriteList()  # Спрайты для y-sort отрисовки
         self.drawing_sprites.append(self.player)
+        
+        self.collision_sprites = arcade.SpriteList()
 
         self.wall_sprites = self.all_sprites['wall']
         self.floor_sprites = self.all_sprites['floor']
@@ -330,6 +339,9 @@ class GameView(arcade.View):
         self.item_sprites_on_floor = arcade.SpriteList()
         self.item_sprites_in_enventory = arcade.SpriteList()
 
+        # Спрайты с коллизией с игроком
+        for sprite in self.wall_sprites:
+            self.collision_sprites.append(sprite)
 
         # спрайты для отрисовки, кроме пола
         for sprite in self.wall_sprites:
@@ -430,3 +442,17 @@ class GameView(arcade.View):
                 anchor_x="center",
                 anchor_y="center"
             )
+
+    def check_close_doors(self):
+        """
+        Првоерка закрыта ли дверь
+        """
+        
+        for sprite in self.all_sprites['door']:
+            # Если закрыта и не в спрайтах коллизии
+            if sprite.is_close and sprite not in self.collision_sprites:
+                self.collision_sprites.append(sprite)
+            
+            # Если дверь открыта и в спрайтах коллизии, то убрать
+            if not sprite.is_close and sprite in self.collision_sprites:
+                self.collision_sprites.remove(sprite)

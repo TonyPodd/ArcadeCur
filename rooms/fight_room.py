@@ -61,7 +61,7 @@ class FightRoom(Room):
     def close_doors(self):
         for door in self.all_sprites['door']:
             # закрыть дверь
-            ...
+            door.close_door()
     
     def open_doors(self):
         """

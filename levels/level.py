@@ -24,6 +24,7 @@ class Level:
                 # 0 - Пустой чанк
 
         self.rooms = dict()    # Все комнаты
+        self.completed_rooms = list()  # массив зачищенных комнат
         self.current_room = 1  # номер текущей комнаты
         self.room_path = dict()  # Проходы между комнатами
         self.number_of_rooms = {  # количество комнат определённого типа
@@ -335,7 +336,7 @@ class Level:
 
     def check_room(self, player_sprite: arcade.Sprite) -> list[str, int]:
         collide_floor = arcade.check_for_collision_with_list(player_sprite, self.all_sprites['floor'])
-        
+
         try:
             output = (collide_floor[0].room_number, self.rooms[collide_floor[0].room_number].room_type)
         except Exception:
