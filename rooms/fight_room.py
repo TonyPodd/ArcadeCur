@@ -14,6 +14,8 @@ class FightRoom(Room):
         data = self.data_from_file(self.room_type)
         sprites_from_data = self.load_sprites_from_data(data)
         self.add_new_sprites(sprites_from_data)
+        
+        self.status = 0  # статус комнаты: 0 - не зачищена, 1 - зачищена
 
     def data_from_file(self, room_type: str) -> dict:
         """
@@ -42,3 +44,31 @@ class FightRoom(Room):
                     all_objects[object_type].append((j, i))
         
         return all_objects
+
+    def begin_fight(self):
+        self.close_doors()
+        self.spawn_enemies()
+    
+    def end_fight(self):
+        self.open_doors()
+        self.spawn_chest()
+
+    def spawn_enemies(self):
+        """
+        Спавн противников
+        """
+    
+    def close_doors(self):
+        for door in self.all_sprites['door']:
+            # закрыть дверь
+            ...
+    
+    def open_doors(self):
+        """
+        Открытие всех дверей
+        """
+
+    def spawn_chest(self):
+        """
+        Спавн сундука в конце зачистки
+        """

@@ -110,7 +110,7 @@ class GameView(arcade.View):
         )
         # Комната в которой сейчас игрок
         arcade.draw_text(
-            f"Номер комнаты: {self.current_room}, Тип комнаты: {self.current_room_type}",
+            f"Номер комнаты: {self.current_room_num}, Тип комнаты: {self.current_room_type}",
             10,
             self.window.height - 70,
             arcade.color.WHITE,
@@ -126,8 +126,11 @@ class GameView(arcade.View):
         self.update_alerts(delta_time)
 
         # смортим в какой комнате игрок
-        self.current_room, self.current_room_type = self.all_levels[self.current_level_number].check_room(self.player)
-        print(self.current_room, self.current_room_type)
+        self.current_room_num, self.current_room_type = self.all_levels[self.current_level_number].check_room(self.player)
+        if self.current_room_num != 0:
+            self.current_room = self.all_levels[self.current_level_number].rooms[self.current_room_num]
+        
+        # Начинаем бой если тип комнаты - fight и она не зачищена
 
         # Проверка умер ли игрок
         if self.is_dead():
