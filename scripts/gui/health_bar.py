@@ -52,7 +52,7 @@ class HealthBar:
         )
 
     def update(self, delta_time: float= 1 / 60) -> None:
-        self.current_hp = self.player.player_hp
+        self.current_hp = self.player.hp
         
         if self.display_hp > self.current_hp:
             self.display_hp -= self.speed * delta_time
