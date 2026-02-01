@@ -126,10 +126,8 @@ class GameView(arcade.View):
         self.update_alerts(delta_time)
 
         # смортим в какой комнате игрок
-        self.current_room_num, self.current_room_type = self.all_levels[self.current_level_number].check_room(self.player)
-        if self.current_room_num != 0:
-            self.current_room = self.all_levels[self.current_level_number].rooms[self.current_room_num]
-        
+        collide_floor = self.chech_current_room()
+
         # Начинаем бой если тип комнаты - fight, и она не зачищена
         if self.current_room not in self.all_levels[self.current_level_number].completed_rooms:
             if self.current_room_type == 'fight':
@@ -138,6 +136,11 @@ class GameView(arcade.View):
                 
                 # Проверяем закрылись ли двери
                 self.check_close_doors()
+                
+                # Перемещаям игрока на кординаты пола перед дверью
+                floor = collide_floor.sprite_list[0]
+                x, y = floor.center_x, floor.center_y
+                self.player.set_position(x, y)
 
         # Проверка умер ли игрок
         if self.is_dead():
@@ -465,3 +468,19 @@ class GameView(arcade.View):
             # Если дверь открыта и в спрайтах коллизии, то убрать
             if not sprite.is_close and sprite in self.collision_sprites:
                 self.collision_sprites.remove(sprite)
+
+    def chech_current_room(self) -> arcade.SpriteList:
+        """
+        Определяет комнату, в которой игрок
+        """
+        floor_sprites = arcade.SpriteList()
+
+        self.current_room_num, self.current_room_type, list_floor_sprites = self.all_levels[self.current_level_number].check_room(self.player)
+        if self.current_room_num != 0:
+            self.current_room = self.all_levels[self.current_level_number].rooms[self.current_room_num]
+
+        # Добавляет спрайты пола из массива в спрайт лист
+        for sprite in list_floor_sprites:
+            floor_sprites.append(sprite)
+            
+        return floor_sprites

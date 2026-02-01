@@ -340,11 +340,15 @@ class Level:
                     pass
         return size
 
-    def check_room(self, player_sprite: arcade.Sprite) -> list[str, int]:
+    def check_room(self, player_sprite: arcade.Sprite) -> list[str, int, list[arcade.Sprite]]:
+        """
+        Проверяет в какой комнате сейчас игрок \n
+        Возвращает номер комнаты, тик комнаты, спрайты пола, на котором стоит
+        """
         collide_floor = arcade.check_for_collision_with_list(player_sprite, self.all_sprites['floor'])
 
         try:
-            output = (collide_floor[0].room_number, self.rooms[collide_floor[0].room_number].room_type)
+            output = (collide_floor[0].room_number, self.rooms[collide_floor[0].room_number].room_type, collide_floor)
         except Exception:
-            output = (0, 'None')
+            output = (0, 'None', collide_floor)
         return output
