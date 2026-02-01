@@ -297,7 +297,7 @@ class GameView(arcade.View):
 
     def is_dead(self) -> bool:
         """ Проверка умер ли игрок """
-        if self.player.player_hp <= 0:
+        if self.player.hp <= 0:
             self.player.on_die()
             return True
         return False

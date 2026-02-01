@@ -9,7 +9,7 @@ class Player(arcade.Sprite):
         
         # settings
         self.is_dead = False  # Умер ли игрок
-        self.player_hp = config.PLAYER_HEALTH_POINTS
+        self.hp = config.PLAYER_HEALTH_POINTS
         self.max_speed = config.PLAYER_MOVEMENT_SPEED
         self.view_angle = 0.0
 
@@ -132,7 +132,7 @@ class Player(arcade.Sprite):
         self.center_y = y
 
     def take_damage(self, damage: float) -> None:
-        self.player_hp -= damage
+        self.hp -= damage
     
     def on_die(self):
         self.is_dead = True
@@ -164,7 +164,7 @@ class Player(arcade.Sprite):
             self.first_item = None
             return dropped_item
         
-        elif self.current_slot == 1 and self.first_item is not None:
+        if self.current_slot == 1 and self.second_item is not None:
             dropped_item = self.second_item
             self.second_item = None
             return dropped_item
