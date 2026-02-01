@@ -33,8 +33,26 @@ class Enemy(arcade.Sprite):
 
 
     def update(self):
-        ...
-
+        self.death_check()
 
     def move_to_player(self):
         ...
+
+    def take_damge(self):
+        """
+        Получение урона
+        """
+
+    def draw(self):
+        """
+        Отрисовка предметов, которые имее враг
+        """
+
+    def death_check(self):
+        """
+        Проверка на смерть врага
+        """
+        if self.hp <= 0:
+            self.is_dead = True
+            self.remove_from_sprite_lists()
+            self.kill()
