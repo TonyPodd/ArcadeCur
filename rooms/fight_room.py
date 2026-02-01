@@ -12,14 +12,17 @@ class FightRoom(Room):
     def __init__(self, room_type, room_number, x, y, rooms_coords):
         super().__init__(room_type, room_number, x, y, rooms_coords)
 
-        data = self.data_from_file(self.room_type)
-        sprites_from_data = self.load_sprites_from_data(data)
+        self.data = self.data_from_file(self.room_type)
+        sprites_from_data = self.load_sprites_from_data(self.data)
         self.add_new_sprites(sprites_from_data)
-        self.create_enemies_from_data(data)
+        # self.create_enemies_from_data(data)
 
-    def create_enemies_from_data(self, data):
-        wall_tiles = set(data.get('2', []))
-        floor_tiles = set(data.get('1', []))
+    def create_enemies_from_data(self):
+        """
+        Создание врагов в комнате
+        """
+        wall_tiles = set(self.data.get('2', []))
+        floor_tiles = set(self.data.get('1', []))
 
         def is_clear(tile):
             if tile not in floor_tiles:

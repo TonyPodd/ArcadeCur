@@ -52,7 +52,7 @@ ENEMY_TYPES = {
         'name' : 'мудак',
         'hp' : 50,
         'weapon' : "default_gun",
-        'arg_range' : 50,
+        'agr_range' : 50,
         'attack_range' : 40,
         'speed' : 3,
     }

@@ -12,14 +12,13 @@ class Enemy(arcade.Sprite):
         self.is_dead = False  # Умер ли енеми
         self.hp = config.ENEMY_TYPES[self.type]['hp']
         self.max_speed = config.ENEMY_TYPES[self.type]['speed']
-        self.agr_radius = config.ENEMY_TYPES[self.type]['arg_range']
+        self.agr_radius = config.ENEMY_TYPES[self.type]['agr_range']
         self.attack_radius = config.ENEMY_TYPES[self.type]['attack_range']
         self.weapon_name = config.ENEMY_TYPES[self.type]['weapon']
         self.weapon_type = config.WEAPON_TYPES[self.weapon_name]['weapon_type']
         self.weapon = Weapon(center_x=int(self.center_x), center_y= int(self.center_y), type=self.weapon_name, clas= self.weapon_type)
 
         self.is_player_visible = False
-        
 
         # Временный квадрат вместо спрайта
         self.texture = arcade.make_soft_square_texture(40, arcade.color.RED, outer_alpha=255)
