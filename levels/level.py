@@ -116,6 +116,8 @@ class Level:
         direction - в какую сторону будет создаваться комната\n
         """
 
+
+
         # Для создания лифта
         if room_type == 'spawn':
             self.rooms[current_room_number] = SpawnRoom(
@@ -140,6 +142,7 @@ class Level:
             self.room_path[self.text_map[y_from - 1][x_from]].append((x_from, y_from - 1, 'up'))
 
             return (x_from, y_from)
+
         # остольные комнаты
         else:
             # Устанавлеваем координаты новой комнаты и указываем, где будет дверь в этой комнате
@@ -181,13 +184,16 @@ class Level:
                     room_type, current_room_number, next_x, next_y, size
                 )
             if room_type == 'loot':
-                 self.rooms[current_room_number] = LootRoom(
+                self.rooms[current_room_number] = LootRoom(
                     room_type, current_room_number, next_x, next_y, size
                 )
             if room_type == 'fight':
-                 self.rooms[current_room_number] = FightRoom(
+                self.rooms[current_room_number] = FightRoom(
                     room_type, current_room_number, next_x, next_y, size
                 )
+
+                # для генерации противников
+                # self.rooms[current_room_number]
 
         return (next_x, next_y)
 
