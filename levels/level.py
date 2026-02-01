@@ -340,7 +340,7 @@ class Level:
                     pass
         return size
 
-    def check_room(self, player_sprite: arcade.Sprite) -> list[str, int, arcade.SpriteList]:
+    def check_room(self, player_sprite: arcade.Sprite) -> list[str, int, list[arcade.Sprite]]:
         """
         Проверяет в какой комнате сейчас игрок \n
         Возвращает номер комнаты, тик комнаты, спрайты пола, на котором стоит
