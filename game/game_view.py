@@ -1,7 +1,7 @@
 import arcade
 import math
 
-from entities import Player, Wall
+from entities import Player
 from systems import PhysicsSystem, GameCamera
 from scripts.gui import HealthBar, InventorySlots
 from levels import Level
@@ -26,6 +26,8 @@ class GameView(arcade.View):
         self.player = Player(0, 0)
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player)
+        self.item_sprites_in_enventory = arcade.SpriteList()
+        self.in_fight = False  # Идёт ли сейчас сражение
 
         # UI
         self.haelth_bar = HealthBar(self.player)
@@ -42,9 +44,6 @@ class GameView(arcade.View):
         self.current_room, self.current_room_type = 0, 'None'
         self.create_level('start')  # Стартовый уровень
         self.push_alert("Локация: Старт")
-
-        # Пули
-        self.bullets = arcade.SpriteList()
 
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
@@ -131,16 +130,11 @@ class GameView(arcade.View):
         # Начинаем бой если тип комнаты - fight, и она не зачищена
         if self.current_room not in self.all_levels[self.current_level_number].completed_rooms:
             if self.current_room_type == 'fight':
-                self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
-                self.enemy_sprites = self.current_room.begin_fight()
-                
-                # Проверяем закрылись ли двери
-                self.check_close_doors()
-                
-                # Перемещаям игрока на кординаты пола перед дверью
-                floor = collide_floor.sprite_list[0]
-                x, y = floor.center_x, floor.center_y
-                self.player.set_position(x, y)
+                self.start_fight(collide_floor)
+
+        # Заканчиваем бой, если враги - всё
+        if self.in_fight and not self.enemy_sprites.sprite_list:
+            self.end_fight()
 
         # Проверка умер ли игрок
         if self.is_dead():
@@ -151,14 +145,14 @@ class GameView(arcade.View):
         # Двигаем пули
         self.bullets.update(delta_time)
 
-        # удаляем при коллизии со стеной / истечении времени
-        self.bullet_collision_with_wall()
-        
         # Обновляем врагов
         self.enemy_sprites.update(delta_time)
 
         # Проверяем коллизию врагов с пулями
         self.enemy_collision_with_bullet()
+
+        # удаляем при коллизии со стеной / истечении времени
+        self.bullet_collision_with_wall()
 
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
@@ -348,10 +342,10 @@ class GameView(arcade.View):
         self.floor_sprites = self.all_sprites['floor']
         self.door_sprites = self.all_sprites['door']
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
+        self.bullets = arcade.SpriteList()
 
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
         self.item_sprites_on_floor = arcade.SpriteList()
-        self.item_sprites_in_enventory = arcade.SpriteList()
 
         # Спрайты с коллизией с игроком
         for sprite in self.wall_sprites:
@@ -461,9 +455,9 @@ class GameView(arcade.View):
                 anchor_y="center"
             )
 
-    def check_close_doors(self):
+    def check_doors(self):
         """
-        Првоерка закрыта ли дверь
+        Првоерка находятся ли закрытые и открытые двери в своих спрайт листах
         """
         
         for sprite in self.all_sprites['door']:
@@ -520,3 +514,24 @@ class GameView(arcade.View):
             
                     # добавляем пули к уже столкнувшимся
                     enemy.bullets_hitted.append(bullet)
+
+    def start_fight(self, collide_floor: arcade.SpriteList):
+        self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
+        self.enemy_sprites = self.current_room.begin_fight()
+
+        # Проверяем закрылись ли двери
+        self.check_doors()
+
+        # Перемещаям игрока на кординаты пола перед дверью
+        floor = collide_floor.sprite_list[0]
+        x, y = floor.center_x, floor.center_y
+        self.player.set_position(x, y)
+        self.in_fight = True
+
+        self.push_alert("Локация: 'Fight'")
+
+    def end_fight(self):
+        self.current_room.end_fight()
+        # Проверяем закрылись ли двери
+        self.check_doors()
+        self.in_fight = False
