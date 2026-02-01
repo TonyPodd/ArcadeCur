@@ -24,7 +24,7 @@ class Bullet(arcade.Sprite):
             self.height = size
 
     def update(self):
-        if self.life_frames is not None:
+        if self.life_frames is not None:    
             self.life_frames -= 1
             if self.life_frames <= 0:
                 self.expired = True

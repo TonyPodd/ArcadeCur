@@ -45,6 +45,23 @@ CHEST_TYPES = ['weapon', 'ability']
 # Позиции сундуков в стартовой комнате (в координатах CSV, 0..13)
 SPAWN_CHEST_TILES = [(2, 2), (11, 2), (6, 10)]
 
+
+#enemies
+ENEMY_TYPES = {
+    'recrut' : {
+        'name' : 'мудак',
+        'hp' : 50,
+        'weapon' : "default_gun",
+        'agr_range' : 50,
+        'attack_range' : 40,
+        'speed' : 3,
+    }
+}
+
+# enemy spawn от первого значения до последнего
+FIGHT_ROOM_ENEMY_COUNT_1X1 = (6, 10)
+FIGHT_ROOM_ENEMY_COUNT_2X2 = (14, 18)
+
 # weapon
 WEAPON_TYPES = {
     'default_gun' : {

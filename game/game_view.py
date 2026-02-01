@@ -43,8 +43,10 @@ class GameView(arcade.View):
         self.create_level('start')  # Стартовый уровень
         self.push_alert("Локация: Старт")
 
+
         # Пули
         self.bullets = arcade.SpriteList()
+
 
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
@@ -175,7 +177,7 @@ class GameView(arcade.View):
         # Айтемы в инвентаре двигаются вместе с игроком
         for item in self.item_sprites_in_enventory:
             item.update()
-        
+
         # Изменения GUI
         self.haelth_bar.update(delta_time)
         self.inventory_ui.update()
@@ -218,7 +220,7 @@ class GameView(arcade.View):
                     sprite = self.player.grab_item(item)
 
                     print(f'поддобрали предмет {item.name}')
-                    
+
                     # Если есть свободные слоты
                     if sprite is True:
                         self.add_item_to_inventory(item)
@@ -236,7 +238,7 @@ class GameView(arcade.View):
             # Если персонаж умер, то ничего не делать
             if dropped_item is False:
                 pass
-            
+
             # Проверяем есть ли item в руках
             elif dropped_item is not None:
                 self.drop_inventory_item(dropped_item)
@@ -322,6 +324,11 @@ class GameView(arcade.View):
         except Exception:
             print('Не спрайтов дверей')
 
+        try:
+            self.enemy_sprites.clear()
+        except Exception:
+            print('Не спрайтов врагов')
+
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
 
@@ -335,7 +342,7 @@ class GameView(arcade.View):
         self.door_sprites = self.all_sprites['door']
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
 
-        self.enemy_sprites = arcade.SpriteList()
+        self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
         self.item_sprites_on_floor = arcade.SpriteList()
         self.item_sprites_in_enventory = arcade.SpriteList()
 
@@ -349,6 +356,10 @@ class GameView(arcade.View):
 
         # сундуки (если есть)
         for sprite in self.chest_sprites:
+            self.drawing_sprites.append(sprite)
+
+        # враги (если есть)
+        for sprite in self.enemy_sprites:
             self.drawing_sprites.append(sprite)
 
     def create_level(self, level_type):
