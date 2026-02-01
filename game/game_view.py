@@ -43,10 +43,8 @@ class GameView(arcade.View):
         self.create_level('start')  # Стартовый уровень
         self.push_alert("Локация: Старт")
 
-
         # Пули
         self.bullets = arcade.SpriteList()
-
 
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.collision_sprites)

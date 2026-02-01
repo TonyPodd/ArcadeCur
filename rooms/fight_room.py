@@ -99,6 +99,8 @@ class FightRoom(Room):
             center_x = self.x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE * (tile_x + 1)
             center_y = self.y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (tile_y + 1)
             self.all_sprites['enemy'].append(Enemy(center_x, center_y))
+        
+        return self.all_sprites['enemy']
     
     def close_doors(self):
         for door in self.all_sprites['door']:
