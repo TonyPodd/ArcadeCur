@@ -148,14 +148,11 @@ class GameView(arcade.View):
             deathview = DeathView()
             self.window.show_view(deathview)
 
-        # Двигаем пули и удаляем при коллизии со стеной / истечении времени
-        for bullet in list(self.bullets):
-            bullet.update()
-            if arcade.check_for_collision_with_list(bullet, self.wall_sprites):
-                self.bullets.remove(bullet)
-                continue
-            if getattr(bullet, "expired", False):
-                self.bullets.remove(bullet)
+        # Двигаем пули
+        self.bullets.update(delta_time)
+
+        # удаляем при коллизии со стеной / истечении времени
+        self.bullet_collision_with_wall()
 
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
@@ -324,11 +321,14 @@ class GameView(arcade.View):
             self.door_sprites.clear()
         except Exception:
             print('Не спрайтов дверей')
-
         try:
             self.enemy_sprites.clear()
         except Exception:
             print('Не спрайтов врагов')
+        try:
+            self.bullets.clear()
+        except Exception:
+            print('Нет спрайтов пуль')
 
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
@@ -484,3 +484,16 @@ class GameView(arcade.View):
             floor_sprites.append(sprite)
             
         return floor_sprites
+
+    def bullet_collision_with_wall(self) -> None:
+        """
+        Проверка сталкивается ли пуля со стеной \n
+        """
+        for bullet in list(self.bullets):
+            if arcade.check_for_collision_with_list(bullet, self.wall_sprites):
+                self.bullets.remove(bullet)
+                bullet.kill()
+                continue
+            if getattr(bullet, "expired", False):
+                self.bullets.remove(bullet)
+                bullet.kill()

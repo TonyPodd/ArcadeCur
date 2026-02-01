@@ -23,7 +23,7 @@ class Bullet(arcade.Sprite):
             self.width = size
             self.height = size
 
-    def update(self):
+    def update(self, delta_time):
         if self.life_frames is not None:    
             self.life_frames -= 1
             if self.life_frames <= 0:
