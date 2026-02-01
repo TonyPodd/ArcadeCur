@@ -8,7 +8,7 @@ class Bullet(arcade.Sprite):
 
         self.speed = DEFAULT_BULLET_VELOCITY
         self.angle = 0
-        self.damage = 0
+        self.damage = 20
         self.damage_type = ""
         self.bullet_radius = 0
         self.bullet_speed = 0

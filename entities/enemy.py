@@ -17,6 +17,8 @@ class Enemy(arcade.Sprite):
         self.weapon_name = config.ENEMY_TYPES[self.type]['weapon']
         self.weapon_type = config.WEAPON_TYPES[self.weapon_name]['weapon_type']
         self.weapon = Weapon(center_x=int(self.center_x), center_y= int(self.center_y), type=self.weapon_name, clas= self.weapon_type)
+        
+        self.bullets_hitted = arcade.SpriteList()  # Пули которые попали во врага, (чтобы не было повторного урона)
 
         self.is_player_visible = False
 
@@ -32,16 +34,17 @@ class Enemy(arcade.Sprite):
         self.center_y = y
 
 
-    def update(self):
+    def update(self, delta_time: float):
         self.death_check()
 
     def move_to_player(self):
         ...
 
-    def take_damge(self):
+    def take_damage(self, damage):
         """
         Получение урона
         """
+        self.hp -= damage
 
     def draw(self):
         """

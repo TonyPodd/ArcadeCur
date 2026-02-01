@@ -153,6 +153,12 @@ class GameView(arcade.View):
 
         # удаляем при коллизии со стеной / истечении времени
         self.bullet_collision_with_wall()
+        
+        # Обновляем врагов
+        self.enemy_sprites.update(delta_time)
+
+        # Проверяем коллизию врагов с пулями
+        self.enemy_collision_with_bullet()
 
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
@@ -497,3 +503,20 @@ class GameView(arcade.View):
             if getattr(bullet, "expired", False):
                 self.bullets.remove(bullet)
                 bullet.kill()
+    
+    def enemy_collision_with_bullet(self) -> None:
+        """
+        Провеяем задела ли врага пуля \n
+        Если да, то враг получает урон
+        """
+        
+        for enemy in self.enemy_sprites.sprite_list:
+            collide_bullets = arcade.check_for_collision_with_list(enemy, self.bullets)
+
+            for bullet in collide_bullets:
+                # Наносим урон врагу, если он с ней не сталкивался
+                if bullet not in enemy.bullets_hitted:
+                    enemy.take_damage(bullet.damage)
+            
+                    # добавляем пули к уже столкнувшимся
+                    enemy.bullets_hitted.append(bullet)
