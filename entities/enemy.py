@@ -7,7 +7,7 @@ from .weapon import Weapon
 from scripts.gui import HealthLine
 
 class Enemy(arcade.Sprite):
-    def __init__(self, x: float, y: float, type = "sniper"):
+    def __init__(self, x: float, y: float, type = "brute"):
         super().__init__()
 
         # settings
@@ -101,9 +101,15 @@ class Enemy(arcade.Sprite):
     def move_to(self, x, y):
         dx = x - self.center_x
         dy = y - self.center_y
+        dist = (dx * dx + dy * dy) ** 0.5
+        if dist < 4:
+            self.change_x = 0
+            self.change_y = 0
+            return True
         self.view_angle = atan2(dy, dx)
         self.change_x = self.max_speed * cos(self.view_angle)
         self.change_y = self.max_speed * sin(self.view_angle)
+        return False
 
     def idle_move(self, delta_time):
         # Небольшое блуждание, чтобы не стоять как уебан
@@ -113,7 +119,8 @@ class Enemy(arcade.Sprite):
             offset_x = random.randint(-60, 60)
             offset_y = random.randint(-60, 60)
             self.idle_target = (self.center_x + offset_x, self.center_y + offset_y)
-        self.move_to(self.idle_target[0], self.idle_target[1])
+        if self.move_to(self.idle_target[0], self.idle_target[1]):
+            self.idle_target = None
 
 
 

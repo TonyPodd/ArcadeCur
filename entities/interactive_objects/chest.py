@@ -23,7 +23,7 @@ class Chest(InetactiveObject):
         self.is_open = False
         self.rarity = rarity
         self.chest_type = chest_type
-        
+
         self.tips_text = 'E - open'
 
     def open(self):
@@ -37,7 +37,7 @@ class Chest(InetactiveObject):
             return Weapon(
                 center_x=int(self.center_x + randint(20, 40) * choice([-1, 1])),
                 center_y=int(self.center_y + randint(20, 40) * choice([-1, 1])),
-                type = 'shotgun'
+                type = 'orb'
             )
 
         return None
