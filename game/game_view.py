@@ -47,6 +47,8 @@ class GameView(arcade.View):
 
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
+        self.enemy_physics = []
+
 
         self.enemy_bullets = arcade.SpriteList()
 
@@ -101,10 +103,10 @@ class GameView(arcade.View):
             arcade.color.RED,
             3
         )
-        
+
         for sprite in self.interactive_sprites:
             sprite.draw_tips()
-        
+
         self.interactive_sprites.draw_hit_boxes(arcade.color.RED)
 
 
@@ -158,6 +160,11 @@ class GameView(arcade.View):
             from views import DeathView
             deathview = DeathView()
             self.window.show_view(deathview)
+
+
+        # коллизия со стенами для енеми
+        for engine in self.enemy_physics:
+            engine.update()
 
         # Двигаем пули
         self.bullets.update(delta_time)
@@ -375,6 +382,7 @@ class GameView(arcade.View):
 
         # Спрайты с коллизией с игроком
         for sprite in self.wall_sprites:
+            # self.collision_sprites.append()
             self.collision_sprites.append(sprite)
 
         # спрайты для отрисовки, кроме пола
@@ -389,6 +397,7 @@ class GameView(arcade.View):
         # враги (если есть)
         for sprite in self.enemy_sprites:
             self.drawing_sprites.append(sprite)
+            # self.collision_sprites.append(sprite)
 
     def create_level(self, level_type):
         level = Level(level_type)
@@ -556,6 +565,14 @@ class GameView(arcade.View):
     def start_fight(self, collide_floor: arcade.SpriteList):
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
         self.enemy_sprites = self.current_room.begin_fight()
+        self.collision_sprites.extend(self.enemy_sprites)
+
+        for enemy in self.enemy_sprites:
+            # all_collision_sprites = self.door_sprites
+            # all_collision_sprites.extend(self.wall_sprites)
+
+            engine = arcade.PhysicsEngineSimple(enemy, self.collision_sprites)
+            self.enemy_physics.append(engine)
 
         for enemy in self.enemy_sprites:
             enemy.player = self.player
@@ -578,7 +595,7 @@ class GameView(arcade.View):
         self.in_fight = False
 
     def trigger_collision(self):
-        
+
         for sprite in self.interactive_sprites.sprite_list:
             if arcade.check_for_collision(self.player, sprite):
                 sprite.tips = True

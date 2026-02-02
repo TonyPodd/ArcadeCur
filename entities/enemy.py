@@ -7,7 +7,7 @@ from .weapon import Weapon
 from scripts.gui import HealthLine
 
 class Enemy(arcade.Sprite):
-    def __init__(self, x: float, y: float, type = "recrut"):
+    def __init__(self, x: float, y: float, type = "sniper"):
         super().__init__()
 
         # settings
@@ -102,8 +102,8 @@ class Enemy(arcade.Sprite):
         dx = x - self.center_x
         dy = y - self.center_y
         self.view_angle = atan2(dy, dx)
-        self.center_x += self.max_speed * cos(self.view_angle)
-        self.center_y += self.max_speed * sin(self.view_angle)
+        self.change_x = self.max_speed * cos(self.view_angle)
+        self.change_y = self.max_speed * sin(self.view_angle)
 
     def idle_move(self, delta_time):
         # Небольшое блуждание, чтобы не стоять как уебан
