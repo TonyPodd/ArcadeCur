@@ -137,7 +137,7 @@ class Level:
                 'boss', current_room_number, x_from, y_from, size
             )
             self.room_path[current_room_number] = [(x_from, y_from, 'down')]
-            print(self.text_map[y_from - 1][x_from])
+            # debug print removed
             self.room_path[self.text_map[y_from - 1][x_from]].append((x_from, y_from - 1, 'up'))
 
             return (x_from, y_from)
