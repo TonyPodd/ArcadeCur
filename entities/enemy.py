@@ -18,6 +18,19 @@ class Enemy(arcade.Sprite):
         self.weapon_name = config.ENEMY_TYPES[self.type]['weapon']
         self.weapon_type = config.WEAPON_TYPES[self.weapon_name]['weapon_type']
         self.weapon = Weapon(center_x=int(self.center_x), center_y= int(self.center_y), type=self.weapon_name, clas= self.weapon_type)
+
+        self.last_seen = None
+        enemy_cfg = config.ENEMY_TYPES[self.type]
+        self.reaction_time = enemy_cfg.get('reaction_time', 0.3)
+        self.attack_cooldown = enemy_cfg.get('attack_cooldown', 0.6)
+        self.burst_size = enemy_cfg.get('burst_size', 1)
+        self.burst_pause = enemy_cfg.get('burst_pause', 0.6)
+        self.spread = enemy_cfg.get('spread', 0)
+
+        self.reaction_timer = 0.0
+        self.cooldown_timer = 0.0
+        self.burst_left = self.burst_size
+
         self.walls = None
 
         self.state = 'idle'
@@ -38,24 +51,19 @@ class Enemy(arcade.Sprite):
             self.bottom
         )
 
-        self.agr_trigger = arcade.SpriteCircle(self.agr_radius, arcade.color.WHITE)
-        self.attack_trigger = arcade.SpriteCircle(self.agr_radius, arcade.color.RED_BROWN)
-
+        self.dist_to_player = 0
 
         self.center_x = x
         self.center_y = y
 
-
-    def update(self, delta_time):
-        self.death_check()
-        self.health_line.set_current_hp(self.hp)
-        self.health_line.set_coords(self.left, self.bottom)
-
+    def update_state(self, delta):
         if self.player is None or self.walls is None:
-            # print("(")
+            self.state = 'idle'
             return
 
-        if arcade.get_distance_between_sprites(self, self.player) > self.agr_radius:
+
+        self.dist_to_player = arcade.get_distance_between_sprites(self, self.player)
+        if self.dist_to_player > self.agr_radius:
             self.is_player_visible = False
 
         else:
@@ -66,7 +74,30 @@ class Enemy(arcade.Sprite):
                 max_distance=self.agr_radius
             )
 
-            print(self.is_player_visible)
+            if self.is_player_visible:
+                self.last_seen = (self.player.center_x, self.player.center_y)
+
+        if self.last_seen == (self.center_x, self.center_y):
+            self.last_seen = None
+
+        if self.is_player_visible and self.dist_to_player < self.attack_radius:
+            self.state = "attack"
+        elif self.is_player_visible:
+            self.state = "chase"
+        elif self.last_seen:
+            self.state = "alert"
+        else:
+            self.state = "idle"
+
+
+
+
+    def update(self, delta_time):
+        self.death_check()
+        self.health_line.set_current_hp(self.hp)
+        self.health_line.set_coords(self.left, self.bottom)
+
+
 
     def move_to_player(self):
         ...
@@ -77,9 +108,6 @@ class Enemy(arcade.Sprite):
         Получение урона
         """
         self.hp -= damage
-
-    def draw(self):
-        ...
 
     def draw_hp(self):
         self.health_line.draw()
