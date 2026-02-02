@@ -42,9 +42,6 @@ class Level:
         # Загрузка спрайтов с комнат
         self.load_sprites_from_rooms()
 
-        for i in self.text_map[::-1]:
-            print(i)
-
     def load_rooms(self):
         """ Функция случайной загруски комнат """
 
