@@ -48,6 +48,8 @@ class GameView(arcade.View):
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
 
+        self.enemy_bullets = arcade.SpriteList()
+
     def on_draw(self):
         self.clear()
 
@@ -64,6 +66,7 @@ class GameView(arcade.View):
 
         # отрисовываем пули
         self.bullets.draw()
+        self.enemy_bullets.draw()
 
         # Активный предмет у игрока
         self.player.draw_item()
@@ -151,13 +154,14 @@ class GameView(arcade.View):
 
         # Двигаем пули
         self.bullets.update(delta_time)
+        self.enemy_bullets.update(delta_time)
 
         # Обновляем врагов и переносим их пули в общий список
         self.enemy_sprites.update(delta_time)
         for enemy in self.enemy_sprites.sprite_list:
             if enemy.spawned_bullets:
                 for b in enemy.spawned_bullets:
-                    self.bullets.append(b)
+                    self.enemy_bullets.append(b)
                 enemy.spawned_bullets.clear()
 
         # Проверяем коллизию врагов с пулями
@@ -504,14 +508,25 @@ class GameView(arcade.View):
         """
         Проверка сталкивается ли пуля со стеной \n
         """
-        for bullet in list(self.bullets):
+        for bullet in self.bullets:
             if arcade.check_for_collision_with_list(bullet, self.wall_sprites):
                 self.bullets.remove(bullet)
                 bullet.kill()
                 continue
-            if getattr(bullet, "expired", False):
+            if bullet.expired == True:
                 self.bullets.remove(bullet)
                 bullet.kill()
+
+        for enemy_bullet in self.enemy_bullets:
+            if arcade.check_for_collision_with_list(enemy_bullet, self.wall_sprites):
+                self.enemy_bullets.remove(enemy_bullet)
+                enemy_bullet.kill()
+                continue
+            if enemy_bullet.expired == True:
+                self.enemy_bullets.remove(enemy_bullet)
+                enemy_bullet.kill()
+
+
 
     def enemy_collision_with_bullet(self) -> None:
         """
@@ -533,7 +548,7 @@ class GameView(arcade.View):
     def start_fight(self, collide_floor: arcade.SpriteList):
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
         self.enemy_sprites = self.current_room.begin_fight()
-        
+
         for enemy in self.enemy_sprites:
             enemy.player = self.player
             enemy.walls = self.wall_sprites
