@@ -40,8 +40,7 @@ class Level:
         # Загрузка спрайтов с комнат
         self.load_sprites_from_rooms()
 
-        for i in self.text_map[::-1]:
-            print(i)
+        # debug print removed
 
     def load_rooms(self):
         """ Функция случайной загруски комнат """
@@ -138,7 +137,7 @@ class Level:
                 'boss', current_room_number, x_from, y_from, size
             )
             self.room_path[current_room_number] = [(x_from, y_from, 'down')]
-            print(self.text_map[y_from - 1][x_from])
+            # debug print removed
             self.room_path[self.text_map[y_from - 1][x_from]].append((x_from, y_from - 1, 'up'))
 
             return (x_from, y_from)

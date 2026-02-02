@@ -103,7 +103,7 @@ class GameView(arcade.View):
 
         self.haelth_bar.draw()
         self.inventory_ui.draw()
-        
+
 
         # Координаты игрока
         arcade.draw_text(
@@ -141,6 +141,12 @@ class GameView(arcade.View):
         # Заканчиваем бой, если враги - всё
         if self.in_fight and not self.enemy_sprites.sprite_list:
             self.end_fight()
+
+
+        # Проверяем виден ли игрок для противников, могут ли они его аттаковать
+        # self.enemy_sprites.update(delta_time)
+        for enemy in self.enemy_sprites:
+            enemy.update(delta_time)
 
         # Проверка умер ли игрок
         if self.is_dead():
@@ -341,16 +347,24 @@ class GameView(arcade.View):
 
         self.drawing_sprites = arcade.SpriteList()  # Спрайты для y-sort отрисовки
         self.drawing_sprites.append(self.player)
-        
+
         self.collision_sprites = arcade.SpriteList()
 
         self.wall_sprites = self.all_sprites['wall']
+        self.wall_sprites.use_spatial_hash = True
         self.floor_sprites = self.all_sprites['floor']
         self.door_sprites = self.all_sprites['door']
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
         self.bullets = arcade.SpriteList()
 
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
+
+        # чуть-чуть говнокодика)
+        for enemy in self.enemy_sprites:
+            enemy.player = self.player
+            enemy.walls = self.wall_sprites
+
+
         self.item_sprites_on_floor = arcade.SpriteList()
 
         # Спрайты с коллизией с игроком
@@ -465,12 +479,12 @@ class GameView(arcade.View):
         """
         Првоерка находятся ли закрытые и открытые двери в своих спрайт листах
         """
-        
+
         for sprite in self.all_sprites['door']:
             # Если закрыта и не в спрайтах коллизии
             if sprite.is_close and sprite not in self.collision_sprites:
                 self.collision_sprites.append(sprite)
-            
+
             # Если дверь открыта и в спрайтах коллизии, то убрать
             if not sprite.is_close and sprite in self.collision_sprites:
                 self.collision_sprites.remove(sprite)
@@ -488,7 +502,7 @@ class GameView(arcade.View):
         # Добавляет спрайты пола из массива в спрайт лист
         for sprite in list_floor_sprites:
             floor_sprites.append(sprite)
-            
+
         return floor_sprites
 
     def bullet_collision_with_wall(self) -> None:
@@ -503,13 +517,13 @@ class GameView(arcade.View):
             if getattr(bullet, "expired", False):
                 self.bullets.remove(bullet)
                 bullet.kill()
-    
+
     def enemy_collision_with_bullet(self) -> None:
         """
         Провеяем задела ли врага пуля \n
         Если да, то враг получает урон
         """
-        
+
         for enemy in self.enemy_sprites.sprite_list:
             collide_bullets = arcade.check_for_collision_with_list(enemy, self.bullets)
 
@@ -517,7 +531,7 @@ class GameView(arcade.View):
                 # Наносим урон врагу, если он с ней не сталкивался
                 if bullet not in enemy.bullets_hitted:
                     enemy.take_damage(bullet.damage)
-            
+
                     # добавляем пули к уже столкнувшимся
                     enemy.bullets_hitted.append(bullet)
 
