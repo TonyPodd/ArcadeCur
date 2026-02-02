@@ -4,7 +4,7 @@ import config
 from .weapon import Weapon
 from scripts.gui import HealthLine
 from math import atan2, cos, sin, degrees
-from math import atan2, cos, sin
+import random
 
 class Enemy(arcade.Sprite):
     def __init__(self, x: float, y: float, type = "recrut"):
@@ -35,6 +35,8 @@ class Enemy(arcade.Sprite):
         self.burst_left = self.burst_size
         self.spawned_bullets = []  # пули, созданные врагом в этом кадре
         self.prev_state = None
+        self.idle_target = None
+        self.idle_timer = 0.0
         self.view_angle = 0
 
         self.walls = None
@@ -103,6 +105,15 @@ class Enemy(arcade.Sprite):
         self.center_x += self.max_speed * cos(self.view_angle)
         self.center_y += self.max_speed * sin(self.view_angle)
 
+    def idle_move(self, delta_time):
+        # Небольшое блуждание, чтобы не стоять как уебан
+        self.idle_timer -= delta_time
+        if self.idle_target is None or self.idle_timer <= 0:
+            self.idle_timer = 0.6
+            offset_x = random.randint(-60, 60)
+            offset_y = random.randint(-60, 60)
+            self.idle_target = (self.center_x + offset_x, self.center_y + offset_y)
+        self.move_to(self.idle_target[0], self.idle_target[1])
 
 
 
@@ -135,6 +146,14 @@ class Enemy(arcade.Sprite):
             self.move_to(self.last_seen[0], self.last_seen[1])
         elif self.state == 'attack':
             self.try_attack()
+            # в атаке двигаем чела стрейфами, чтобы он не просто стоял
+            dx = self.player.center_x - self.center_x
+            dy = self.player.center_y - self.center_y
+            angle = atan2(dy, dx) + 1.57
+            self.center_x += (self.max_speed * 0.4) * cos(angle)
+            self.center_y += (self.max_speed * 0.4) * sin(angle)
+        else:
+            self.idle_move(delta_time)
 
     def try_attack(self):
         if self.player is None:
