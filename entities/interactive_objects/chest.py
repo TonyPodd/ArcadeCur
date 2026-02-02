@@ -4,9 +4,10 @@ from random import choice, randint
 
 from config import *
 from ..weapon import Weapon
+from .object import InetactiveObject
 
 
-class Chest(arcade.Sprite):
+class Chest(InetactiveObject):
     def __init__(self, scale=1, center_x=0, center_y=0, rarity='normal', chest_type='weapon'):
         '''
             rarity - редкость,
@@ -19,29 +20,25 @@ class Chest(arcade.Sprite):
         self.width = TILE_SIZE
         self.height = TILE_SIZE
 
-        self.interacteble_area = 30 # на сколько надо подойти чтобы открыть
         self.is_open = False
         self.rarity = rarity
         self.chest_type = chest_type
-
-        # Отдельный спрайт-триггер для коллизий
-        self.trigger = arcade.SpriteCircle(self.interacteble_area, arcade.color.WHITE)
-        self.trigger.alpha = 0  # невидимый
-        self.trigger.center_x = center_x
-        self.trigger.center_y = center_y
-
-    def update(self):
-        # Держим триггер на позиции сундука
-        self.trigger.center_x = self.center_x
-        self.trigger.center_y = self.center_y
+        
+        self.tips_text = 'E - open'
 
     def open(self):
-        self.is_open = True
+        if not self.is_open:
+            self.is_open = True
+            return self.get_item()
 
     def get_item(self):
         if self.chest_type == "weapon":
             # айтем падает чуть в стороне от сундука
-            return Weapon(center_x=int(self.center_x + randint(20, 40) * choice([-1, 1])), center_y=int(self.center_y + randint(20, 40) * choice([-1, 1])), type = 'axe')
+            return Weapon(
+                center_x=int(self.center_x + randint(20, 40) * choice([-1, 1])),
+                center_y=int(self.center_y + randint(20, 40) * choice([-1, 1])),
+                type = 'axe'
+            )
 
         return None
 

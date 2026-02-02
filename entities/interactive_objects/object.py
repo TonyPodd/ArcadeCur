@@ -11,7 +11,7 @@ class InetactiveObject(arcade.Sprite):
         self.tips_text = 'E - Взаимодействуй со мной'
         self.interaction = False  # Может  ли взаимодействовать игрок в занный момент
 
-        ds = 7  # На сколько надо расширить хитбокс для коллизии
+        ds = 10  # На сколько надо расширить хитбокс для коллизии
         self._hit_box._points = (
             (-self.width / 2 - ds, -self.height / 2 - ds),
             (-self.width / 2 - ds, self.height / 2 + ds),

@@ -1,7 +1,7 @@
 import arcade
 import math
 
-from entities import Player
+from entities import Player, Chest
 from systems import PhysicsSystem, GameCamera
 from scripts.gui import HealthBar, InventorySlots
 from levels import Level
@@ -167,14 +167,7 @@ class GameView(arcade.View):
         # удаляем при коллизии со стеной / истечении времени
         self.bullet_collision_with_wall()
 
-        # Обновляем сундуки и проверяем открытие
-        # for chest in self.chest_sprites:
-        #     chest.update()
-        #     if not chest.is_open and arcade.check_for_collision(self.player, chest.trigger):
-        #         chest.open()
-        #         print("СУНДУК ОТКРЫТ")
-        #         item = chest.get_item()
-        #         self.item_sprites_on_floor.append(item)
+        self.trigger_collision()
 
         # Проверяем возможность подобрать айтем
         for item in self.item_sprites_on_floor:
@@ -214,12 +207,14 @@ class GameView(arcade.View):
                 or self.player.direction['up'] or self.player.direction['down']:
                 self.player.do_roll()
 
-        # взаимодействие с предметом
         if (key == arcade.key.E):
             # Проверяем какие предметы есть на полу под игроком
             items_for_grab = arcade.check_for_collision_with_list(
                 self.player, self.item_sprites_on_floor
             )
+            chests = arcade.check_for_collision_with_list(self.player, self.chest_sprites)
+
+            # взаимодействие с предметом
             if items_for_grab:
                 item = items_for_grab[0]  # Берём самый первый item
 
@@ -238,8 +233,14 @@ class GameView(arcade.View):
                     else:
                         self.add_item_to_inventory(item)
                         self.drop_inventory_item(sprite)
-            
 
+            # Открытие сундука
+            elif chests:
+                for chest in chests:
+                    if not chest.is_open:
+                        item = chest.open()
+                        self.item_sprites_on_floor.append(item)
+                        self.interactive_sprites.remove(chest)
 
         # Выбросить айтем
         if (key == arcade.key.Q):
@@ -370,6 +371,7 @@ class GameView(arcade.View):
         # сундуки (если есть)
         for sprite in self.chest_sprites:
             self.drawing_sprites.append(sprite)
+            self.interactive_sprites.append(sprite)
 
         # враги (если есть)
         for sprite in self.enemy_sprites:
@@ -549,9 +551,9 @@ class GameView(arcade.View):
         self.in_fight = False
 
     def trigger_collision(self):
-        ...
-        # for object_sprite in self.interactive_sprites.sprite_list:
-        #     if arcade.check_for_collision(self.player, object_sprite.trigger):
-        #         object_sprite.tips = True
-        #     else:
-        #         object_sprite.tips = False
+        
+        for sprite in self.interactive_sprites.sprite_list:
+            if arcade.check_for_collision(self.player, sprite):
+                sprite.tips = True
+            else:
+                sprite.tips = False
