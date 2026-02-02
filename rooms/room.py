@@ -18,7 +18,7 @@ class Room:
         # Sprites
         self.all_sprites = {
             'floor': arcade.SpriteList(),
-            'wall': arcade.SpriteList(),
+            'wall': arcade.SpriteList(use_spatial_hash=True),
             'door': arcade.SpriteList()
         }
 

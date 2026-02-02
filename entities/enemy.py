@@ -21,6 +21,7 @@ class Enemy(arcade.Sprite):
         self.walls = None
 
         self.state = 'idle'
+        self.player = None
 
         self.bullets_hitted = arcade.SpriteList()  # Пули которые попали во врага, (чтобы не было повторного урона)
 
@@ -45,19 +46,14 @@ class Enemy(arcade.Sprite):
         self.center_y = y
 
 
-    def update(self):
+    def update(self, delta_time):
         self.death_check()
         self.health_line.set_current_hp(self.hp)
         self.health_line.set_coords(self.left, self.bottom)
 
         if self.player is None or self.walls is None:
+            # print("(")
             return
-
-        self._los_timer += delta_time
-        if self._los_timer < self._los_interval:
-            return
-        self._los_timer = 0.0
-
 
         if arcade.get_distance_between_sprites(self, self.player) > self.agr_radius:
             self.is_player_visible = False
@@ -69,6 +65,8 @@ class Enemy(arcade.Sprite):
                 self.walls,
                 max_distance=self.agr_radius
             )
+
+            print(self.is_player_visible)
 
     def move_to_player(self):
         ...

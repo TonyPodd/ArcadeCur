@@ -144,9 +144,9 @@ class GameView(arcade.View):
 
 
         # Проверяем виден ли игрок для противников, могут ли они его аттаковать
-        # self.enemy_sprites.update(delta_time)
-        for enemy in self.enemy_sprites:
-            enemy.update(delta_time)
+        self.enemy_sprites.update(delta_time)
+        # for enemy in self.enemy_sprites:
+        #     enemy.update(delta_time)
 
         # Проверка умер ли игрок
         if self.is_dead():
@@ -359,11 +359,6 @@ class GameView(arcade.View):
 
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
 
-        # чуть-чуть говнокодика)
-        for enemy in self.enemy_sprites:
-            enemy.player = self.player
-            enemy.walls = self.wall_sprites
-
 
         self.item_sprites_on_floor = arcade.SpriteList()
 
@@ -538,7 +533,10 @@ class GameView(arcade.View):
     def start_fight(self, collide_floor: arcade.SpriteList):
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
         self.enemy_sprites = self.current_room.begin_fight()
-
+        
+        for enemy in self.enemy_sprites:
+            enemy.player = self.player
+            enemy.walls = self.wall_sprites
         # Проверяем закрылись ли двери
         self.check_doors()
 

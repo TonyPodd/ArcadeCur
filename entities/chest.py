@@ -41,7 +41,7 @@ class Chest(arcade.Sprite):
     def get_item(self):
         if self.chest_type == "weapon":
             # айтем падает чуть в стороне от сундука
-            return Weapon(center_x=int(self.center_x + randint(20, 40) * choice([-1, 1])), center_y=int(self.center_y + randint(20, 40) * choice([-1, 1])), type = 'axe')
+            return Weapon(center_x=int(self.center_x + randint(20, 40) * choice([-1, 1])), center_y=int(self.center_y + randint(20, 40) * choice([-1, 1])), type = 'shotgun')
 
         return None
 

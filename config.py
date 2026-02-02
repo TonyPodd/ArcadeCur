@@ -108,7 +108,7 @@ WEAPON_TYPES = {
         'shots_per_tick' : 8,
         'spread' : 10,
     },
-    'sniper' : {
+    'sniper' : { 
         'name' : 'снайперка',
         'damage' : 35,
         "weapon_type" : "gun",

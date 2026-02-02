@@ -18,7 +18,7 @@ class Game(arcade.Window):
 def main():
     game = Game(config.SCREEN_WIDTH, config.SCREEN_HEIGHT, config.SCREEN_TITLE)
     game.setup()
-    game.run()  
+    game.run()
 
 
 if __name__ == "__main__":
