@@ -181,6 +181,9 @@ class GameView(arcade.View):
         # Проверяем коллизию врагов с пулями
         self.enemy_collision_with_bullet()
 
+        # Проверяем коллизию игрока с пулями
+        self.player_collision_with_bullet()
+
         # удаляем при коллизии со стеной / истечении времени
         self.bullet_collision_with_wall()
 
@@ -526,7 +529,7 @@ class GameView(arcade.View):
         Проверка сталкивается ли пуля со стеной \n
         """
         for bullet in self.bullets:
-            if arcade.check_for_collision_with_list(bullet, self.wall_sprites):
+            if bullet.damage_type != 'hit' and arcade.check_for_collision_with_list(bullet, self.wall_sprites):
                 self.bullets.remove(bullet)
                 bullet.kill()
                 continue
@@ -535,7 +538,7 @@ class GameView(arcade.View):
                 bullet.kill()
 
         for enemy_bullet in self.enemy_bullets:
-            if arcade.check_for_collision_with_list(enemy_bullet, self.wall_sprites):
+            if enemy_bullet.damage_type != 'hit' and arcade.check_for_collision_with_list(enemy_bullet, self.wall_sprites):
                 self.enemy_bullets.remove(enemy_bullet)
                 enemy_bullet.kill()
                 continue
@@ -558,9 +561,31 @@ class GameView(arcade.View):
                 # Наносим урон врагу, если он с ней не сталкивался
                 if bullet not in enemy.bullets_hitted:
                     enemy.take_damage(bullet.damage)
-
+                    if bullet.damage_type == 'bullet':
+                        self.bullets.remove(bullet)
+                        bullet.kill()
+                        continue
                     # добавляем пули к уже столкнувшимся
                     enemy.bullets_hitted.append(bullet)
+
+    def player_collision_with_bullet(self) -> None:
+        """
+        Провеяем задела ли игроока пуля \n
+        Если да, то получаем урон
+        """
+
+        collide_bullets = arcade.check_for_collision_with_list(self.player, self.enemy_bullets)
+
+        for bullet in collide_bullets:
+            # Впитываем урон, если не сталкивались с пуей
+            if bullet not in self.player.bullets_hitted:
+                self.player.take_damage(bullet.damage)
+                if bullet.damage_type == 'bullet':
+                    self.enemy_bullets.remove(bullet)
+                    bullet.kill()
+                    continue
+                # добавляем пули к уже столкнувшимся
+                self.player.bullets_hitted.append(bullet)
 
     def start_fight(self, collide_floor: arcade.SpriteList):
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)

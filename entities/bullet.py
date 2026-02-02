@@ -14,7 +14,6 @@ class Bullet(arcade.Sprite):
         self.bullet_speed = 0
         self.life_frames = None
         # bullet исчезает после попадания, magic ебашит до стенки, hit - милишка, бьет всех пока не expired
-        self.type = 'bullet'
         self.expired = False
 
     def apply_stats(self):

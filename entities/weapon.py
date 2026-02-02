@@ -37,6 +37,15 @@ class Weapon(Item):
                 temp_bullet.bullet_radius = self.bullet_radius
                 temp_bullet.bullet_speed = self.bullet_speed
                 temp_bullet.apply_stats()
+                
+                if self.clas == "gun":
+                    temp_bullet.damage_type = 'bullet'
+                elif self.clas == "magic":
+                    temp_bullet.damage_type = 'magic'
+                else:
+                    temp_bullet.damage_type = 'hit'
+
+
                 # temp_bullet.dir_angel = self.angle
                 spread_offset = random.uniform(-self.spread, self.spread)
                 temp_bullet.angle = self.direct_angle + spread_offset
