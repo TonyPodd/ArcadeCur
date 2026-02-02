@@ -115,8 +115,6 @@ class Enemy(arcade.Sprite):
             self.idle_target = (self.center_x + offset_x, self.center_y + offset_y)
         self.move_to(self.idle_target[0], self.idle_target[1])
 
-
-
     def update(self, delta_time):
         self.death_check()
         self.health_line.set_current_hp(self.hp)
