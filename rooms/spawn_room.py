@@ -3,8 +3,8 @@ import random
 
 from .room import Room
 from config import *
-from entities import Floor, Wall
-from entities import Chest
+from entities import Floor, Wall, Chest, InetactiveObject
+
 
 class SpawnRoom(Room):
     def __init__(self, room_type, room_number, x, y, rooms_coords):
@@ -70,6 +70,7 @@ class SpawnRoom(Room):
         sprites = {
             'floor': arcade.SpriteList(),
             'wall': arcade.SpriteList(),
+            'interactive': arcade.SpriteList()
         }
 
         for object_type in data:
@@ -86,6 +87,11 @@ class SpawnRoom(Room):
                 #  Стена
                 if object_type == '2':
                     sprites['wall'].append(Wall(
+                        None, 1, tile_x, tile_y
+                    ))
+                
+                if object_type == '3':
+                    sprites['interactive'].append(InetactiveObject(
                         None, 1, tile_x, tile_y
                     ))
 

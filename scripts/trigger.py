@@ -9,7 +9,13 @@ class Trigger(arcade.Sprite):
 
         self.width = TILE_SIZE
         self.height = TILE_SIZE
+        
 
     def set_size(self, width=None, height=None):
-        self.height = height
-        self.width = width
+        if self.height is not None:
+            self.height = height
+
+        if self.width is not None:
+            self.width = width
+        print(self.width, self.height)
+    

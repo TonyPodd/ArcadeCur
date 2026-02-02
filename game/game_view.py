@@ -57,6 +57,7 @@ class GameView(arcade.View):
         # Отрисовывается до игрока
         self.floor_sprites.draw()
         self.door_sprites.draw()
+        self.interactive_sprites.draw()
 
         # отрисовывается вместе с игроком
         self.drawing_sprites.sort(key=lambda x: x.position[1], reverse=True)
@@ -97,6 +98,10 @@ class GameView(arcade.View):
             arcade.color.RED,
             3
         )
+        
+        for sprite in self.interactive_sprites:
+            sprite.draw_tips()
+
 
         # Отрисовка UI
         self.gui_camera.use()
@@ -160,6 +165,8 @@ class GameView(arcade.View):
         # удаляем при коллизии со стеной / истечении времени
         self.bullet_collision_with_wall()
 
+        self.trigger_collision()
+
         # Обновляем сундуки и проверяем открытие
         for chest in self.chest_sprites:
             chest.update()
@@ -206,10 +213,6 @@ class GameView(arcade.View):
             if self.player.direction['left'] or self.player.direction['right'] \
                 or self.player.direction['up'] or self.player.direction['down']:
                 self.player.do_roll()
-
-        # Для теста урона
-        if key == arcade.key.R:
-            self.player.take_damage(10)
 
         # взаимодействие с предметом
         if (key == arcade.key.E):
@@ -349,6 +352,7 @@ class GameView(arcade.View):
         self.door_sprites = self.all_sprites['door']
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
         self.bullets = arcade.SpriteList()
+        self.interactive_sprites = self.all_sprites['interactive']
 
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
         self.item_sprites_on_floor = arcade.SpriteList()
@@ -541,3 +545,10 @@ class GameView(arcade.View):
         # Проверяем закрылись ли двери
         self.check_doors()
         self.in_fight = False
+
+    def trigger_collision(self):
+        for object_sprite in self.interactive_sprites.sprite_list:
+            if arcade.check_for_collision(self.player, object_sprite.trigger):
+                object_sprite.tips = True
+            else:
+                object_sprite.tips = False

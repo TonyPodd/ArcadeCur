@@ -10,7 +10,9 @@ class Level:
         self.level_type = level_type  # Тип уровня
 
         # Спрайты всех объектов комнаты
-        self.all_sprites = dict()
+        self.all_sprites = {
+            'interactive': arcade.SpriteList()
+        }
 
         self.spawn_coords = None
 
