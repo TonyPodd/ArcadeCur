@@ -143,11 +143,6 @@ class GameView(arcade.View):
             self.end_fight()
 
 
-        # Проверяем виден ли игрок для противников, могут ли они его аттаковать
-        self.enemy_sprites.update(delta_time)
-        # for enemy in self.enemy_sprites:
-        #     enemy.update(delta_time)
-
         # Проверка умер ли игрок
         if self.is_dead():
             from views import DeathView
@@ -157,8 +152,13 @@ class GameView(arcade.View):
         # Двигаем пули
         self.bullets.update(delta_time)
 
-        # Обновляем врагов
+        # Обновляем врагов и переносим их пули в общий список
         self.enemy_sprites.update(delta_time)
+        for enemy in self.enemy_sprites.sprite_list:
+            if enemy.spawned_bullets:
+                for b in enemy.spawned_bullets:
+                    self.bullets.append(b)
+                enemy.spawned_bullets.clear()
 
         # Проверяем коллизию врагов с пулями
         self.enemy_collision_with_bullet()

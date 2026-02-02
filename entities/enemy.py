@@ -3,6 +3,8 @@ import arcade
 import config
 from .weapon import Weapon
 from scripts.gui import HealthLine
+from math import atan2, cos, sin, degrees
+from math import atan2, cos, sin
 
 class Enemy(arcade.Sprite):
     def __init__(self, x: float, y: float, type = "recrut"):
@@ -11,25 +13,29 @@ class Enemy(arcade.Sprite):
         # settings
         self.type = type
         self.is_dead = False  # Умер ли енеми
-        self.hp = config.ENEMY_TYPES[self.type]['hp']
-        self.max_speed = config.ENEMY_TYPES[self.type]['speed']
-        self.agr_radius = config.ENEMY_TYPES[self.type]['agr_range']
-        self.attack_radius = config.ENEMY_TYPES[self.type]['attack_range']
-        self.weapon_name = config.ENEMY_TYPES[self.type]['weapon']
+        enemy_cfg = config.ENEMY_TYPES[self.type]
+
+        self.hp = enemy_cfg['hp']
+        self.max_speed = enemy_cfg['speed']
+        self.agr_radius = enemy_cfg['agr_range']
+        self.attack_radius = enemy_cfg['attack_range']
+        self.weapon_name = enemy_cfg['weapon']
         self.weapon_type = config.WEAPON_TYPES[self.weapon_name]['weapon_type']
         self.weapon = Weapon(center_x=int(self.center_x), center_y= int(self.center_y), type=self.weapon_name, clas= self.weapon_type)
 
         self.last_seen = None
-        enemy_cfg = config.ENEMY_TYPES[self.type]
-        self.reaction_time = enemy_cfg.get('reaction_time', 0.3)
-        self.attack_cooldown = enemy_cfg.get('attack_cooldown', 0.6)
-        self.burst_size = enemy_cfg.get('burst_size', 1)
-        self.burst_pause = enemy_cfg.get('burst_pause', 0.6)
-        self.spread = enemy_cfg.get('spread', 0)
+        self.reaction_time = enemy_cfg['reaction_time']
+        self.attack_cooldown = enemy_cfg['attack_cooldown']
+        self.burst_size = enemy_cfg['burst_size']
+        self.burst_pause = enemy_cfg['burst_pause']
+        self.spread = enemy_cfg['spread']
 
         self.reaction_timer = 0.0
         self.cooldown_timer = 0.0
         self.burst_left = self.burst_size
+        self.spawned_bullets = []  # пули, созданные врагом в этом кадре
+        self.prev_state = None
+        self.view_angle = 0
 
         self.walls = None
 
@@ -90,18 +96,69 @@ class Enemy(arcade.Sprite):
             self.state = "idle"
 
 
+    def move_to(self, x, y):
+        dx = x - self.center_x
+        dy = y - self.center_y
+        self.view_angle = atan2(dy, dx)
+        self.center_x += self.max_speed * cos(self.view_angle)
+        self.center_y += self.max_speed * sin(self.view_angle)
+
+
 
 
     def update(self, delta_time):
         self.death_check()
         self.health_line.set_current_hp(self.hp)
         self.health_line.set_coords(self.left, self.bottom)
+        self.update_state(delta_time)
 
+        if self.player:
+            # синхроним оружие с врагом
+            self.weapon.center_x = self.center_x
+            self.weapon.center_y = self.center_y
+            self.weapon.player = self
 
+        if self.state != self.prev_state:
+            if self.state in ("attack", "chase"):
+                self.reaction_timer = self.reaction_time
+            self.prev_state = self.state
 
-    def move_to_player(self):
-        ...
-        # self
+        # таймеры реакции/кулдауна
+        if self.reaction_timer > 0:
+            self.reaction_timer = max(0.0, self.reaction_timer - delta_time)
+        if self.cooldown_timer > 0:
+            self.cooldown_timer = max(0.0, self.cooldown_timer - delta_time)
+
+        if self.state == 'chase':
+            self.move_to(self.player.center_x, self.player.center_y)
+        elif self.state == 'alert' and self.last_seen:
+            self.move_to(self.last_seen[0], self.last_seen[1])
+        elif self.state == 'attack':
+            self.try_attack()
+
+    def try_attack(self):
+        if self.player is None:
+            return
+        if self.reaction_timer > 0 or self.cooldown_timer > 0:
+            return
+
+        # угол на игрока
+        dx = self.player.center_x - self.center_x
+        dy = self.player.center_y - self.center_y
+        # Согласуем систему углов с пулями (инверсия Y как у игрока)
+        self.weapon.direct_angle = -degrees(atan2(dy, dx))
+
+        bullets = self.weapon.shoot()
+        if bullets:
+            for b in bullets:
+                self.spawned_bullets.append(b)
+            self.burst_left -= 1
+
+        if self.burst_left <= 0:
+            self.cooldown_timer = self.attack_cooldown + self.burst_pause
+            self.burst_left = self.burst_size
+        else:
+            self.cooldown_timer = self.attack_cooldown
 
     def take_damage(self, damage):
         """
