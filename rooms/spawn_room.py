@@ -4,7 +4,7 @@ import random
 from .room import Room
 from config import *
 from entities import Floor, Wall
-from entities.chest import Chest
+from entities import Chest
 
 class SpawnRoom(Room):
     def __init__(self, room_type, room_number, x, y, rooms_coords):

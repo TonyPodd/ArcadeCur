@@ -58,7 +58,6 @@ class InventorySlots:
         for ind in range(self.num_of_slots):
             if self.slots[ind] is not None:
                 arcade.draw_sprite(self.slots[ind])
-                arcade.Sprite.draw_hit_box(self.slots[ind])
 
     def get_textures(self):
         """ 

@@ -2,6 +2,7 @@ import arcade
 
 import config
 from ..weapon import Weapon
+from scripts.gui import HealthLine
 
 class Enemy(arcade.Sprite):
     def __init__(self, x: float, y: float, type = "recrut"):
@@ -25,6 +26,12 @@ class Enemy(arcade.Sprite):
         # Временный квадрат вместо спрайта
         self.texture = arcade.make_soft_square_texture(40, arcade.color.RED, outer_alpha=255)
         self._hit_box._points = ((-20, -15), (20, -15), (20, 15), (-20, 15))
+        self.health_line = HealthLine(
+            self.width,
+            self.hp,
+            self.left,
+            self.bottom
+        )
 
         self.agr_trigger = arcade.SpriteCircle(self.agr_radius, arcade.color.WHITE)
         self.attack_trigger = arcade.SpriteCircle(self.agr_radius, arcade.color.RED_BROWN)
@@ -36,6 +43,8 @@ class Enemy(arcade.Sprite):
 
     def update(self, delta_time: float):
         self.death_check()
+        self.health_line.set_current_hp(self.hp)
+        self.health_line.set_coords(self.left, self.bottom)
 
     def move_to_player(self):
         ...
@@ -47,9 +56,10 @@ class Enemy(arcade.Sprite):
         self.hp -= damage
 
     def draw(self):
-        """
-        Отрисовка предметов, которые имее враг
-        """
+        ...
+        
+    def draw_hp(self):
+        self.health_line.draw()
 
     def death_check(self):
         """

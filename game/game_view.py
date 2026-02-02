@@ -72,6 +72,10 @@ class GameView(arcade.View):
 
         self.enemy_sprites.draw()
 
+        # Линия с хп врагов
+        for enemy in self.enemy_sprites.sprite_list:
+            enemy.draw_hp()
+
         # Подсказка подбора предмета
         for item in self.item_sprites_on_floor:
             if arcade.check_for_collision(self.player, item):
@@ -94,10 +98,12 @@ class GameView(arcade.View):
             3
         )
 
-        # Отрисовка UI - щас это координаты, потом что нибудь еще, тип иконка паузы
+        # Отрисовка UI
         self.gui_camera.use()
+
         self.haelth_bar.draw()
         self.inventory_ui.draw()
+        
 
         # Координаты игрока
         arcade.draw_text(
@@ -121,7 +127,7 @@ class GameView(arcade.View):
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
         self.physics_system.update()
-        self.camera.center_on_sprite(self.player, 0.04)
+        self.camera.center_on_sprite(self.player, 0.1)
         self.update_alerts(delta_time)
 
         # смортим в какой комнате игрок
@@ -297,7 +303,7 @@ class GameView(arcade.View):
 
     def is_dead(self) -> bool:
         """ Проверка умер ли игрок """
-        if self.player.player_hp <= 0:
+        if self.player.hp <= 0:
             self.player.on_die()
             return True
         return False

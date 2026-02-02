@@ -3,7 +3,7 @@ import arcade
 from random import choice, randint
 
 from config import *
-from .weapon import Weapon
+from ..weapon import Weapon
 
 
 class Chest(arcade.Sprite):
@@ -44,8 +44,6 @@ class Chest(arcade.Sprite):
             return Weapon(center_x=int(self.center_x + randint(20, 40) * choice([-1, 1])), center_y=int(self.center_y + randint(20, 40) * choice([-1, 1])), type = 'axe')
 
         return None
-
-
 
 
 def get_random_chest():
