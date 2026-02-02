@@ -7,7 +7,7 @@ from .weapon import Weapon
 from scripts.gui import HealthLine
 
 class Enemy(arcade.Sprite):
-    def __init__(self, x: float, y: float, type = "brute"):
+    def __init__(self, x: float, y: float, type = "grunt"):
         super().__init__()
 
         # settings
@@ -122,6 +122,11 @@ class Enemy(arcade.Sprite):
         if self.move_to(self.idle_target[0], self.idle_target[1]):
             self.idle_target = None
 
+
+    def draw_item(self):
+        """ Отрисовывать предмет в руках """
+        if not self.is_dead:
+            self.weapon.draw()
 
 
     def update(self, delta_time):

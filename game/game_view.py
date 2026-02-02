@@ -78,9 +78,16 @@ class GameView(arcade.View):
 
         self.enemy_sprites.draw()
 
+
         # Линия с хп врагов
         for enemy in self.enemy_sprites.sprite_list:
             enemy.draw_hp()
+
+
+        # Оружия у enemy
+        for enemy in self.enemy_sprites:
+            enemy.draw_item()
+
 
         # Подсказка подбора предмета
         for item in self.item_sprites_on_floor:
@@ -171,8 +178,10 @@ class GameView(arcade.View):
         self.enemy_bullets.update(delta_time)
 
         # Обновляем врагов и переносим их пули в общий список
+        # обновляем углы оружий енеми
         self.enemy_sprites.update(delta_time)
         for enemy in self.enemy_sprites.sprite_list:
+            enemy.weapon.update()
             if enemy.spawned_bullets:
                 for b in enemy.spawned_bullets:
                     self.enemy_bullets.append(b)
