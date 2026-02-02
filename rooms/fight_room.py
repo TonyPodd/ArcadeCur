@@ -4,7 +4,7 @@ import csv
 from pathlib import Path
 
 from .room import Room
-from entities.enemy.enemy import Enemy
+from entities import Enemy
 from config import *
 
 

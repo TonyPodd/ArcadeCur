@@ -2,6 +2,7 @@
 Пакет для игровых сущностей
 """
 from .player import Player
+from .enemy import Enemy
 from .wall import Wall
 from .floor import Floor
 from .door import Door

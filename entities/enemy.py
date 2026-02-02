@@ -1,10 +1,10 @@
 import arcade
+from math import atan2, cos, sin, degrees
+import random
 
 import config
 from .weapon import Weapon
 from scripts.gui import HealthLine
-from math import atan2, cos, sin, degrees
-import random
 
 class Enemy(arcade.Sprite):
     def __init__(self, x: float, y: float, type = "recrut"):
