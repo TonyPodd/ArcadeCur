@@ -97,7 +97,6 @@ class Enemy(arcade.Sprite):
         else:
             self.state = "idle"
 
-
     def move_to(self, x, y):
         dx = x - self.center_x
         dy = y - self.center_y
@@ -215,3 +214,15 @@ class Enemy(arcade.Sprite):
             self.is_dead = True
             self.remove_from_sprite_lists()
             self.kill()
+
+    def drop_orbs(self):
+        """
+        Выпадение орбов (топлива для лифта) с врагов
+        """
+        ...
+
+    def drop_money(self):
+        """
+        Выпадение монет с врагов
+        """
+        ...
