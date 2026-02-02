@@ -216,7 +216,7 @@ WEAPON_TYPES = {
         'damage' : 20,
         "weapon_type" : "melee",
         'damage_type' : "hitscan",
-        'bullet_radius' : 12,
+        'bullet_radius' : 40,
         'shoot_timeout' : 0.5,
         'bullet_speed' : 0,
         'shots_per_tick' : 1,
