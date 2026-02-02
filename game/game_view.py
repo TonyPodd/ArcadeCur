@@ -11,7 +11,13 @@ import config
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
+        arcade.enable_timings()
         arcade.set_background_color(arcade.color.DARK_GREEN)
+        self.perf_graph_list = arcade.SpriteList()
+        self.fps_graph = arcade.PerfGraph(150, 50, "FPS")
+        self.fps_graph.center_x = 75
+        self.fps_graph.center_y = 25
+        self.perf_graph_list.append(self.fps_graph)
 
     def setup(self):
         # Алерты
@@ -78,11 +84,9 @@ class GameView(arcade.View):
 
         self.enemy_sprites.draw()
 
-
         # Линия с хп врагов
         for enemy in self.enemy_sprites.sprite_list:
             enemy.draw_hp()
-
 
         # Оружия у enemy
         for enemy in self.enemy_sprites:
@@ -114,9 +118,6 @@ class GameView(arcade.View):
         for sprite in self.interactive_sprites:
             sprite.draw_tips()
 
-        self.interactive_sprites.draw_hit_boxes(arcade.color.RED)
-
-
         # Отрисовка UI
         self.gui_camera.use()
 
@@ -140,10 +141,12 @@ class GameView(arcade.View):
             arcade.color.WHITE,
             14
         )
+        self.perf_graph_list.draw()
 
         self.draw_alerts()
 
     def on_update(self, delta_time: float) -> None:
+        # self.fps_graph.update(delta_time)
         self.player.update(delta_time)
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.1)
@@ -389,7 +392,6 @@ class GameView(arcade.View):
 
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
 
-
         self.item_sprites_on_floor = arcade.SpriteList()
 
         # Спрайты с коллизией с игроком
@@ -541,21 +543,11 @@ class GameView(arcade.View):
             if bullet.damage_type != 'hit' and arcade.check_for_collision_with_list(bullet, self.wall_sprites):
                 self.bullets.remove(bullet)
                 bullet.kill()
-                continue
-            if bullet.expired == True:
-                self.bullets.remove(bullet)
-                bullet.kill()
 
         for enemy_bullet in self.enemy_bullets:
             if enemy_bullet.damage_type != 'hit' and arcade.check_for_collision_with_list(enemy_bullet, self.wall_sprites):
                 self.enemy_bullets.remove(enemy_bullet)
                 enemy_bullet.kill()
-                continue
-            if enemy_bullet.expired == True:
-                self.enemy_bullets.remove(enemy_bullet)
-                enemy_bullet.kill()
-
-
 
     def enemy_collision_with_bullet(self) -> None:
         """
@@ -602,15 +594,12 @@ class GameView(arcade.View):
         self.collision_sprites.extend(self.enemy_sprites)
 
         for enemy in self.enemy_sprites:
-            # all_collision_sprites = self.door_sprites
-            # all_collision_sprites.extend(self.wall_sprites)
-
             engine = arcade.PhysicsEngineSimple(enemy, self.collision_sprites)
             self.enemy_physics.append(engine)
 
         for enemy in self.enemy_sprites:
             enemy.player = self.player
-            enemy.walls = self.wall_sprites
+            enemy.walls = self.all_levels[self.current_level_number].all_sprites['wall']
         # Проверяем закрылись ли двери
         self.check_doors()
 
@@ -629,9 +618,9 @@ class GameView(arcade.View):
         self.in_fight = False
 
     def trigger_collision(self):
-
-        for sprite in self.interactive_sprites.sprite_list:
-            if arcade.check_for_collision(self.player, sprite):
-                sprite.tips = True
-            else:
-                sprite.tips = False
+        if not self.in_fight:
+            for sprite in self.interactive_sprites.sprite_list:
+                if arcade.check_for_collision(self.player, sprite):
+                    sprite.tips = True
+                else:
+                    sprite.tips = False

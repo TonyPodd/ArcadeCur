@@ -75,7 +75,7 @@ class Enemy(arcade.Sprite):
             self.is_player_visible = False
 
         else:
-            self.is_player_visible = arcade.has_line_of_sight(
+            self.is_player_visible = arcade.has_line_of_sight(  # Возможная проблема
                 (self.center_x, self.center_y),
                 (self.player.center_x, self.player.center_y),
                 self.walls,
