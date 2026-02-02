@@ -1,5 +1,5 @@
 import arcade
-from math import atan2, cos, sin, degrees
+from math import atan2, cos, sin, degrees, pi
 import random
 
 import config
@@ -63,6 +63,14 @@ class Enemy(arcade.Sprite):
 
         self.center_x = x
         self.center_y = y
+        self.view_angle = 0.0
+        self.weapon_angle = 0.0
+        self.turn_speed = 6.0  # рад/сек, скорость поворота оружия
+        self.idle_speed_factor = 0.4
+        self.idle_wait_time = 0.5
+        self.idle_stuck_time = 0.6
+        self._idle_stuck_timer = 0.0
+        self._last_pos = (self.center_x, self.center_y)
 
     def update_state(self, delta):
         if self.player is None or self.walls is None:
@@ -111,16 +119,55 @@ class Enemy(arcade.Sprite):
         self.change_y = self.max_speed * sin(self.view_angle)
         return False
 
+    def smooth_angle(self, current, target, speed, dt):
+        # Плавный поворот по кратчайшему пути
+        diff = (target - current + pi) % (2 * pi) - pi
+        step = speed * dt
+        if abs(diff) <= step:
+            return target
+        return current + step * (1 if diff > 0 else -1)
+
     def idle_move(self, delta_time):
-        # Небольшое блуждание, чтобы не стоять как уебан
-        self.idle_timer -= delta_time
-        if self.idle_target is None or self.idle_timer <= 0:
-            self.idle_timer = 0.6
+        # ждём, выбираем цель, идём к ней без рывков
+        if self.idle_timer > 0:
+            self.idle_timer -= delta_time
+            self.change_x = 0
+            self.change_y = 0
+            return
+
+        if self.idle_target is None:
             offset_x = random.randint(-60, 60)
             offset_y = random.randint(-60, 60)
             self.idle_target = (self.center_x + offset_x, self.center_y + offset_y)
-        if self.move_to(self.idle_target[0], self.idle_target[1]):
+
+        dx = self.idle_target[0] - self.center_x
+        dy = self.idle_target[1] - self.center_y
+        dist = (dx * dx + dy * dy) ** 0.5
+        if dist < 4:
             self.idle_target = None
+            self.idle_timer = self.idle_wait_time
+            self.change_x = 0
+            self.change_y = 0
+            self._idle_stuck_timer = 0.0
+            return
+
+        target_angle = atan2(dy, dx)
+        self.view_angle = self.smooth_angle(self.view_angle, target_angle, self.turn_speed, delta_time)
+        speed = self.max_speed * self.idle_speed_factor
+        self.change_x = speed * cos(self.view_angle)
+        self.change_y = speed * sin(self.view_angle)
+
+        # если позиция не меняется, сбрасываем цель
+        cur_pos = (self.center_x, self.center_y)
+        if cur_pos == self._last_pos:
+            self._idle_stuck_timer += delta_time
+            if self._idle_stuck_timer >= self.idle_stuck_time:
+                self.idle_target = None
+                self.idle_timer = self.idle_wait_time
+                self._idle_stuck_timer = 0.0
+        else:
+            self._idle_stuck_timer = 0.0
+        self._last_pos = cur_pos
 
 
     def draw_item(self):
@@ -166,6 +213,22 @@ class Enemy(arcade.Sprite):
             self.center_y += (self.max_speed * 0.4) * sin(angle)
         else:
             self.idle_move(delta_time)
+
+        # Плавный поворот только в idle
+        if self.player and self.state == 'attack':
+            dx = self.player.center_x - self.center_x
+            dy = self.player.center_y - self.center_y
+            target_angle = atan2(dy, dx)
+            self.weapon_angle = target_angle
+        else:
+            target_angle = self.view_angle
+            if self.state == 'idle':
+                self.weapon_angle = self.smooth_angle(self.weapon_angle, target_angle, self.turn_speed, delta_time)
+            else:
+                self.weapon_angle = target_angle
+
+        self.weapon.direct_angle = -degrees(self.weapon_angle)
+        self.weapon.angle = -degrees(self.weapon_angle) + 90
 
     def try_attack(self):
         if self.player is None:
