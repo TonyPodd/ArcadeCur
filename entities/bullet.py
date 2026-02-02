@@ -28,7 +28,9 @@ class Bullet(arcade.Sprite):
         if self.life_frames is not None:
             self.life_frames -= 1
             if self.life_frames <= 0:
+                self.remove_from_sprite_lists()
                 self.expired = True
+                self.kill()
 
         self.center_x += cos(radians(self.angle)) * self.speed
         self.center_y += sin(radians(self.angle)) * -self.speed
