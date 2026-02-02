@@ -613,6 +613,13 @@ class GameView(arcade.View):
 
     def end_fight(self):
         self.current_room.end_fight()
+        # чистим коллизии/движки врагов, чтобы не копились между комнатами
+        for enemy in list(self.enemy_sprites.sprite_list):
+            if enemy in self.collision_sprites:
+                self.collision_sprites.remove(enemy)
+        self.enemy_sprites = arcade.SpriteList()
+        self.enemy_physics.clear()
+        self.enemy_bullets = arcade.SpriteList()
         # Проверяем закрылись ли двери
         self.check_doors()
         self.in_fight = False
