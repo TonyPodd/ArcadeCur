@@ -11,7 +11,6 @@ import config
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
-        arcade.enable_timings()
         arcade.set_background_color(arcade.color.DARK_GREEN)
         self.perf_graph_list = arcade.SpriteList()
         self.fps_graph = arcade.PerfGraph(150, 50, "FPS")
@@ -146,7 +145,6 @@ class GameView(arcade.View):
         self.draw_alerts()
 
     def on_update(self, delta_time: float) -> None:
-        # self.fps_graph.update(delta_time)
         self.player.update(delta_time)
         self.physics_system.update()
         self.camera.center_on_sprite(self.player, 0.1)
@@ -591,7 +589,7 @@ class GameView(arcade.View):
     def start_fight(self, collide_floor: arcade.SpriteList):
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
         self.enemy_sprites = self.current_room.begin_fight()
-        self.collision_sprites.extend(self.enemy_sprites)
+        # self.collision_sprites.extend(self.enemy_sprites)
 
         for enemy in self.enemy_sprites:
             engine = arcade.PhysicsEngineSimple(enemy, self.collision_sprites)

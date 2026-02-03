@@ -175,7 +175,6 @@ class Enemy(arcade.Sprite):
         if not self.is_dead:
             self.weapon.draw()
 
-
     def update(self, delta_time):
         self.death_check()
         self.health_line.set_current_hp(self.hp)
