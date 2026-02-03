@@ -77,14 +77,19 @@ class Enemy(arcade.Sprite):
         self.money = arcade.SpriteList()
         self.orbs = arcade.SpriteList()
 
+    def stop(self):
+        self.change_x = self.change_y = 0
+
     def update_state(self, delta_time):
         if self.player is None:
             self.state = 'idle'
             return
 
-        dist_to_player = arcade.get_distance_between_sprites(self, self.player)
+        dx = self.player.center_x - self.center_x
+        dy = self.player.center_y - self.center_y
+        dist_to_player = hypot(dx, dy)
 
-        is_player_visible = False
+        is_player_visible = True
 
         if dist_to_player <= self.agr_radius:
             self.player_visible_timer += delta_time
@@ -92,14 +97,16 @@ class Enemy(arcade.Sprite):
             if self.player_visible_timer >= 0.2:
                 self.player_visible_timer = 0
                 is_player_visible = arcade.has_line_of_sight(  # Возможная проблема
-                    (self.center_x, self.center_y),
-                    (self.player.center_x, self.player.center_y),
+                    self.position,
+                    self.player.position,
                     self.walls,
                     max_distance=self.agr_radius
                 )
 
-                if is_player_visible:
-                    self.last_seen = self.player.position
+            if is_player_visible:
+                self.last_seen = self.player.position
+        else:
+            is_player_visible = False
 
         if self.last_seen == (self.center_x, self.center_y):
             self.last_seen = None
@@ -112,16 +119,17 @@ class Enemy(arcade.Sprite):
             self.state = "alert"
         else:
             self.state = "idle"
-        print(self.state)
+
 
     def move_to(self, x, y):
         dx = x - self.center_x
         dy = y - self.center_y
-        dist = (dx * dx + dy * dy) ** 0.5
+        dist = hypot(dx, dy)
+
         if dist < 4:
-            self.change_x = 0
-            self.change_y = 0
+            self.stop()
             return True
+
         self.view_angle = atan2(dy, dx)
         self.change_x = self.max_speed * cos(self.view_angle)
         self.change_y = self.max_speed * sin(self.view_angle)
@@ -139,8 +147,7 @@ class Enemy(arcade.Sprite):
         # ждём, выбираем цель, идём к ней без рывков
         if self.idle_timer > 0:
             self.idle_timer -= delta_time
-            self.change_x = 0
-            self.change_y = 0
+            self.stop()
             return
 
         if self.idle_target is None:
@@ -154,8 +161,7 @@ class Enemy(arcade.Sprite):
         if dist < 4:
             self.idle_target = None
             self.idle_timer = self.idle_wait_time
-            self.change_x = 0
-            self.change_y = 0
+            self.stop()
             self._idle_stuck_timer = 0.0
             return
 
@@ -202,10 +208,9 @@ class Enemy(arcade.Sprite):
         if self.state == 'chase':
             self.move_to(*self.player.position)
         elif self.state == 'alert' and self.last_seen:
-            self.move_to(self.last_seen[0], self.last_seen[1])
+            self.move_to(*self.last_seen)
         elif self.state == 'attack':
-            self.change_x = 0
-            self.change_y = 0
+            self.stop()
             self.try_attack()
             # в атаке двигаем чела стрейфами, чтобы он не просто стоял
             dx = self.player.center_x - self.center_x
@@ -218,9 +223,7 @@ class Enemy(arcade.Sprite):
 
         # Плавный поворот только в idle
         if self.player and self.state == 'attack':
-            dx = self.player.center_x - self.center_x
-            dy = self.player.center_y - self.center_y
-            target_angle = atan2(dy, dx)
+            target_angle = atan2(self.player.center_y - self.center_y, self.player.center_x - self.center_x)
             self.weapon_angle = target_angle
         else:
             target_angle = self.view_angle
@@ -229,8 +232,9 @@ class Enemy(arcade.Sprite):
             else:
                 self.weapon_angle = target_angle
 
-        self.weapon.direct_angle = -degrees(self.weapon_angle)
-        self.weapon.angle = -degrees(self.weapon_angle) + 90
+        angel = -degrees(self.weapon_angle)
+        self.weapon.direct_angle = angel
+        self.weapon.angle = angel + 90
 
         if self.player:
             # синхроним оружие с врагом
@@ -241,11 +245,8 @@ class Enemy(arcade.Sprite):
         # self.health_line.set_current_hp(self.hp)
         # self.health_line.set_coords(self.left, self.bottom)
 
-
     def try_attack(self):
-        if self.player is None:
-            return
-        if self.reaction_timer > 0 or self.cooldown_timer > 0:
+        if self.player is None or self.reaction_timer > 0 or self.cooldown_timer > 0:
             return
 
         # угол на игрока
@@ -256,8 +257,7 @@ class Enemy(arcade.Sprite):
 
         bullets = self.weapon.shoot()
         if bullets:
-            for b in bullets:
-                self.spawned_bullets.append(b)
+            self.spawned_bullets.extend(bullets)
             self.burst_left -= 1
 
         if self.burst_left <= 0:
@@ -279,15 +279,15 @@ class Enemy(arcade.Sprite):
         """
         Проверка на смерть врага
         """
-        if self.hp <= 0:
-            self.drop_orbs()
-            self.drop_money()
-            self.is_dead = True
-            self.remove_from_sprite_lists()
-            self.kill()
-            self.delet_from_memory()
-            return (True, self.orbs, self.money)
-        return (False, None, None)
+        if self.hp > 0:
+            return (False, None, None)
+
+        self.is_dead = True
+        self.drop_loot(self.orbs, Orb)
+        self.drop_loot(self.money, Money)
+
+        self.kill()
+        return (True, self.orbs, self.money)
 
     def draw(self):
         ...
@@ -295,32 +295,14 @@ class Enemy(arcade.Sprite):
     def draw_hp(self):
         self.health_line.draw()
 
-    def drop_orbs(self):
+    def drop_loot(self, sprite_list, obj_class):
         """
         Выпадение орбов (топлива для лифта) с врагов
         """
-        for i in range(random.randint(1, 5)):
-            self.orbs.append(Orb(
+        for _ in range(random.randint(1, 5)):
+            sprite_list.append(obj_class(
                 None,
                 1,
-                self.center_x + random.randint(1, 30),
-                self.center_y + random.randint(1, 30)
+                self.center_x + random.randint(-30, 30),
+                self.center_y + random.randint(-30, 30)
             ))
-
-    def drop_money(self):
-        """
-        Выпадение монет с врагов
-        """
-        for i in range(random.randint(1, 5)):
-            self.money.append(Money(
-                None,
-                1,
-                self.center_x + random.randint(1, 30),
-                self.center_y + random.randint(1, 30)
-            ))
-
-    def delet_from_memory(self):
-        del self.spawned_bullets
-        del self.bullets_hitted
-        # del self.money
-        # del self.orbs
