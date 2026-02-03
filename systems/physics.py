@@ -17,9 +17,12 @@ class PhysicsSystem:
     def update(self) -> None:
         self.physics_engine.update()
 
-    def add_wall(self, wall: arcade.Sprite) -> None:
-        self.wall_list.append(wall)
+    def add_collision_sprites(self, sprites: arcade.SpriteList) -> None:
+        self.wall_list.extend(sprites)
 
     def check_collision(self, sprite: arcade.Sprite, sprite_list:arcade.SpriteList) -> list[arcade.Sprite]:
         # Проверка столкновения спрайта со списком спрайтов
         return arcade.check_for_collision_with_list(sprite, sprite_list)
+
+    def set_new_collision_sprites(self, sprites) -> None:
+        self.physics_engine.walls = sprites

@@ -19,6 +19,7 @@ class GameView(arcade.View):
         self.perf_graph_list.append(self.fps_graph)
 
     def setup(self):
+        self.collision_sprites = arcade.SpriteList()
         # Алерты
         self.alerts = []
 
@@ -45,6 +46,10 @@ class GameView(arcade.View):
         self.gui_camera = arcade.camera.Camera2D()  # камера интерфейса
         self.camera.set_position(0, 0)
 
+        # Движок коллизии
+        self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
+        self.enemy_physics = []
+
         # Уровни
         self.all_levels = list()  # все уровни
         self.current_level_number = 0  # Какой сейчс уровень
@@ -52,9 +57,6 @@ class GameView(arcade.View):
         self.create_level('start')  # Стартовый уровень
         self.push_alert("Локация: Старт")
 
-        # Движок коллизии
-        self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
-        self.enemy_physics = []
 
         self.enemy_bullets = arcade.SpriteList()
 
@@ -99,10 +101,15 @@ class GameView(arcade.View):
             3
         )
 
+        # ui
         for sprite in self.interactive_sprites:
             sprite.draw_tips()
 
-        # Отрисовка UI
+        # Интерфейс объектов взаимодействия
+        for object in self.interactive_sprites:
+            object.draw_ui()
+
+        # Отрисовка UI игрока
         self.gui_camera.use()
 
         # Подсказка подбора предмета
@@ -121,11 +128,6 @@ class GameView(arcade.View):
 
         self.haelth_bar.draw()
         self.inventory_ui.draw()
-        
-        # Интерфейс объектов взаимодействия
-        for object in self.interactive_sprites:
-            object.draw_ui()
-
 
         # Координаты игрока
         arcade.draw_text(
@@ -146,6 +148,7 @@ class GameView(arcade.View):
         self.perf_graph_list.draw()
 
         self.draw_alerts()
+        
 
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
@@ -210,6 +213,8 @@ class GameView(arcade.View):
         # удаляем при коллизии со стеной / истечении времени
         self.bullet_collision_with_wall()
 
+        self.interactive_sprites.update()
+        self.engine_sprites.sprite_list[0]
         self.trigger_collision()
 
         # Проверяем возможность подобрать айтем
@@ -266,7 +271,7 @@ class GameView(arcade.View):
             items_for_grab = arcade.check_for_collision_with_list(
                 self.player, self.item_sprites_on_floor
             )
-            chests = arcade.check_for_collision_with_list(self.player, self.chest_sprites)
+            interactive_objects = arcade.check_for_collision_with_list(self.player, self.interactive_sprites)
 
             # взаимодействие с предметом
             if items_for_grab:
@@ -288,13 +293,12 @@ class GameView(arcade.View):
                         self.add_item_to_inventory(item)
                         self.drop_inventory_item(sprite)
 
-            # Открытие сундука
-            elif chests:
-                for chest in chests:
-                    if not chest.is_open:
-                        item = chest.open()
-                        self.item_sprites_on_floor.append(item)
-                        self.interactive_sprites.remove(chest)
+            elif interactive_objects:
+                object_sprite = interactive_objects[0]  # Первый объект
+                item = object_sprite.use()
+                if item is not None:
+                    self.item_sprites_on_floor.append(item)
+                    self.interactive_sprites.remove(object_sprite)
 
         # Выбросить айтем
         if (key == arcade.key.Q):
@@ -306,6 +310,19 @@ class GameView(arcade.View):
             # Проверяем есть ли item в руках
             elif dropped_item is not None:
                 self.drop_inventory_item(dropped_item)
+        
+        # Заправить движок
+        if key == arcade.key.R:
+            engin = self.engine_sprites.sprite_list[0]
+            if engin.is_used:
+                self.orbs -= engin.set_value(self.orbs)
+        
+        # Переход некст локу
+        if key == arcade.key.SPACE:
+            engin = self.engine_sprites.sprite_list[0]
+            if engin.is_used:
+                if engin.is_full:
+                    self.create_level()
 
         # переключение слотов
         if key in (arcade.key.NUM_1, arcade.key.KEY_1):
@@ -402,15 +419,35 @@ class GameView(arcade.View):
             self.money_sprites.clear()
         except Exception:
             ...
+        try:
+            self.interactive_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.chest_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.engine_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.collision_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.drawing_sprites.clear()
+        except Exception:
+            ...
 
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
-
 
         self.wall_sprites = self.all_sprites['wall']
         self.floor_sprites = self.all_sprites['floor']
         self.door_sprites = self.all_sprites['door']
         self.interactive_sprites = self.all_sprites['interactive']
+        self.engine_sprites = self.all_sprites['engine']
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
 
@@ -442,7 +479,7 @@ class GameView(arcade.View):
         # Интерактивные спрайты
         self.interactive_sprites.extend(self.chest_sprites)
 
-    def create_level(self, level_type):
+    def create_level(self, level_type='default'):
         level = Level(level_type)
         self.all_levels.append(level)
         self.current_level_number = len(self.all_levels) - 1
@@ -452,6 +489,7 @@ class GameView(arcade.View):
         player_x, player_y = level.get_spawn_coords()
         self.player.set_position(player_x, player_y)
         self.camera.set_position(player_x, player_y)
+        self.physics_system.set_new_collision_sprites(self.collision_sprites)
 
     def push_alert(self, text, duration = 2.8):
         self.alerts.append({
