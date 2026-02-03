@@ -9,7 +9,9 @@ class InetactiveObject(arcade.Sprite):
         self.texture = arcade.make_soft_square_texture(TILE_SIZE, arcade.color.YELLOW_ROSE, outer_alpha=255)
         self.tips = False  # Подсказки взаимодействия с объектом
         self.tips_text = 'E - Взаимодействуй со мной'
-        self.interaction = False  # Может  ли взаимодействовать игрок в занный момент
+        self.interaction = True  # Может  ли взаимодействовать игрок в данный момент
+        self.is_used = False  # Использует ли сейчас игрок данный объект
+        self.all_ui = list()  # Все интерфейсы
 
         ds = 10  # На сколько надо расширить хитбокс для коллизии
         self._hit_box._points = (
@@ -31,6 +33,11 @@ class InetactiveObject(arcade.Sprite):
                 arcade.color.WHITE,
                 14
             )
+
+    def draw_ui(self):
+        """ Отрисовак всех интерфейсов """
+        for ui in self.all_ui:
+            ui.draw()
 
     def use(self):
         if self.interaction:

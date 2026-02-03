@@ -6,7 +6,7 @@ import config
 class Player(arcade.Sprite):
     def __init__(self, x: float, y: float):
         super().__init__()
-        
+
         # settings
         self.is_dead = False  # Умер ли игрок
         self.hp = config.PLAYER_HEALTH_POINTS
@@ -19,6 +19,9 @@ class Player(arcade.Sprite):
 
         self.center_x = x
         self.center_y = y
+
+        # Не дамажить одной пулей дважды
+        self.bullets_hitted = arcade.SpriteList()
 
         # Направление движения
         self.direction = {
@@ -133,10 +136,12 @@ class Player(arcade.Sprite):
 
     def take_damage(self, damage: float) -> None:
         self.hp -= damage
-    
+        if self.hp <= 0:
+            self.on_die()
+
     def on_die(self):
         self.is_dead = True
-    
+
     def draw_item(self):
         """ Отрисовывать предмет в руках """
         if not self.is_dead:
@@ -163,7 +168,7 @@ class Player(arcade.Sprite):
             dropped_item = self.first_item
             self.first_item = None
             return dropped_item
-        
+
         if self.current_slot == 1 and self.second_item is not None:
             dropped_item = self.second_item
             self.second_item = None
@@ -172,7 +177,7 @@ class Player(arcade.Sprite):
         return None
 
     def grab_item(self, item_sprite: arcade.Sprite):
-        """ 
+        """
         Функция для добавления item в инвентарь \n
         item_sprite - спрайт, который хотим поднять \n
         Если  инвентарь переполнин, то скидываем предмет, который в руках, и поднимаем новый \n
@@ -184,7 +189,7 @@ class Player(arcade.Sprite):
         # Умер
         if self.is_dead:
             return False
-        
+
         # Проверка свободных слотов
         if self.first_item is None:
             self.first_item = item_sprite
@@ -194,7 +199,7 @@ class Player(arcade.Sprite):
             self.second_item = item_sprite
             self.current_slot = 1
             return True
-        
+
         # Нет свободных слотов
         elif self.current_slot == 0:
             dropped_item = self.drop_item()
@@ -204,7 +209,7 @@ class Player(arcade.Sprite):
             dropped_item = self.drop_item()
             self.second_item = item_sprite
             return dropped_item
-    
+
     def get_items_texture(self) -> list[arcade.Sprite, arcade.Sprite]:
         """
         Возвращает массив спрайтов с текстураим item'ов \n
@@ -217,5 +222,5 @@ class Player(arcade.Sprite):
             second_texture = self.second_item.get_texture()
         except Exception:
             second_texture = None
-        
+
         return [first_texture, second_texture]

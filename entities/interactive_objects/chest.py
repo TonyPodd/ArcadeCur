@@ -23,12 +23,13 @@ class Chest(InetactiveObject):
         self.is_open = False
         self.rarity = rarity
         self.chest_type = chest_type
-        
+
         self.tips_text = 'E - open'
 
     def open(self):
         if not self.is_open:
             self.is_open = True
+            self.interaction = False
             return self.get_item()
 
     def get_item(self):

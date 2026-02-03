@@ -7,6 +7,7 @@ import config
 class Game(arcade.Window):
     def __init__(self, width, height: int, title: int) -> None:
         super().__init__(width, height, title, center_window=True)
+        arcade.enable_timings()
 
         arcade.set_background_color(arcade.color.AMAZON)
 

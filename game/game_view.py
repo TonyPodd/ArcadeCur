@@ -12,6 +12,11 @@ class GameView(arcade.View):
     def __init__(self):
         super().__init__()
         arcade.set_background_color(arcade.color.DARK_GREEN)
+        self.perf_graph_list = arcade.SpriteList()
+        self.fps_graph = arcade.PerfGraph(150, 50, "FPS")
+        self.fps_graph.center_x = 75
+        self.fps_graph.center_y = 25
+        self.perf_graph_list.append(self.fps_graph)
 
     def setup(self):
         # Алерты
@@ -47,6 +52,8 @@ class GameView(arcade.View):
 
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
+        self.enemy_physics = []
+
 
         self.enemy_bullets = arcade.SpriteList()
 
@@ -80,6 +87,11 @@ class GameView(arcade.View):
         for enemy in self.enemy_sprites.sprite_list:
             enemy.draw_hp()
 
+        # Оружия у enemy
+        for enemy in self.enemy_sprites:
+            enemy.draw_item()
+
+
         # Подсказка подбора предмета
         for item in self.item_sprites_on_floor:
             if arcade.check_for_collision(self.player, item):
@@ -101,18 +113,19 @@ class GameView(arcade.View):
             arcade.color.RED,
             3
         )
-        
+
         for sprite in self.interactive_sprites:
             sprite.draw_tips()
-        
-        self.interactive_sprites.draw_hit_boxes(arcade.color.RED)
-
 
         # Отрисовка UI
         self.gui_camera.use()
 
         self.haelth_bar.draw()
         self.inventory_ui.draw()
+        
+        # Интерфейс объектов взаимодействия
+        for object in self.interactive_sprites:
+            object.draw_ui()
 
 
         # Координаты игрока
@@ -131,6 +144,7 @@ class GameView(arcade.View):
             arcade.color.WHITE,
             14
         )
+        self.perf_graph_list.draw()
 
         self.draw_alerts()
 
@@ -152,20 +166,25 @@ class GameView(arcade.View):
         if self.in_fight and not self.enemy_sprites.sprite_list:
             self.end_fight()
 
-
         # Проверка умер ли игрок
         if self.is_dead():
             from views import DeathView
             deathview = DeathView()
             self.window.show_view(deathview)
 
+        # коллизия со стенами для енеми
+        for engine in self.enemy_physics:
+            engine.update()
+
         # Двигаем пули
         self.bullets.update(delta_time)
         self.enemy_bullets.update(delta_time)
 
         # Обновляем врагов и переносим их пули в общий список
+        # обновляем углы оружий енеми
         self.enemy_sprites.update(delta_time)
         for enemy in self.enemy_sprites.sprite_list:
+            enemy.weapon.update()
             if enemy.spawned_bullets:
                 for b in enemy.spawned_bullets:
                     self.enemy_bullets.append(b)
@@ -173,6 +192,9 @@ class GameView(arcade.View):
 
         # Проверяем коллизию врагов с пулями
         self.enemy_collision_with_bullet()
+
+        # Проверяем коллизию игрока с пулями
+        self.player_collision_with_bullet()
 
         # удаляем при коллизии со стеной / истечении времени
         self.bullet_collision_with_wall()
@@ -195,6 +217,8 @@ class GameView(arcade.View):
         # Изменения GUI
         self.haelth_bar.update(delta_time)
         self.inventory_ui.update()
+        
+        self.interactive_sprites.update(delta_time)
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
@@ -370,11 +394,11 @@ class GameView(arcade.View):
 
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
 
-
         self.item_sprites_on_floor = arcade.SpriteList()
 
         # Спрайты с коллизией с игроком
         for sprite in self.wall_sprites:
+            # self.collision_sprites.append()
             self.collision_sprites.append(sprite)
 
         # спрайты для отрисовки, кроме пола
@@ -517,24 +541,14 @@ class GameView(arcade.View):
         Проверка сталкивается ли пуля со стеной \n
         """
         for bullet in self.bullets:
-            if arcade.check_for_collision_with_list(bullet, self.wall_sprites):
-                self.bullets.remove(bullet)
-                bullet.kill()
-                continue
-            if bullet.expired == True:
+            if bullet.damage_type != 'hit' and arcade.check_for_collision_with_list(bullet, self.wall_sprites):
                 self.bullets.remove(bullet)
                 bullet.kill()
 
         for enemy_bullet in self.enemy_bullets:
-            if arcade.check_for_collision_with_list(enemy_bullet, self.wall_sprites):
+            if enemy_bullet.damage_type != 'hit' and arcade.check_for_collision_with_list(enemy_bullet, self.wall_sprites):
                 self.enemy_bullets.remove(enemy_bullet)
                 enemy_bullet.kill()
-                continue
-            if enemy_bullet.expired == True:
-                self.enemy_bullets.remove(enemy_bullet)
-                enemy_bullet.kill()
-
-
 
     def enemy_collision_with_bullet(self) -> None:
         """
@@ -549,17 +563,44 @@ class GameView(arcade.View):
                 # Наносим урон врагу, если он с ней не сталкивался
                 if bullet not in enemy.bullets_hitted:
                     enemy.take_damage(bullet.damage)
-
+                    if bullet.damage_type == 'bullet':
+                        self.bullets.remove(bullet)
+                        bullet.kill()
+                        continue
                     # добавляем пули к уже столкнувшимся
                     enemy.bullets_hitted.append(bullet)
+
+    def player_collision_with_bullet(self) -> None:
+        """
+        Провеяем задела ли игроока пуля \n
+        Если да, то получаем урон
+        """
+
+        collide_bullets = arcade.check_for_collision_with_list(self.player, self.enemy_bullets)
+
+        for bullet in collide_bullets:
+            # Впитываем урон, если не сталкивались с пуей
+            if bullet not in self.player.bullets_hitted:
+                self.player.take_damage(bullet.damage)
+                if bullet.damage_type == 'bullet':
+                    self.enemy_bullets.remove(bullet)
+                    bullet.kill()
+                    continue
+                # добавляем пули к уже столкнувшимся
+                self.player.bullets_hitted.append(bullet)
 
     def start_fight(self, collide_floor: arcade.SpriteList):
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
         self.enemy_sprites = self.current_room.begin_fight()
+        # self.collision_sprites.extend(self.enemy_sprites)
+
+        for enemy in self.enemy_sprites:
+            engine = arcade.PhysicsEngineSimple(enemy, self.collision_sprites)
+            self.enemy_physics.append(engine)
 
         for enemy in self.enemy_sprites:
             enemy.player = self.player
-            enemy.walls = self.wall_sprites
+            enemy.walls = self.all_levels[self.current_level_number].all_sprites['wall']
         # Проверяем закрылись ли двери
         self.check_doors()
 
@@ -573,14 +614,22 @@ class GameView(arcade.View):
 
     def end_fight(self):
         self.current_room.end_fight()
+        # чистим коллизии/движки врагов, чтобы не копились между комнатами
+        for enemy in list(self.enemy_sprites.sprite_list):
+            if enemy in self.collision_sprites:
+                self.collision_sprites.remove(enemy)
+        self.enemy_sprites = arcade.SpriteList()
+        self.enemy_physics.clear()
+        self.enemy_bullets = arcade.SpriteList()
         # Проверяем закрылись ли двери
         self.check_doors()
         self.in_fight = False
 
     def trigger_collision(self):
-        
-        for sprite in self.interactive_sprites.sprite_list:
-            if arcade.check_for_collision(self.player, sprite):
-                sprite.tips = True
-            else:
-                sprite.tips = False
+        """ Проверка сталкивается ли игрок с интерактивным объектом """
+        if not self.in_fight:
+            for sprite in self.interactive_sprites.sprite_list:
+                if arcade.check_for_collision(self.player, sprite):
+                    sprite.tips = True
+                else:
+                    sprite.tips = False

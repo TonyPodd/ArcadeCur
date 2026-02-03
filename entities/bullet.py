@@ -13,6 +13,7 @@ class Bullet(arcade.Sprite):
         self.bullet_radius = 0
         self.bullet_speed = 0
         self.life_frames = None
+        # bullet исчезает после попадания, magic ебашит до стенки, hit - милишка, бьет всех пока не expired
         self.expired = False
 
     def apply_stats(self):
@@ -24,10 +25,12 @@ class Bullet(arcade.Sprite):
             self.height = size
 
     def update(self, delta_time):
-        if self.life_frames is not None:    
+        if self.life_frames is not None:
             self.life_frames -= 1
             if self.life_frames <= 0:
+                self.remove_from_sprite_lists()
                 self.expired = True
+                self.kill()
 
         self.center_x += cos(radians(self.angle)) * self.speed
         self.center_y += sin(radians(self.angle)) * -self.speed
