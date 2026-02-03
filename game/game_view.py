@@ -122,6 +122,10 @@ class GameView(arcade.View):
 
         self.haelth_bar.draw()
         self.inventory_ui.draw()
+        
+        # Интерфейс объектов взаимодействия
+        for object in self.interactive_sprites:
+            object.draw_ui()
 
 
         # Координаты игрока
@@ -162,13 +166,11 @@ class GameView(arcade.View):
         if self.in_fight and not self.enemy_sprites.sprite_list:
             self.end_fight()
 
-
         # Проверка умер ли игрок
         if self.is_dead():
             from views import DeathView
             deathview = DeathView()
             self.window.show_view(deathview)
-
 
         # коллизия со стенами для енеми
         for engine in self.enemy_physics:
@@ -215,6 +217,8 @@ class GameView(arcade.View):
         # Изменения GUI
         self.haelth_bar.update(delta_time)
         self.inventory_ui.update()
+        
+        self.interactive_sprites.update(delta_time)
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
@@ -409,7 +413,6 @@ class GameView(arcade.View):
         # враги (если есть)
         for sprite in self.enemy_sprites:
             self.drawing_sprites.append(sprite)
-            # self.collision_sprites.append(sprite)
 
     def create_level(self, level_type):
         level = Level(level_type)
@@ -623,6 +626,7 @@ class GameView(arcade.View):
         self.in_fight = False
 
     def trigger_collision(self):
+        """ Проверка сталкивается ли игрок с интерактивным объектом """
         if not self.in_fight:
             for sprite in self.interactive_sprites.sprite_list:
                 if arcade.check_for_collision(self.player, sprite):
