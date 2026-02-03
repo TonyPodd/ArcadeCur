@@ -19,7 +19,8 @@ class Room:
         self.all_sprites = {
             'floor': arcade.SpriteList(),
             'wall': arcade.SpriteList(use_spatial_hash=True),
-            'door': arcade.SpriteList()
+            'door': arcade.SpriteList(),
+            'engine': arcade.SpriteList()
         }
 
         # Карта комнаты

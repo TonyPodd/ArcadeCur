@@ -210,6 +210,8 @@ class GameView(arcade.View):
         # удаляем при коллизии со стеной / истечении времени
         self.bullet_collision_with_wall()
 
+        self.interactive_sprites.update()
+        self.engine_sprites.sprite_list[0]
         self.trigger_collision()
 
         # Проверяем возможность подобрать айтем
@@ -301,6 +303,19 @@ class GameView(arcade.View):
             # Проверяем есть ли item в руках
             elif dropped_item is not None:
                 self.drop_inventory_item(dropped_item)
+        
+        # Заправить движок
+        if key == arcade.key.R:
+            engin = self.engine_sprites.sprite_list[0]
+            if engin.is_used:
+                self.orbs -= engin.set_value(self.orbs)
+        
+        # Переход некст локу
+        if key == arcade.key.SPACE:
+            engin = self.engine_sprites.sprite_list[0]
+            if engin.is_used:
+                if engin.is_full:
+                    self.create_level()
 
         # переключение слотов
         if key in (arcade.key.NUM_1, arcade.key.KEY_1):
@@ -397,15 +412,27 @@ class GameView(arcade.View):
             self.money_sprites.clear()
         except Exception:
             ...
+        try:
+            self.interactive_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.chest_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.engine_sprites.clear()
+        except Exception:
+            ...
 
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
-
 
         self.wall_sprites = self.all_sprites['wall']
         self.floor_sprites = self.all_sprites['floor']
         self.door_sprites = self.all_sprites['door']
         self.interactive_sprites = self.all_sprites['interactive']
+        self.engine_sprites = self.all_sprites['engine']
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
 
@@ -437,7 +464,7 @@ class GameView(arcade.View):
         # Интерактивные спрайты
         self.interactive_sprites.extend(self.chest_sprites)
 
-    def create_level(self, level_type):
+    def create_level(self, level_type='default'):
         level = Level(level_type)
         self.all_levels.append(level)
         self.current_level_number = len(self.all_levels) - 1

@@ -70,7 +70,8 @@ class SpawnRoom(Room):
         sprites = {
             'floor': arcade.SpriteList(),
             'wall': arcade.SpriteList(),
-            'interactive': arcade.SpriteList()
+            'interactive': arcade.SpriteList(),
+            'engine': arcade.SpriteList()
         }
 
         for object_type in data:
@@ -91,8 +92,10 @@ class SpawnRoom(Room):
                     ))
                 
                 if object_type == '3':
-                    sprites['interactive'].append(Engine(
+                    obj_sprite = Engine(
                         None, 1, tile_x, tile_y
-                    ))
+                    )
+                    sprites['engine'].append(obj_sprite)
+                    sprites['interactive'].append(obj_sprite)
 
         return sprites
