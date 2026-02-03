@@ -29,6 +29,7 @@ class Chest(InetactiveObject):
     def open(self):
         if not self.is_open:
             self.is_open = True
+            self.interaction = False
             return self.get_item()
 
     def get_item(self):

@@ -11,7 +11,7 @@ class Level:
 
         # Спрайты всех объектов комнаты
         self.all_sprites = {
-            'interactive': arcade.SpriteList()
+            'interactive': arcade.SpriteList(),
         }
 
         self.spawn_coords = None
