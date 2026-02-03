@@ -27,7 +27,6 @@ class Orb(arcade.Sprite):
 
     def picked_up(self):
         """ Орб подобран """
-        self.remove_from_sprite_lists()
         self.kill()
         return self.value
 

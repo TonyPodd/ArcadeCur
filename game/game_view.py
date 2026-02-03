@@ -612,8 +612,13 @@ class GameView(arcade.View):
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
         self.enemy_sprites = self.current_room.begin_fight()
 
+        # Спрайты коллизии для врагов
+        self.enemy_col_sprites = arcade.SpriteList()
+        self.enemy_col_sprites.extend(self.current_room.all_sprites['wall'])
+        self.enemy_col_sprites.extend(self.current_room.all_sprites['door'])
+
         for enemy in self.enemy_sprites:
-            engine = arcade.PhysicsEngineSimple(enemy, self.collision_sprites)
+            engine = arcade.PhysicsEngineSimple(enemy, self.enemy_col_sprites)
             self.enemy_physics.append(engine)
 
         for enemy in self.enemy_sprites:
