@@ -225,6 +225,10 @@ class GameView(arcade.View):
         for item in self.item_sprites_in_enventory:
             item.update()
 
+        # Всасывание орбов
+        self.orb_sprites.update(delta_time, self.player.position)
+        self.money_sprites.update(delta_time, self.player.position)
+
         # Подбор орбов
         for sprite in arcade.check_for_collision_with_list(self.player, self.money_sprites):
             self.money += sprite.picked_up()

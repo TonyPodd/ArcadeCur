@@ -18,3 +18,4 @@ class Money(Orb):
         self.width = 20 + 2 * (self.value - 1)
         self.height = 20 + 2 * (self.value - 1)
         self.texture = arcade.make_soft_circle_texture(self.width, (245, 200, 2))
+
