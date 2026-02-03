@@ -19,6 +19,7 @@ class GameView(arcade.View):
         self.perf_graph_list.append(self.fps_graph)
 
     def setup(self):
+        self.collision_sprites = arcade.SpriteList()
         # Алерты
         self.alerts = []
 
@@ -45,6 +46,10 @@ class GameView(arcade.View):
         self.gui_camera = arcade.camera.Camera2D()  # камера интерфейса
         self.camera.set_position(0, 0)
 
+        # Движок коллизии
+        self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
+        self.enemy_physics = []
+
         # Уровни
         self.all_levels = list()  # все уровни
         self.current_level_number = 0  # Какой сейчс уровень
@@ -52,9 +57,6 @@ class GameView(arcade.View):
         self.create_level('start')  # Стартовый уровень
         self.push_alert("Локация: Старт")
 
-        # Движок коллизии
-        self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
-        self.enemy_physics = []
 
         self.enemy_bullets = arcade.SpriteList()
 
@@ -424,6 +426,14 @@ class GameView(arcade.View):
             self.engine_sprites.clear()
         except Exception:
             ...
+        try:
+            self.collision_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.drawing_sprites.clear()
+        except Exception:
+            ...
 
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
@@ -474,6 +484,7 @@ class GameView(arcade.View):
         player_x, player_y = level.get_spawn_coords()
         self.player.set_position(player_x, player_y)
         self.camera.set_position(player_x, player_y)
+        self.physics_system.set_new_collision_sprites(self.collision_sprites)
 
     def push_alert(self, text, duration = 2.8):
         self.alerts.append({
