@@ -26,7 +26,7 @@ class Chest(InetactiveObject):
 
         self.tips_text = 'E - open'
 
-    def open(self):
+    def use(self):
         if not self.is_open:
             self.is_open = True
             self.interaction = False

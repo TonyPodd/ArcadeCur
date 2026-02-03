@@ -3,7 +3,7 @@ import random
 
 from .room import Room
 from config import *
-from entities import Floor, Wall, Chest, InetactiveObject
+from entities import Floor, Wall, Chest, Engine
 
 
 class SpawnRoom(Room):
@@ -91,7 +91,7 @@ class SpawnRoom(Room):
                     ))
                 
                 if object_type == '3':
-                    sprites['interactive'].append(InetactiveObject(
+                    sprites['interactive'].append(Engine(
                         None, 1, tile_x, tile_y
                     ))
 

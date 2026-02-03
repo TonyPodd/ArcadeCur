@@ -2,6 +2,7 @@ import arcade
 
 from config import *
 
+
 class InetactiveObject(arcade.Sprite):
     def __init__(self, path_or_texture=None, scale=1, center_x=0, center_y=0):
         super().__init__(path_or_texture, scale, center_x, center_y)
@@ -21,6 +22,7 @@ class InetactiveObject(arcade.Sprite):
             (self.width / 2 + ds, -self.height / 2 - ds)
         )
         
+        
     def update(self, delta_time: float=1 / 60):
         ...
 
@@ -36,12 +38,16 @@ class InetactiveObject(arcade.Sprite):
 
     def draw_ui(self):
         """ Отрисовак всех интерфейсов """
-        for ui in self.all_ui:
-            ui.draw()
+        if self.is_used:
+            for ui in self.all_ui:
+                ui.draw()
 
     def use(self):
         if self.interaction:
-            ...
+            if self.is_used:
+                self.is_used = False
+            else:
+                self.is_used = True
 
     def set_new_hit_box(self, ds):
         self._hit_box._points = (

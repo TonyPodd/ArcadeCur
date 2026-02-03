@@ -99,10 +99,15 @@ class GameView(arcade.View):
             3
         )
 
+        # ui
         for sprite in self.interactive_sprites:
             sprite.draw_tips()
 
-        # Отрисовка UI
+        # Интерфейс объектов взаимодействия
+        for object in self.interactive_sprites:
+            object.draw_ui()
+
+        # Отрисовка UI игрока
         self.gui_camera.use()
 
         # Подсказка подбора предмета
@@ -121,11 +126,6 @@ class GameView(arcade.View):
 
         self.haelth_bar.draw()
         self.inventory_ui.draw()
-        
-        # Интерфейс объектов взаимодействия
-        for object in self.interactive_sprites:
-            object.draw_ui()
-
 
         # Координаты игрока
         arcade.draw_text(
@@ -146,6 +146,7 @@ class GameView(arcade.View):
         self.perf_graph_list.draw()
 
         self.draw_alerts()
+        
 
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
@@ -261,7 +262,7 @@ class GameView(arcade.View):
             items_for_grab = arcade.check_for_collision_with_list(
                 self.player, self.item_sprites_on_floor
             )
-            chests = arcade.check_for_collision_with_list(self.player, self.chest_sprites)
+            interactive_objects = arcade.check_for_collision_with_list(self.player, self.interactive_sprites)
 
             # взаимодействие с предметом
             if items_for_grab:
@@ -283,13 +284,12 @@ class GameView(arcade.View):
                         self.add_item_to_inventory(item)
                         self.drop_inventory_item(sprite)
 
-            # Открытие сундука
-            elif chests:
-                for chest in chests:
-                    if not chest.is_open:
-                        item = chest.open()
-                        self.item_sprites_on_floor.append(item)
-                        self.interactive_sprites.remove(chest)
+            elif interactive_objects:
+                object_sprite = interactive_objects[0]  # Первый объект
+                item = object_sprite.use()
+                if item is not None:
+                    self.item_sprites_on_floor.append(item)
+                    self.interactive_sprites.remove(object_sprite)
 
         # Выбросить айтем
         if (key == arcade.key.Q):
