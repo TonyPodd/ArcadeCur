@@ -147,6 +147,7 @@ class GameView(arcade.View):
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
         self.physics_system.update()
+        self.camera.update(delta_time)
         self.camera.center_on_sprite(self.player, 0.1)
         self.update_alerts(delta_time)
 
@@ -579,6 +580,7 @@ class GameView(arcade.View):
             # Впитываем урон, если не сталкивались с пуей
             if bullet not in self.player.bullets_hitted:
                 self.player.take_damage(bullet.damage)
+                self.camera.shake(12, 0.2)
                 if bullet.damage_type == 'bullet':
                     self.enemy_bullets.remove(bullet)
                     bullet.kill()
