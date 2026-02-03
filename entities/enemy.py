@@ -45,7 +45,7 @@ class Enemy(arcade.Sprite):
         self.state = 'idle'
         self.player = None
 
-        self.bullets_hitted = arcade.SpriteList()  # Пули которые попали во врага, (чтобы не было повторного урона)
+        self.bullets_hitted = set()  # Пули которые попали во врага, (чтобы не было повторного урона)
 
         self.is_player_visible = False
         self.player_visible_timer = 0
