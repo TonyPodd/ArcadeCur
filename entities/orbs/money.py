@@ -10,3 +10,11 @@ class Money(Orb):
         Нужена для покупки орбов (если не хватиет), оружия и других итемов
         """
         super().__init__(path_or_texture, scale, center_x, center_y)
+
+    def resize(self):
+        """
+        Размер относительно стоимости
+        """
+        self.width = 20 + 2 * (self.value - 1)
+        self.height = 20 + 2 * (self.value - 1)
+        self.texture = arcade.make_soft_circle_texture(self.width, (245, 200, 2))
