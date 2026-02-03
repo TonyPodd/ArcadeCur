@@ -187,21 +187,23 @@ class GameView(arcade.View):
         # обновляем углы оружий енеми
         self.enemy_sprites.update(delta_time)
         for enemy in self.enemy_sprites.sprite_list:
-            orbs, money = enemy.death_check()
+            dead, orbs, money = enemy.death_check()
 
-            enemy.weapon.update()
-            if enemy.spawned_bullets:
-                for b in enemy.spawned_bullets:
-                    self.enemy_bullets.append(b)
-                enemy.spawned_bullets.clear()
+            if not dead:
+                enemy.weapon.update()
+                if enemy.spawned_bullets:
+                    for b in enemy.spawned_bullets:
+                        self.enemy_bullets.append(b)
+                    enemy.spawned_bullets.clear()
 
-            # получение денег и орбов
-            if orbs is not None:
-                for orb in orbs.sprite_list:
-                    self.orb_sprites.append(orb)
-            if money is not None:
-                for coin in money:
-                    self.money_sprites.append(coin)
+            else:
+                # получение денег и орбов
+                if orbs is not None:
+                    for orb in orbs.sprite_list:
+                        self.orb_sprites.append(orb)
+                if money is not None:
+                    for coin in money:
+                        self.money_sprites.append(coin)
 
         # Проверяем коллизию врагов с пулями
         self.enemy_collision_with_bullet()
@@ -412,7 +414,6 @@ class GameView(arcade.View):
         self.collision_sprites = arcade.SpriteList()
 
         self.wall_sprites = self.all_sprites['wall']
-        self.wall_sprites.use_spatial_hash = True
         self.floor_sprites = self.all_sprites['floor']
         self.door_sprites = self.all_sprites['door']
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
@@ -424,6 +425,14 @@ class GameView(arcade.View):
         self.money_sprites = arcade.SpriteList()
 
         self.item_sprites_on_floor = arcade.SpriteList()
+        
+        # Тестовые трюки с оптимизацией
+        # self.enemy_sprites.use_spatial_hashing = True
+        self.chest_sprites.is_static = True
+        self.wall_sprites.use_spatial_hash = True
+        self.wall_sprites.is_static = True
+        self.door_sprites.is_static = True
+        self.floor_sprites.is_static = True
 
         # Спрайты с коллизией с игроком
         for sprite in self.wall_sprites:
@@ -621,7 +630,6 @@ class GameView(arcade.View):
     def start_fight(self, collide_floor: arcade.SpriteList):
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
         self.enemy_sprites = self.current_room.begin_fight()
-        # self.collision_sprites.extend(self.enemy_sprites)
 
         for enemy in self.enemy_sprites:
             engine = arcade.PhysicsEngineSimple(enemy, self.collision_sprites)
@@ -629,7 +637,7 @@ class GameView(arcade.View):
 
         for enemy in self.enemy_sprites:
             enemy.player = self.player
-            enemy.walls = self.all_levels[self.current_level_number].all_sprites['wall']
+            enemy.walls = self.current_room.all_sprites['wall']
         # Проверяем закрылись ли двери
         self.check_doors()
 

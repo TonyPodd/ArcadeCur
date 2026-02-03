@@ -1,5 +1,5 @@
 import arcade
-from math import atan2, cos, sin, degrees, pi
+from math import atan2, cos, sin, degrees, pi, hypot
 import random
 
 import config
@@ -48,6 +48,7 @@ class Enemy(arcade.Sprite):
         self.bullets_hitted = arcade.SpriteList()  # Пули которые попали во врага, (чтобы не было повторного урона)
 
         self.is_player_visible = False
+        self.player_visible_timer = 0
 
 
         # Временный квадрат вместо спрайта
@@ -76,38 +77,42 @@ class Enemy(arcade.Sprite):
         self.money = arcade.SpriteList()
         self.orbs = arcade.SpriteList()
 
-    def update_state(self, delta):
-        if self.player is None or self.walls is None:
+    def update_state(self, delta_time):
+        if self.player is None:
             self.state = 'idle'
             return
 
+        dist_to_player = arcade.get_distance_between_sprites(self, self.player)
 
-        self.dist_to_player = arcade.get_distance_between_sprites(self, self.player)
-        if self.dist_to_player > self.agr_radius:
-            self.is_player_visible = False
+        is_player_visible = False
 
-        else:
-            self.is_player_visible = arcade.has_line_of_sight(  # Возможная проблема
-                (self.center_x, self.center_y),
-                (self.player.center_x, self.player.center_y),
-                self.walls,
-                max_distance=self.agr_radius
-            )
+        if dist_to_player <= self.agr_radius:
+            self.player_visible_timer += delta_time
 
-            if self.is_player_visible:
-                self.last_seen = (self.player.center_x, self.player.center_y)
+            if self.player_visible_timer >= 0.2:
+                self.player_visible_timer = 0
+                is_player_visible = arcade.has_line_of_sight(  # Возможная проблема
+                    (self.center_x, self.center_y),
+                    (self.player.center_x, self.player.center_y),
+                    self.walls,
+                    max_distance=self.agr_radius
+                )
+
+                if is_player_visible:
+                    self.last_seen = self.player.position
 
         if self.last_seen == (self.center_x, self.center_y):
             self.last_seen = None
 
-        if self.is_player_visible and self.dist_to_player < self.attack_radius:
+        if is_player_visible and dist_to_player < self.attack_radius:
             self.state = "attack"
-        elif self.is_player_visible:
+        elif is_player_visible:
             self.state = "chase"
         elif self.last_seen:
             self.state = "alert"
         else:
             self.state = "idle"
+        print(self.state)
 
     def move_to(self, x, y):
         dx = x - self.center_x
@@ -179,15 +184,9 @@ class Enemy(arcade.Sprite):
             self.weapon.draw()
 
     def update(self, delta_time):
-        self.health_line.set_current_hp(self.hp)
-        self.health_line.set_coords(self.left, self.bottom)
-        self.update_state(delta_time)
+        if self.is_dead: return
 
-        if self.player:
-            # синхроним оружие с врагом
-            self.weapon.center_x = self.center_x
-            self.weapon.center_y = self.center_y
-            self.weapon.player = self
+        self.update_state(delta_time)
 
         if self.state != self.prev_state:
             if self.state in ("attack", "chase"):
@@ -201,10 +200,12 @@ class Enemy(arcade.Sprite):
             self.cooldown_timer = max(0.0, self.cooldown_timer - delta_time)
 
         if self.state == 'chase':
-            self.move_to(self.player.center_x, self.player.center_y)
+            self.move_to(*self.player.position)
         elif self.state == 'alert' and self.last_seen:
             self.move_to(self.last_seen[0], self.last_seen[1])
         elif self.state == 'attack':
+            self.change_x = 0
+            self.change_y = 0
             self.try_attack()
             # в атаке двигаем чела стрейфами, чтобы он не просто стоял
             dx = self.player.center_x - self.center_x
@@ -230,8 +231,16 @@ class Enemy(arcade.Sprite):
 
         self.weapon.direct_angle = -degrees(self.weapon_angle)
         self.weapon.angle = -degrees(self.weapon_angle) + 90
-        
-        return (self.orbs, self.money)
+
+        if self.player:
+            # синхроним оружие с врагом
+            self.weapon.center_x = self.center_x
+            self.weapon.center_y = self.center_y
+            self.weapon.player = self
+
+        # self.health_line.set_current_hp(self.hp)
+        # self.health_line.set_coords(self.left, self.bottom)
+
 
     def try_attack(self):
         if self.player is None:
@@ -276,8 +285,9 @@ class Enemy(arcade.Sprite):
             self.is_dead = True
             self.remove_from_sprite_lists()
             self.kill()
-            return (self.orbs, self.money)
-        return (None, None)
+            self.delet_from_memory()
+            return (True, self.orbs, self.money)
+        return (False, None, None)
 
     def draw(self):
         ...
@@ -308,3 +318,9 @@ class Enemy(arcade.Sprite):
                 self.center_x + random.randint(1, 30),
                 self.center_y + random.randint(1, 30)
             ))
+
+    def delet_from_memory(self):
+        del self.spawned_bullets
+        del self.bullets_hitted
+        # del self.money
+        # del self.orbs
