@@ -4,6 +4,7 @@ import random
 
 import config
 from .weapon import Weapon
+from .orbs import Orb, Money
 from scripts.gui import HealthLine
 
 class Enemy(arcade.Sprite):
@@ -71,6 +72,9 @@ class Enemy(arcade.Sprite):
         self.idle_stuck_time = 0.6
         self._idle_stuck_timer = 0.0
         self._last_pos = (self.center_x, self.center_y)
+
+        self.money = arcade.SpriteList()
+        self.orbs = arcade.SpriteList()
 
     def update_state(self, delta):
         if self.player is None or self.walls is None:
@@ -175,7 +179,6 @@ class Enemy(arcade.Sprite):
             self.weapon.draw()
 
     def update(self, delta_time):
-        self.death_check()
         self.health_line.set_current_hp(self.hp)
         self.health_line.set_coords(self.left, self.bottom)
         self.update_state(delta_time)
@@ -227,6 +230,8 @@ class Enemy(arcade.Sprite):
 
         self.weapon.direct_angle = -degrees(self.weapon_angle)
         self.weapon.angle = -degrees(self.weapon_angle) + 90
+        
+        return (self.orbs, self.money)
 
     def try_attack(self):
         if self.player is None:
@@ -266,15 +271,13 @@ class Enemy(arcade.Sprite):
         Проверка на смерть врага
         """
         if self.hp <= 0:
+            self.drop_orbs()
+            self.drop_money()
             self.is_dead = True
             self.remove_from_sprite_lists()
             self.kill()
-
-    def take_damage(self, damage):
-        """
-        Получение урона
-        """
-        self.hp -= damage
+            return (self.orbs, self.money)
+        return (None, None)
 
     def draw(self):
         ...
@@ -282,23 +285,26 @@ class Enemy(arcade.Sprite):
     def draw_hp(self):
         self.health_line.draw()
 
-    def death_check(self):
-        """
-        Проверка на смерть врага
-        """
-        if self.hp <= 0:
-            self.is_dead = True
-            self.remove_from_sprite_lists()
-            self.kill()
-
     def drop_orbs(self):
         """
         Выпадение орбов (топлива для лифта) с врагов
         """
-        ...
+        for i in range(random.randint(1, 5)):
+            self.orbs.append(Orb(
+                None,
+                1,
+                self.center_x + random.randint(1, 30),
+                self.center_y + random.randint(1, 30)
+            ))
 
     def drop_money(self):
         """
         Выпадение монет с врагов
         """
-        ...
+        for i in range(random.randint(1, 5)):
+            self.money.append(Money(
+                None,
+                1,
+                self.center_x + random.randint(1, 30),
+                self.center_y + random.randint(1, 30)
+            ))

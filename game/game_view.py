@@ -33,6 +33,8 @@ class GameView(arcade.View):
         self.player_list.append(self.player)
         self.item_sprites_in_enventory = arcade.SpriteList()
         self.in_fight = False  # Идёт ли сейчас сражение
+        self.money = 0  # кол-во денег
+        self.orbs = 0  # кол-во орбов
 
         # UI
         self.haelth_bar = HealthBar(self.player)
@@ -53,7 +55,6 @@ class GameView(arcade.View):
         # Движок коллизии
         self.physics_system = PhysicsSystem(self.player, self.collision_sprites)
         self.enemy_physics = []
-
 
         self.enemy_bullets = arcade.SpriteList()
 
@@ -91,19 +92,8 @@ class GameView(arcade.View):
         for enemy in self.enemy_sprites:
             enemy.draw_item()
 
-
-        # Подсказка подбора предмета
-        for item in self.item_sprites_on_floor:
-            if arcade.check_for_collision(self.player, item):
-                arcade.draw_text(
-                    f'E - подобрать "{item.name}"',
-                    item.center_x,
-                    item.center_y + 40,
-                    arcade.color.WHITE,
-                    font_size=14,
-                    anchor_x="center",
-                    anchor_y="center"
-                )
+        self.orb_sprites.draw()
+        self.money_sprites.draw()
 
         arcade.draw_line(
             self.player.center_x,
@@ -119,6 +109,19 @@ class GameView(arcade.View):
 
         # Отрисовка UI
         self.gui_camera.use()
+
+        # Подсказка подбора предмета
+        for item in self.item_sprites_on_floor:
+            if arcade.check_for_collision(self.player, item):
+                arcade.draw_text(
+                    f'E - подобрать "{item.name}"',
+                    item.center_x,
+                    item.center_y + 40,
+                    arcade.color.WHITE,
+                    font_size=14,
+                    anchor_x="center",
+                    anchor_y="center"
+                )
 
         self.haelth_bar.draw()
         self.inventory_ui.draw()
@@ -184,11 +187,21 @@ class GameView(arcade.View):
         # обновляем углы оружий енеми
         self.enemy_sprites.update(delta_time)
         for enemy in self.enemy_sprites.sprite_list:
+            orbs, money = enemy.death_check()
+
             enemy.weapon.update()
             if enemy.spawned_bullets:
                 for b in enemy.spawned_bullets:
                     self.enemy_bullets.append(b)
                 enemy.spawned_bullets.clear()
+
+            # получение денег и орбов
+            if orbs is not None:
+                for orb in orbs.sprite_list:
+                    self.orb_sprites.append(orb)
+            if money is not None:
+                for coin in money:
+                    self.money_sprites.append(coin)
 
         # Проверяем коллизию врагов с пулями
         self.enemy_collision_with_bullet()
@@ -213,6 +226,12 @@ class GameView(arcade.View):
         # Айтемы в инвентаре двигаются вместе с игроком
         for item in self.item_sprites_in_enventory:
             item.update()
+
+        # Подбор орбов
+        for sprite in arcade.check_for_collision_with_list(self.player, self.money_sprites):
+            self.money += sprite.picked_up()
+        for sprite in arcade.check_for_collision_with_list(self.player, self.orb_sprites):
+            self.orbs += sprite.picked_up()
 
         # Изменения GUI
         self.haelth_bar.update(delta_time)
@@ -375,6 +394,14 @@ class GameView(arcade.View):
             self.bullets.clear()
         except Exception:
             print('Нет спрайтов пуль')
+        try:
+            self.orb_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.money_sprites.clear()
+        except Exception:
+            ...
 
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
@@ -393,6 +420,8 @@ class GameView(arcade.View):
         self.interactive_sprites = self.all_sprites['interactive']
 
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
+        self.orb_sprites = arcade.SpriteList()
+        self.money_sprites = arcade.SpriteList()
 
         self.item_sprites_on_floor = arcade.SpriteList()
 
