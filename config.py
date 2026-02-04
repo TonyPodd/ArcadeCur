@@ -39,7 +39,7 @@ ROOM_FILE_NAMES = {
     'boss': ['test.csv'],
     'fight': {
         '2x2': ['test.csv'],
-        '1x1': ['test.csv']
+        '1x1': ['1.csv', '2.csv']
     }
 }
 
