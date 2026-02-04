@@ -38,7 +38,7 @@ ROOM_FILE_NAMES = {
     'shop': ['1.csv'],
     'boss': ['test.csv'],
     'fight': {
-        '2x2': ['test.csv'],
+        '2x2': ['1.csv'],
         '1x1': ['1.csv', '2.csv']
     }
 }

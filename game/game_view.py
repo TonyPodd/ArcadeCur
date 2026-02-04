@@ -478,7 +478,7 @@ class GameView(arcade.View):
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
 
         self.drawing_sprites = arcade.SpriteList()  # Спрайты для y-sort отрисовки
-        self.collision_sprites = arcade.SpriteList()
+        self.collision_sprites = arcade.SpriteList(use_spatial_hash=True)
         self.bullets = arcade.SpriteList()
         self.orb_sprites = arcade.SpriteList()
         self.money_sprites = arcade.SpriteList()
@@ -679,7 +679,7 @@ class GameView(arcade.View):
         self.enemy_sprites = self.current_room.begin_fight()
 
         # Спрайты коллизии для врагов
-        self.enemy_col_sprites = arcade.SpriteList()
+        self.enemy_col_sprites = arcade.SpriteList(use_spatial_hash=True)
         self.enemy_col_sprites.extend(self.current_room.all_sprites['wall'])
         self.enemy_col_sprites.extend(self.current_room.all_sprites['door'])
 
@@ -709,6 +709,7 @@ class GameView(arcade.View):
                 self.collision_sprites.remove(enemy)
         self.enemy_sprites = arcade.SpriteList()
         self.enemy_physics.clear()
+        self.enemy_col_sprites.clear()
         self.enemy_bullets = arcade.SpriteList()
         # Проверяем закрылись ли двери
         self.check_doors()
