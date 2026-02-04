@@ -70,6 +70,8 @@ class GameView(arcade.View):
         self.floor_sprites.draw()
         self.door_sprites.draw()
         self.interactive_sprites.draw()
+        for sprite in self.counter_sprites:
+            sprite.draw_item()
 
         # отрисовывается вместе с игроком
         self.drawing_sprites.sort(key=lambda x: x.bottom, reverse=True)
@@ -448,6 +450,7 @@ class GameView(arcade.View):
         self.door_sprites = self.all_sprites['door']
         self.interactive_sprites = self.all_sprites['interactive']
         self.engine_sprites = self.all_sprites['engine']
+        self.counter_sprites = self.all_sprites['counter']
         self.chest_sprites = self.all_sprites.get('chest', arcade.SpriteList())
         self.enemy_sprites = self.all_sprites.get('enemy', arcade.SpriteList())
 

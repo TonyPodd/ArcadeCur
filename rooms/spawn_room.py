@@ -3,7 +3,7 @@ import random
 
 from .room import Room
 from config import *
-from entities import Floor, Wall, Chest, Engine
+from entities import Floor, Wall, Chest, Engine, StoreCounter
 
 
 class SpawnRoom(Room):
@@ -30,7 +30,8 @@ class SpawnRoom(Room):
             'wall': arcade.SpriteList(),
             'interactive': arcade.SpriteList(),
             'engine': arcade.SpriteList(),
-            'chest': arcade.SpriteList()
+            'chest': arcade.SpriteList(),
+            'counter': arcade.SpriteList()
         }
 
         for object_type in data:
@@ -77,5 +78,13 @@ class SpawnRoom(Room):
 
                     sprites['chest'].append(chest)
                     sprites['interactive'].append(chest)
+                
+                # Тестовый объект
+                if object_type == 'test':
+                    counter = StoreCounter(
+                        1, tile_x, tile_y
+                    )
+                    sprites['counter'].append(counter)
+                    sprites['interactive'].append(counter)
 
         return sprites

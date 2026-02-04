@@ -45,7 +45,7 @@ class Chest(InetactiveObject):
 
 
 def get_random_chest():
-    rarity = choice(RARYTIES)
+    rarity = choice(RARITIES)
     chest_type = choice(CHEST_TYPES)
 
     return Chest(rarity=rarity, chest_type=chest_type)

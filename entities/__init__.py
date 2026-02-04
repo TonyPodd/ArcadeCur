@@ -9,3 +9,4 @@ from .door import Door
 from .interactive_objects.chest import Chest
 from .interactive_objects.object import InetactiveObject
 from .interactive_objects.engine import Engine
+from .interactive_objects.store_counter import StoreCounter

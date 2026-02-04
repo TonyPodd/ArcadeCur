@@ -34,4 +34,8 @@ class ShopRoom(Room):
                         None, 1, tile_x, tile_y
                     ))
 
+                # Лавка с предетом
+                if object_type == '2':
+                    ...
+
         return sprites
