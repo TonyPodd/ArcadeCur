@@ -694,8 +694,11 @@ class GameView(arcade.View):
 
     def trigger_collision(self):
         """ Проверка сталкивается ли игрок с интерактивным объектом """
+        collision_sprites = arcade.check_for_collision_with_list(self.player, self.interactive_sprites)
         for s in self.interactive_sprites:
             s.tips = False
+            if s not in collision_sprites:
+                s.is_used = False
 
-        for sprite in arcade.check_for_collision_with_list(self.player, self.interactive_sprites):
+        for sprite in collision_sprites:
             sprite.tips = True

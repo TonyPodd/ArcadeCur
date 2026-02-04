@@ -37,18 +37,26 @@ class EnginUi:
             4
         )
         # текст
+        # Соклько сейчас топлива
         arcade.draw_text(
             f'Топливо: {self.value}/{self.cost}',
             self.x + 5, 
             self.y + self.height - 14,
             self.text_color
         )
+        # Заправка
+        arcade.draw_text(
+            f'R - заправить',
+            self.x + 5, 
+            self.y + self.height - 28,
+        )
+        # Некст левл
         if self.is_full:
             # Текст перехода некст локи
             arcade.draw_text(
                 f'SPACE - Спуск ниже',
                 self.x + 5, 
-                self.y + self.height - 28,
+                self.y + self.height - 42,
             )
 
     def update(self, value):
