@@ -132,21 +132,21 @@ class GameView(arcade.View):
         self.inventory_ui.draw()
 
         # Координаты игрока
-        arcade.draw_text(
-            f"X: {int(self.player.center_x)}, Y: {int(self.player.center_y)}",
-            10,
-            self.window.height - 30,
-            arcade.color.WHITE,
-            14
-        )
+        # arcade.draw_text(
+        #     f"X: {int(self.player.center_x)}, Y: {int(self.player.center_y)}",
+        #     10,
+        #     self.window.height - 30,
+        #     arcade.color.WHITE,
+        #     14
+        # )
         # Комната в которой сейчас игрок
-        arcade.draw_text(
-            f"Номер комнаты: {self.current_room_num}, Тип комнаты: {self.current_room_type}",
-            10,
-            self.window.height - 70,
-            arcade.color.WHITE,
-            14
-        )
+        # arcade.draw_text(
+        #     f"Номер комнаты: {self.current_room_num}, Тип комнаты: {self.current_room_type}",
+        #     10,
+        #     self.window.height - 70,
+        #     arcade.color.WHITE,
+        #     14
+        # )
         self.perf_graph_list.draw()
 
         self.draw_alerts()
@@ -631,7 +631,7 @@ class GameView(arcade.View):
         for bullet_list in [self.bullets, self.enemy_bullets]:
             for bullet in bullet_list:
                 if bullet.damage_type != 'hit':
-                    if arcade.check_for_collision_with_list(bullet, self.wall_sprites):
+                    if arcade.check_for_collision_with_list(bullet, self.collision_sprites):
                         bullet.kill()
 
     def enemy_collision_with_bullet(self) -> None:
@@ -690,6 +690,7 @@ class GameView(arcade.View):
         for enemy in self.enemy_sprites:
             enemy.player = self.player
             enemy.walls = self.current_room.all_sprites['wall']
+
         # Проверяем закрылись ли двери
         self.check_doors()
 
@@ -711,6 +712,7 @@ class GameView(arcade.View):
         self.enemy_physics.clear()
         self.enemy_col_sprites.clear()
         self.enemy_bullets = arcade.SpriteList()
+
         # Проверяем закрылись ли двери
         self.check_doors()
         self.in_fight = False
