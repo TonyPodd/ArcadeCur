@@ -42,5 +42,23 @@ class OrbUi:
             self.height,
             (90, 90, 90, 150)
         )
+        
+        # отрисока текстур орбов
         arcade.draw_sprite(self.orb_texture)
         arcade.draw_sprite(self.money_texture)
+        
+        # Количество орбов
+        arcade.draw_text(
+            str(self.orbs),
+            SCREEN_WIDTH - self.width + 60,
+            SCREEN_HEIGHT - 25,
+            arcade.color.WHITE,
+            14
+        )
+        arcade.draw_text(
+            str(self.money),
+            SCREEN_WIDTH - self.width + 60,
+            SCREEN_HEIGHT - 65,
+            arcade.color.WHITE,
+            14
+        )

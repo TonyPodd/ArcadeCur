@@ -247,7 +247,8 @@ class GameView(arcade.View):
         # Изменения GUI
         self.haelth_bar.update(delta_time)
         self.inventory_ui.update()
-        
+        self.orb_ui.update(self.orbs, self.money)
+
         self.interactive_sprites.update(delta_time)
 
     def on_key_press(self, key, modifiers) -> None:
