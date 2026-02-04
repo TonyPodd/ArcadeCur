@@ -20,7 +20,8 @@ class Room:
             'floor': arcade.SpriteList(use_spatial_hash=True),
             'wall': arcade.SpriteList(use_spatial_hash=True),
             'door': arcade.SpriteList(use_spatial_hash=True),
-            'engine': arcade.SpriteList(use_spatial_hash=True)
+            'engine': arcade.SpriteList(use_spatial_hash=True),
+            'counter': arcade.SpriteList(use_spatial_hash=True)
         }
 
         # Карта комнаты

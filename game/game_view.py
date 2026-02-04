@@ -3,7 +3,7 @@ import math
 
 from entities import Player, Chest
 from systems import PhysicsSystem, GameCamera
-from scripts.gui import HealthBar, InventorySlots, OrbUi
+from scripts.gui import HealthBar, InventorySlots, OrbUi, EnemyUi
 from levels import Level
 import config
 
@@ -41,6 +41,7 @@ class GameView(arcade.View):
         self.haelth_bar = HealthBar(self.player)
         self.inventory_ui = InventorySlots(self.player)
         self.orb_ui = OrbUi()
+        self.enemy_counter_ui = EnemyUi()
 
         # Камера
         self.camera = GameCamera()  # камера игрока
@@ -133,6 +134,9 @@ class GameView(arcade.View):
         self.inventory_ui.draw()
         self.orb_ui.draw()
 
+        if self.in_fight:
+            self.enemy_counter_ui.draw()
+
         # Координаты игрока
         # arcade.draw_text(
         #     f"X: {int(self.player.center_x)}, Y: {int(self.player.center_y)}",
@@ -162,7 +166,7 @@ class GameView(arcade.View):
         self.update_alerts(delta_time)
 
         # смортим в какой комнате игрок
-        collide_floor = self.chech_current_room()
+        collide_floor = self.check_current_room()
 
         # Начинаем бой если тип комнаты - fight, и она не зачищена
         if self.current_room not in self.all_levels[self.current_level_number].completed_rooms:
@@ -208,6 +212,8 @@ class GameView(arcade.View):
                 if money is not None:
                     self.money_sprites.extend(money)
 
+        self.interactive_sprites.update(delta_time)
+
         # Проверяем коллизию врагов с пулями
         self.enemy_collision_with_bullet()
 
@@ -248,8 +254,8 @@ class GameView(arcade.View):
         self.haelth_bar.update(delta_time)
         self.inventory_ui.update()
         self.orb_ui.update(self.orbs, self.money)
-
-        self.interactive_sprites.update(delta_time)
+        if self.in_fight:
+            self.enemy_counter_ui.update(len(list(self.enemy_sprites)))
 
     def on_key_press(self, key, modifiers) -> None:
         # Передвижение игрока
@@ -611,7 +617,7 @@ class GameView(arcade.View):
             elif sprite in self.collision_sprites:
                 self.collision_sprites.remove(sprite)
 
-    def chech_current_room(self) -> arcade.SpriteList:
+    def check_current_room(self) -> arcade.SpriteList:
         """
         Определяет комнату, в которой игрок
         """
@@ -702,7 +708,8 @@ class GameView(arcade.View):
         x, y = floor.center_x, floor.center_y
         self.player.set_position(x, y)
         self.in_fight = True
-
+        
+        self.enemy_counter_ui.set_num_of_enemy(len(list(self.enemy_sprites)))
         self.push_alert("Локация: 'Fight'")
 
     def end_fight(self):
