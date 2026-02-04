@@ -212,7 +212,7 @@ class Room:
         file_path = Path(__file__).resolve().parent.parent / file_name
         with open(file=file_path, mode='r', encoding='UTF-8') as file:
             reader = csv.reader(file, delimiter=',')
-            data = list(reader)
+            data = list(reader)[::-1]
         
         all_objects = dict()  # объекты 1: (x, y)
 

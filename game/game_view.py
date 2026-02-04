@@ -470,9 +470,6 @@ class GameView(arcade.View):
 
         # Спрайты с коллизией с игроком
         self.collision_sprites.extend(self.wall_sprites)
-        
-        # Интерактивные спрайты
-        self.interactive_sprites.extend(self.chest_sprites)
 
     def create_level(self, level_type='default'):
         level = Level(level_type)

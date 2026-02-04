@@ -14,7 +14,6 @@ class SpawnRoom(Room):
         data = self.data_from_file('spawn')
         sprites_from_data = self.load_sprites_from_data(data)
         self.add_new_sprites(sprites_from_data)
-        self.create_chests_from_data(data)
 
     def create_spawn(self) -> None:
         spawn_x = self.x * CHUNCK_SIZE[0] * TILE_SIZE + (CHUNCK_SIZE[0] * TILE_SIZE) // 2
@@ -24,54 +23,14 @@ class SpawnRoom(Room):
     def get_spawn(self) -> arcade.Sprite:
         return self.spawn
 
-    def create_chests_from_data(self, data) -> None:
-        # Гарантированный спавн 3 сундуков в стартовой комнате
-        wall_tiles = set(data.get('2', []))
-        floor_tiles = set(data.get('1', []))
-
-        def is_clear(tile):
-            if tile not in floor_tiles:
-                return False
-            x, y = tile
-            # не рядом со стеной (4-соседа)
-            neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
-            for n in neighbors:
-                if n in wall_tiles:
-                    return False
-            return True
-
-        valid_tiles = [t for t in floor_tiles if is_clear(t)]
-        used = set()
-
-        chest_tiles = []
-        for tile in SPAWN_CHEST_TILES:
-            if tile in valid_tiles and tile not in used:
-                chest_tiles.append(tile)
-                used.add(tile)
-
-        # если каких-то позиций не хватило, добираем случайными
-        while len(chest_tiles) < 3 and valid_tiles:
-            tile = random.choice(valid_tiles)
-            if tile in used:
-                continue
-            chest_tiles.append(tile)
-            used.add(tile)
-
-        if 'chest' not in self.all_sprites:
-            self.all_sprites['chest'] = arcade.SpriteList()
-
-        for tile_x, tile_y in chest_tiles:
-            center_x = self.x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE * (tile_x + 1)
-            center_y = self.y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (tile_y + 1)
-            self.all_sprites['chest'].append(Chest(center_x=center_x, center_y=center_y))
-
     def load_sprites_from_data(self, data: dict) -> dict:
         # Все спрайты с комнат
         sprites = {
             'floor': arcade.SpriteList(),
             'wall': arcade.SpriteList(),
             'interactive': arcade.SpriteList(),
-            'engine': arcade.SpriteList()
+            'engine': arcade.SpriteList(),
+            'chest': arcade.SpriteList()
         }
 
         for object_type in data:
@@ -97,5 +56,26 @@ class SpawnRoom(Room):
                     )
                     sprites['engine'].append(obj_sprite)
                     sprites['interactive'].append(obj_sprite)
+
+                if object_type == '4':
+                    # определяем редкость сундука
+                    random_num = random.randint(1, 101)
+                    if random_num <= 80:
+                        rarity = RARITIES[0]
+                    elif random_num < 95:
+                        rarity = RARITIES[1]
+                    else:
+                        rarity = RARITIES[2]
+                    
+                    chest = Chest(
+                        1,
+                        tile_x,
+                        tile_y,
+                        rarity,
+                        'weapon'
+                    )
+
+                    sprites['chest'].append(chest)
+                    sprites['interactive'].append(chest)
 
         return sprites

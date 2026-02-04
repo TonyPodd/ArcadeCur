@@ -29,7 +29,7 @@ LEVEL_SIZE = (10, 10)  # Размер карты чанков [x, y]
 CHUNCK_SIZE = (16, 16)  # размер одного чанка
 ROOM_FILE_NAMES = {
     'spawn': ['elevator.csv'],
-    'loot': ['test.csv'],
+    'loot': ['1.csv', '2.csv'],
     'shop': ['test.csv'],
     'boss': ['test.csv'],
     'fight': {
@@ -39,12 +39,8 @@ ROOM_FILE_NAMES = {
 }
 
 # chest
-RARYTIES = ['default', 'rare', 'legend']
+RARITIES = ['default', 'rare', 'legend']
 CHEST_TYPES = ['weapon', 'ability']
-
-# Позиции сундуков в стартовой комнате (в координатах CSV, 0..13)
-SPAWN_CHEST_TILES = [(2, 2), (11, 2), (6, 10)]
-
 
 #enemies
 ENEMY_TYPES = {
