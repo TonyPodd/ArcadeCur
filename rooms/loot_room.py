@@ -17,10 +17,10 @@ class LootRoom(Room):
     
     def load_sprites_from_data(self, data: dict) -> dict:
         sprites = {
-            'floor': arcade.SpriteList(),
-            'wall': arcade.SpriteList(),
-            'interactive': arcade.SpriteList(),
-            'chest': arcade.SpriteList()
+            'floor': arcade.SpriteList(use_spatial_hash=True),
+            'wall': arcade.SpriteList(use_spatial_hash=True),
+            'interactive': arcade.SpriteList(use_spatial_hash=True),
+            'chest': arcade.SpriteList(use_spatial_hash=True)
         }
         
         for object_type in data:

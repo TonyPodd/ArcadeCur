@@ -26,12 +26,12 @@ class SpawnRoom(Room):
     def load_sprites_from_data(self, data: dict) -> dict:
         # Все спрайты с комнат
         sprites = {
-            'floor': arcade.SpriteList(),
-            'wall': arcade.SpriteList(),
-            'interactive': arcade.SpriteList(),
-            'engine': arcade.SpriteList(),
-            'chest': arcade.SpriteList(),
-            'counter': arcade.SpriteList()
+            'floor': arcade.SpriteList(use_spatial_hash=True),
+            'wall': arcade.SpriteList(use_spatial_hash=True),
+            'interactive': arcade.SpriteList(use_spatial_hash=True),
+            'engine': arcade.SpriteList(use_spatial_hash=True),
+            'chest': arcade.SpriteList(use_spatial_hash=True),
+            'counter': arcade.SpriteList(use_spatial_hash=True)
         }
 
         for object_type in data:
