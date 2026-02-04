@@ -3,7 +3,7 @@ import math
 
 from entities import Player, Chest
 from systems import PhysicsSystem, GameCamera
-from scripts.gui import HealthBar, InventorySlots
+from scripts.gui import HealthBar, InventorySlots, OrbUi
 from levels import Level
 import config
 
@@ -40,6 +40,7 @@ class GameView(arcade.View):
         # UI
         self.haelth_bar = HealthBar(self.player)
         self.inventory_ui = InventorySlots(self.player)
+        self.orb_ui = OrbUi()
 
         # Камера
         self.camera = GameCamera()  # камера игрока
@@ -130,6 +131,7 @@ class GameView(arcade.View):
 
         self.haelth_bar.draw()
         self.inventory_ui.draw()
+        self.orb_ui.draw()
 
         # Координаты игрока
         # arcade.draw_text(
