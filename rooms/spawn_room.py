@@ -79,12 +79,8 @@ class SpawnRoom(Room):
                     sprites['chest'].append(chest)
                     sprites['interactive'].append(chest)
                 
-                # Тестовый объект
+                # Для тестов объектов
                 if object_type == 'test':
-                    counter = StoreCounter(
-                        1, tile_x, tile_y
-                    )
-                    sprites['counter'].append(counter)
-                    sprites['interactive'].append(counter)
+                    ...
 
         return sprites

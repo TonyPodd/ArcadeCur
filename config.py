@@ -35,7 +35,7 @@ CHUNCK_SIZE = (16, 16)  # размер одного чанка
 ROOM_FILE_NAMES = {
     'spawn': ['elevator.csv'],
     'loot': ['1.csv', '2.csv'],
-    'shop': ['test.csv'],
+    'shop': ['1.csv'],
     'boss': ['test.csv'],
     'fight': {
         '2x2': ['test.csv'],

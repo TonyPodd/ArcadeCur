@@ -2,21 +2,23 @@ import arcade
 
 from .room import Room
 from config import *
-from entities import Door, Wall, Floor
+from entities import Wall, Floor, StoreCounter
 
 
 class ShopRoom(Room):
     def __init__(self, room_type, room_number, x, y, rooms_coords):
         super().__init__(room_type, room_number, x, y, rooms_coords)
         
-        data = self.data_from_file('spawn')
+        data = self.data_from_file('shop')
         sprites_from_data = self.load_sprites_from_data(data)
         self.add_new_sprites(sprites_from_data)
     
     def load_sprites_from_data(self, data: dict) -> dict:
         sprites = {
             'floor': arcade.SpriteList(),
-            'wall': arcade.SpriteList(), 
+            'wall': arcade.SpriteList(),
+            "counter": arcade.SpriteList(),
+            'interactive': arcade.SpriteList()
         }
         
         for object_type in data:
@@ -35,7 +37,10 @@ class ShopRoom(Room):
                     ))
 
                 # Лавка с предетом
-                if object_type == '2':
-                    ...
+                if object_type == '3':
+                    counter = StoreCounter(1, tile_x, tile_y)
+                    
+                    sprites['interactive'].append(counter)
+                    sprites['counter'].append(counter)
 
         return sprites

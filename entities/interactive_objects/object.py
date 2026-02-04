@@ -30,7 +30,7 @@ class InetactiveObject(arcade.Sprite):
         if self.tips:
             arcade.draw_text(
                 self.tips_text,
-                self.center_x,
+                self.center_x - self.width / 2,
                 self.center_y,
                 arcade.color.WHITE,
                 14

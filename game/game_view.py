@@ -274,6 +274,7 @@ class GameView(arcade.View):
                 self.player, self.item_sprites_on_floor
             )
             interactive_objects = arcade.check_for_collision_with_list(self.player, self.interactive_sprites)
+            counter_sprites = arcade.check_for_collision_with_list(self.player, self.counter_sprites)
 
             # взаимодействие с предметом
             if items_for_grab:
@@ -294,6 +295,17 @@ class GameView(arcade.View):
                     else:
                         self.add_item_to_inventory(item)
                         self.drop_inventory_item(sprite)
+            
+            elif counter_sprites:
+                for counter in counter_sprites:
+                    if counter.interaction:
+                        delta_money, item = counter.use(self.money)
+                        if item is not None:
+
+                            self.money -= delta_money
+                            self.item_sprites_on_floor.append(item)
+                            self.interaction = False
+                        continue
 
             elif interactive_objects:
                 object_sprite = interactive_objects[0]  # Первый объект
@@ -319,8 +331,8 @@ class GameView(arcade.View):
             if engin.is_used:
                 self.orbs -= engin.set_value(self.orbs)
         
-        # Переход некст локу
         if key == arcade.key.SPACE:
+            # Переход некст локу
             engin = self.engine_sprites.sprite_list[0]
             if engin.is_used:
                 if engin.is_full:
@@ -386,9 +398,8 @@ class GameView(arcade.View):
             return True
         return False
 
-    def load_level_sprites(self, level_num: int) -> None:
-        """ Загрузка спрайтов с уровня"""
-
+    def clear_all_spriteLists(self):
+        
         try:
             self.all_sprites.clear()
         except Exception:
@@ -441,6 +452,18 @@ class GameView(arcade.View):
             self.drawing_sprites.clear()
         except Exception:
             ...
+        try:
+            self.counter_sprites.clear()
+        except Exception:
+            ...
+        try:
+            self.item_sprites_on_floor.clear()
+        except Exception:
+            ...
+
+    def load_level_sprites(self, level_num: int) -> None:
+        """ Загрузка спрайтов с уровня"""
+        self.clear_all_spriteLists()
 
         # спрайты с уровня
         self.all_sprites = self.all_levels[level_num].get_sprites()
@@ -467,7 +490,6 @@ class GameView(arcade.View):
         self.drawing_sprites.extend(self.chest_sprites)
         
         # Тестовые трюки с оптимизацией
-        # self.enemy_sprites.use_spatial_hashing = True
         self.money_sprites.use_spatial_hash = True
         self.orb_sprites.use_spatial_hash = True
         self.chest_sprites.is_static = True

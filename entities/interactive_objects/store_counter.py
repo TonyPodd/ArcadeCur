@@ -17,13 +17,32 @@ class StoreCounter(InetactiveObject):
         self.item = Item(
             1, self.center_x, self.center_y, 
         )
+        self.item.is_on_floor = False
 
     def draw_item(self):
-        arcade.draw_sprite(self.item)
+        if self.interaction == True:
+            arcade.draw_sprite(self.item)
+
+    def draw_ui(self):
+        """ Отрисовак всех интерфейсов """
+        if self.interaction:
+            arcade.draw_text(
+                f'Цена:{self.cost}',
+                self.center_x - self.width / 2 + 2,
+                self.center_y + 14,
+                arcade.color.WHITE,
+            )
+
 
     def draw_tips(self):
         if self.interaction:
             super().draw_tips()
 
-    def buy(self):
+    def use(self, value: int):
         """ Покупка предмета """
+
+        if value < self.cost:
+            return (0, None)
+        self.interaction = False
+
+        return (self.cost, self.item)
