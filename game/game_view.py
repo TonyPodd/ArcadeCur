@@ -96,14 +96,14 @@ class GameView(arcade.View):
         self.orb_sprites.draw()
         self.money_sprites.draw()
 
-        arcade.draw_line(
-            self.player.center_x,
-            self.player.center_y,
-            self.player.center_x + math.cos(self.player_angel_view) * 100,
-            self.player.center_y + math.sin(self.player_angel_view) * 100,
-            arcade.color.RED,
-            3
-        )
+        # arcade.draw_line(
+        #     self.player.center_x,
+        #     self.player.center_y,
+        #     self.player.center_x + math.cos(self.player_angel_view) * 100,
+        #     self.player.center_y + math.sin(self.player_angel_view) * 100,
+        #     arcade.color.RED,
+        #     3
+        # )
 
         # ui
         for sprite in self.interactive_sprites:
@@ -245,10 +245,10 @@ class GameView(arcade.View):
         self.money_sprites.update(delta_time, self.player.position)
 
         # Подбор орбов
-        for sprite in arcade.check_for_collision_with_list(self.player, self.money_sprites):
+        for sprite in arcade.check_for_collision_with_lists(self.player, [self.money_sprites, self.orb_sprites]):
             self.money += sprite.picked_up()
-        for sprite in arcade.check_for_collision_with_list(self.player, self.orb_sprites):
-            self.orbs += sprite.picked_up()
+        # for sprite in arcade.check_for_collision_with_list(self.player, self.orb_sprites):
+        #     self.orbs += sprite.picked_up()
 
         # Изменения GUI
         self.haelth_bar.update(delta_time)
