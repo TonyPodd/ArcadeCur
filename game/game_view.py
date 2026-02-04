@@ -153,6 +153,7 @@ class GameView(arcade.View):
     def on_update(self, delta_time: float) -> None:
         self.player.update(delta_time)
         self.physics_system.update()
+        self.camera.update(delta_time)
         self.camera.center_on_sprite(self.player, 0.1)
         self.update_alerts(delta_time)
 
@@ -228,6 +229,10 @@ class GameView(arcade.View):
         # Айтемы в инвентаре двигаются вместе с игроком
         for item in self.item_sprites_in_enventory:
             item.update()
+
+        # Всасывание орбов
+        self.orb_sprites.update(delta_time, self.player.position)
+        self.money_sprites.update(delta_time, self.player.position)
 
         # Подбор орбов
         for sprite in arcade.check_for_collision_with_list(self.player, self.money_sprites):
@@ -636,6 +641,7 @@ class GameView(arcade.View):
             # Впитываем урон, если не сталкивались с пуей
             if bullet not in self.player.bullets_hitted:
                 self.player.take_damage(bullet.damage)
+                self.camera.shake(12, 0.2)
                 if bullet.damage_type == 'bullet':
                     self.enemy_bullets.remove(bullet)
                     bullet.kill()
@@ -685,8 +691,11 @@ class GameView(arcade.View):
 
     def trigger_collision(self):
         """ Проверка сталкивается ли игрок с интерактивным объектом """
+        collision_sprites = arcade.check_for_collision_with_list(self.player, self.interactive_sprites)
         for s in self.interactive_sprites:
             s.tips = False
+            if s not in collision_sprites:
+                s.is_used = False
 
-        for sprite in arcade.check_for_collision_with_list(self.player, self.interactive_sprites):
+        for sprite in collision_sprites:
             sprite.tips = True

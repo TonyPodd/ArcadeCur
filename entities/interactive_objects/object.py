@@ -49,6 +49,7 @@ class InetactiveObject(arcade.Sprite):
             else:
                 self.is_used = True
 
+
     def set_new_hit_box(self, ds):
         self._hit_box._points = (
             (-self.width / 2 - ds, -self.height / 2 - ds),
