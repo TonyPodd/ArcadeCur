@@ -1,6 +1,7 @@
 """
 Пакет для экранов игры
 """
-from .menu_view import MenuView
-from .pause_view import PauseView
+from .pause_menu import PauseMenu
 from .death_view import DeathView
+from .main_menu import MainMenu
+from .settings_menu import SettingsMenu
