@@ -242,8 +242,8 @@ class Enemy(arcade.Sprite):
             self.weapon.center_y = self.center_y
             self.weapon.player = self
 
-        # self.health_line.set_current_hp(self.hp)
-        # self.health_line.set_coords(self.left, self.bottom)
+        self.health_line.set_current_hp(self.hp)
+        self.health_line.set_coords(self.left, self.bottom)
 
     def try_attack(self):
         if self.player is None or self.reaction_timer > 0 or self.cooldown_timer > 0:
