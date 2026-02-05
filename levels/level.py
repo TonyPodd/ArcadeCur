@@ -6,7 +6,8 @@ from rooms import BossRoom, FightRoom, ShopRoom, LootRoom, SpawnRoom
 from config import *
 
 class Level:
-    def __init__(self, level_type: str):
+    def __init__(self, level_type: str, difficulty: float):
+        self.difficulty = difficulty
         self.level_type = level_type  # Тип уровня
 
         # Спрайты всех объектов комнаты
@@ -188,7 +189,7 @@ class Level:
                 )
             if room_type == 'fight':
                 self.rooms[current_room_number] = FightRoom(
-                    room_type, current_room_number, next_x, next_y, size
+                    room_type, current_room_number, next_x, next_y, size, self.difficulty
                 )
 
                 # для генерации противников

@@ -9,8 +9,8 @@ from config import *
 
 
 class FightRoom(Room):
-    def __init__(self, room_type, room_number, x, y, rooms_coords):
-        super().__init__(room_type, room_number, x, y, rooms_coords)
+    def __init__(self, room_type, room_number, x, y, rooms_coords, difficulty):
+        super().__init__(room_type, room_number, x, y, rooms_coords, difficulty)
 
         self.data = self.data_from_file(self.room_type)
         sprites_from_data = self.load_sprites_from_data(self.data)
@@ -99,7 +99,7 @@ class FightRoom(Room):
             tile_x, tile_y = tile
             center_x = self.x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE * (tile_x + 1)
             center_y = self.y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (tile_y + 1)
-            self.all_sprites['enemy'].append(Enemy(center_x, center_y))
+            self.all_sprites['enemy'].append(Enemy(center_x, center_y, difficulty=self.difficulty))
 
         return self.all_sprites['enemy']
 

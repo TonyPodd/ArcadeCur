@@ -7,11 +7,12 @@ from config import *
 from entities import Door, Wall, Floor
 
 class Room:
-    def __init__(self, room_type: str, room_number: int, x: int, y: int, rooms_coords: tuple[tuple]):
+    def __init__(self, room_type: str, room_number: int, x: int, y: int, rooms_coords: tuple[tuple], difficulty: float=1.0):
         # settigns
         self.x = x
         self.y = y
         self.room_type = room_type
+        self.difficulty = difficulty
         self.room_number = room_number
         self.room_coords = rooms_coords
         

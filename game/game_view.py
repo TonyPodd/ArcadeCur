@@ -53,6 +53,7 @@ class GameView(arcade.View):
         self.enemy_physics = []
 
         # Уровни
+        self.difficulty = 1.0
         self.all_levels = list()  # все уровни
         self.current_level_number = 0  # Какой сейчс уровень
         self.current_room, self.current_room_type = 0, 'None'
@@ -245,10 +246,10 @@ class GameView(arcade.View):
         self.money_sprites.update(delta_time, self.player.position)
 
         # Подбор орбов
-        for sprite in arcade.check_for_collision_with_lists(self.player, [self.money_sprites, self.orb_sprites]):
+        for sprite in arcade.check_for_collision_with_lists(self.player, [self.money_sprites]):
             self.money += sprite.picked_up()
-        # for sprite in arcade.check_for_collision_with_list(self.player, self.orb_sprites):
-        #     self.orbs += sprite.picked_up()
+        for sprite in arcade.check_for_collision_with_list(self.player, self.orb_sprites):
+            self.orbs += sprite.picked_up()
 
         # Изменения GUI
         self.haelth_bar.update(delta_time)
@@ -511,7 +512,8 @@ class GameView(arcade.View):
         self.collision_sprites.extend(self.wall_sprites)
 
     def create_level(self, level_type='default'):
-        level = Level(level_type)
+        level = Level(level_type, self.difficulty)
+        self.difficulty += 0.2
         self.all_levels.append(level)
         self.current_level_number = len(self.all_levels) - 1
 

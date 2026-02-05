@@ -8,25 +8,26 @@ from .orbs import Orb, Money
 from scripts.gui import HealthLine
 
 class Enemy(arcade.Sprite):
-    def __init__(self, x: float, y: float, type = "grunt"):
+    def __init__(self, x: float, y: float, type = "grunt", difficulty: float=1.0):
         super().__init__()
 
         # settings
         self.type = type
+        self.difficulty = difficulty
         self.is_dead = False  # Умер ли енеми
         enemy_cfg = config.ENEMY_TYPES[self.type]
 
-        self.hp = enemy_cfg['hp']
+        self.hp = enemy_cfg['hp'] * self.difficulty
         self.max_speed = enemy_cfg['speed']
-        self.agr_radius = enemy_cfg['agr_range']
+        self.agr_radius = enemy_cfg['agr_range'] * self.difficulty
         self.attack_radius = enemy_cfg['attack_range']
         self.weapon_name = enemy_cfg['weapon']
         self.weapon_type = config.WEAPON_TYPES[self.weapon_name]['weapon_type']
         self.weapon = Weapon(center_x=int(self.center_x), center_y= int(self.center_y), type=self.weapon_name, clas= self.weapon_type)
 
         self.last_seen = None
-        self.reaction_time = enemy_cfg['reaction_time']
-        self.attack_cooldown = enemy_cfg['attack_cooldown']
+        self.reaction_time = enemy_cfg['reaction_time'] / self.difficulty
+        self.attack_cooldown = enemy_cfg['attack_cooldown'] / self.difficulty
         self.burst_size = enemy_cfg['burst_size']
         self.burst_pause = enemy_cfg['burst_pause']
         self.spread = enemy_cfg['spread']
