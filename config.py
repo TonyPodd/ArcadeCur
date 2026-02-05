@@ -170,13 +170,13 @@ WEAPON_TYPES = {
     },
     'shotgun' : {
         'name' : 'дробовик',
-        'damage' : 100,
+        'damage' : 15,
         "weapon_type" : "gun",
         'damage_type' : "projectile",
         'bullet_radius' : 20,
         'shoot_timeout' : 1,
         'bullet_speed' : 10,
-        'shots_per_tick' : 8,
+        'shots_per_tick' : 10,
         'spread' : 16,
     },
     'sniper' : {

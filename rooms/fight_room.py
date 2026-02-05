@@ -67,7 +67,8 @@ class FightRoom(Room):
             self.all_sprites['enemy'].append(Enemy(
                 tile.center_x,
                 tile.center_y,
-                difficulty=self.difficulty
+                difficulty=self.difficulty,
+                type=random.choice(list(ENEMY_TYPES.keys()))
             ))
 
         return self.all_sprites['enemy']
