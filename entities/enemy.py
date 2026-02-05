@@ -6,6 +6,7 @@ import config
 from .weapon import Weapon
 from .orbs import Orb, Money
 from scripts.gui import HealthLine
+from utils.procedural_textures import enemy_frame
 
 class Enemy(arcade.Sprite):
     def __init__(self, x: float, y: float, type = "grunt", difficulty: float=1.0):
@@ -52,9 +53,24 @@ class Enemy(arcade.Sprite):
         self.player_visible_timer = 0
 
 
-        # Временный квадрат вместо спрайта
-        self.texture = arcade.make_soft_square_texture(40, arcade.color.RED, outer_alpha=255)
-        self._hit_box._points = ((-20, -15), (20, -15), (20, 15), (-20, 15))
+        # Самописные текстуры и анимации
+        visuals = config.ENEMY_VISUALS.get(self.type, {"color": (200, 80, 80), "size": (30, 30)})
+        size_x, size_y = visuals["size"]
+        self.base_scale_x = size_x / config.ENEMY_RECT_BASE
+        self.base_scale_y = size_y / config.ENEMY_RECT_BASE
+        self.animations, self.anim_scales = self.build_procedural_animations(visuals["color"], self.type)
+        self.anim_state = "idle"
+        self.frame_index = 0
+        self.frame_timer = 0.0
+        self.anim_speed = {
+            "idle": 0.22,
+            "move": 0.1,
+            "attack": 0.08,
+            "death": 0.15,
+        }
+        self.texture = self.animations["idle"][0]
+        self.scale_x = self.base_scale_x
+        self.scale_y = self.base_scale_y
         self.health_line = HealthLine(
             self.width,
             self.hp,
@@ -81,6 +97,97 @@ class Enemy(arcade.Sprite):
 
         self.money = arcade.SpriteList()
         self.orbs = arcade.SpriteList()
+
+    def build_procedural_animations(self, base_color, enemy_type):
+        size = config.ENEMY_RECT_BASE
+
+        def tint(color, factor):
+            return (
+                min(255, int(color[0] * factor)),
+                min(255, int(color[1] * factor)),
+                min(255, int(color[2] * factor)),
+            )
+
+        outline = tint(base_color, 0.6)
+
+        def accents_idle(offset=(0, 0), alert=False):
+            ox, oy = offset
+            eye = (20, 20, 20) if not alert else (255, 230, 120)
+            if enemy_type == "brute":
+                return [
+                    (4 + ox, 2 + oy, 6, 6, tint(base_color, 1.2)),
+                    (size - 10 + ox, 2 + oy, 6, 6, tint(base_color, 1.2)),
+                ]
+            if enemy_type == "slicer":
+                return [
+                    (2 + ox, size // 2 - 1 + oy, 6, 2, (230, 230, 230)),
+                    (size - 8 + ox, size // 2 - 1 + oy, 6, 2, (230, 230, 230)),
+                ]
+            if enemy_type == "sniper":
+                return [(size // 2 - 2 + ox, 2 + oy, 4, 6, tint(base_color, 1.2))]
+            if enemy_type == "shotgunner":
+                return [(size - 10 + ox, size // 2 - 2 + oy, 6, 4, tint(base_color, 1.1))]
+            return [(size // 2 - 2 + ox, size // 2 - 2 + oy, 4, 4, eye)]
+
+        idle = [enemy_frame(size, base_color, outline, accents_idle())]
+        move = [
+            enemy_frame(size, tint(base_color, 1.03), outline, accents_idle((0, 0))),
+            enemy_frame(size, tint(base_color, 0.99), outline, accents_idle((1, 0))),
+            enemy_frame(size, tint(base_color, 1.0), outline, accents_idle((0, 1))),
+            enemy_frame(size, tint(base_color, 0.98), outline, accents_idle((-1, 0))),
+        ]
+        attack = [
+            enemy_frame(size, (255, 90, 90), outline, accents_idle((0, 0), alert=True)),
+            enemy_frame(size, tint(base_color, 1.12), outline, accents_idle((1, -1), alert=True)),
+            enemy_frame(size, tint(base_color, 1.05), outline, accents_idle((-1, 1), alert=True)),
+            enemy_frame(size, tint(base_color, 1.0), outline, accents_idle((0, 0), alert=True)),
+        ]
+        death = [
+            enemy_frame(size, (70, 70, 70), (40, 40, 40), []),
+            enemy_frame(size - 4, (60, 60, 60), (30, 30, 30), []),
+            enemy_frame(max(8, size - 8), (50, 50, 50), (20, 20, 20), []),
+        ]
+        animations = {
+            "idle": idle,
+            "move": move,
+            "attack": attack,
+            "death": death,
+        }
+        scales = {
+            "idle": [(1.0, 1.0)],
+            "move": [(1.0, 1.0), (1.0, 0.97), (1.02, 1.0), (1.0, 0.98)],
+            "attack": [(1.1, 1.1), (1.04, 1.04), (1.02, 1.02), (1.0, 1.0)],
+            "death": [(1.0, 1.0), (0.85, 0.85), (0.7, 0.7)],
+        }
+        return animations, scales
+
+    def update_animation(self, delta_time):
+        if self.is_dead:
+            state = "death"
+        elif self.state == "attack":
+            state = "attack"
+        elif self.state in ("chase", "alert"):
+            state = "move"
+        else:
+            state = "idle"
+
+        if state != self.anim_state:
+            self.anim_state = state
+            self.frame_index = 0
+            self.frame_timer = 0.0
+
+        frames = self.animations.get(self.anim_state, [])
+        scales = self.anim_scales.get(self.anim_state, [(1.0, 1.0)])
+
+        self.frame_timer += delta_time
+        frame_time = self.anim_speed.get(self.anim_state, 0.15)
+        if self.frame_timer >= frame_time:
+            self.frame_timer = 0.0
+            self.frame_index = (self.frame_index + 1) % len(frames)
+            self.texture = frames[self.frame_index]
+            scale = scales[self.frame_index % len(scales)]
+            self.scale_x = self.base_scale_x * scale[0]
+            self.scale_y = self.base_scale_y * scale[1]
 
     def stop(self):
         self.change_x = self.change_y = 0
@@ -248,6 +355,7 @@ class Enemy(arcade.Sprite):
 
         self.health_line.set_current_hp(self.hp)
         self.health_line.set_coords(self.left, self.bottom)
+        self.update_animation(delta_time)
         self.handle_stuck(delta_time)
 
     def try_attack(self):

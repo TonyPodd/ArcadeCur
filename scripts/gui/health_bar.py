@@ -10,8 +10,7 @@ class HealthBar:
         self.player = player
 
         # Координаты на экране
-        self.x = 50
-        self.y = SCREEN_HEIGHT - 50
+        self.x = 20
 
         # Разверы
         self.width = 300
@@ -22,11 +21,12 @@ class HealthBar:
         self.current_hp = self.max_hp  # HP игрока в данный момент
         self.display_hp = self.max_hp  # HP которое отображается
     
-    def draw(self) -> None:
+    def draw(self, screen_height) -> None:
+        y = 36
         # Красный BG
         arcade.draw_lbwh_rectangle_filled(
             self.x,
-            self.y,
+            y,
             self.width,
             self.height,
             arcade.color.RED
@@ -35,7 +35,7 @@ class HealthBar:
         # Зелёные current hp
         arcade.draw_lbwh_rectangle_filled(
             self.x,
-            self.y,
+            y,
             self.width / self.max_hp * self.display_hp,
             self.height,
             arcade.color.GREEN
@@ -44,7 +44,7 @@ class HealthBar:
         # Каёмка
         arcade.draw_lbwh_rectangle_outline(
             self.x,
-            self.y,
+            y,
             self.width,
             self.height,
             (0, 0, 0),

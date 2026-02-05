@@ -33,11 +33,16 @@ class OrbUi:
         self.orbs = orbs
         self.money = money
 
-    def draw(self):
+    def draw(self, screen_width, screen_height):
+        self.orb_texture.center_x = screen_width - self.width + 20
+        self.orb_texture.center_y = screen_height - 20
+        
+        self.money_texture.center_x = screen_width - self.width + 20
+        self.money_texture.center_y = screen_height - 60
         # Задний фон
         arcade.draw_lbwh_rectangle_filled(
-            SCREEN_WIDTH - self.width,
-            SCREEN_HEIGHT - self.height,
+            screen_width - self.width,
+            screen_height - self.height,
             self.width,
             self.height,
             (90, 90, 90, 150)
@@ -50,15 +55,15 @@ class OrbUi:
         # Количество орбов
         arcade.draw_text(
             str(self.orbs),
-            SCREEN_WIDTH - self.width + 60,
-            SCREEN_HEIGHT - 25,
+            screen_width - self.width + 60,
+            screen_height - 25,
             arcade.color.WHITE,
             14
         )
         arcade.draw_text(
             str(self.money),
-            SCREEN_WIDTH - self.width + 60,
-            SCREEN_HEIGHT - 65,
+            screen_width - self.width + 60,
+            screen_height - 65,
             arcade.color.WHITE,
             14
         )

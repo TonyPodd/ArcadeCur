@@ -65,3 +65,6 @@ class GameCamera:
             (x, y),
             1
         )
+
+    def set_size(self):
+        self.camera.match_window()

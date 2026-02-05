@@ -4,6 +4,7 @@ import random
 from random import choice, randint
 
 from config import *
+from utils.procedural_textures import chest_texture, _tint
 from ..weapon import Weapon
 from .object import InetactiveObject
 
@@ -16,8 +17,22 @@ class Chest(InetactiveObject):
         '''
         super().__init__(None, scale, center_x, center_y)
 
-        # Временная зелёная текстура
-        self.texture = arcade.make_soft_square_texture(TILE_SIZE, arcade.color.GREEN, outer_alpha=255)
+        # Самописные текстуры сундука
+        self.texture_closed = chest_texture(
+            TILE_SIZE,
+            CHEST_COLOR,
+            _tint(CHEST_COLOR, 0.6),
+            _tint(CHEST_COLOR, 1.15),
+            _tint(CHEST_COLOR, 1.35)
+        )
+        self.texture_open = chest_texture(
+            TILE_SIZE,
+            CHEST_OPEN_COLOR,
+            _tint(CHEST_OPEN_COLOR, 0.6),
+            _tint(CHEST_OPEN_COLOR, 1.2),
+            _tint(CHEST_OPEN_COLOR, 1.4)
+        )
+        self.texture = self.texture_closed
         self.width = TILE_SIZE
         self.height = TILE_SIZE
 
@@ -31,11 +46,12 @@ class Chest(InetactiveObject):
         if not self.is_open:
             self.is_open = True
             self.interaction = False
+            self.texture = self.texture_open
             return self.get_item()
 
     def get_item(self):
-        # weapon_type = random.choice(list(WEAPON_TYPES.keys()))
-        weapon_type = 'axe'
+        weapon_type = random.choice(list(WEAPON_TYPES.keys()))
+        # weapon_type = 'axe'
         if self.chest_type == "weapon":
             # айтем падает чуть в стороне от сундука
             return Weapon(

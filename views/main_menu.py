@@ -2,14 +2,22 @@ import arcade
 import arcade.gui as gui
 
 # from game import GameView
+from scripts import load_settings
 from config import *
 
 
 class MainMenu(arcade.View):
     def __init__(self):
         super().__init__()
+        self.settings = load_settings()
+        
+        if self.window.width != self.settings['resolution'][0]:
+            self.window.set_size(*self.settings['resolution'])
+            self.window.center_window()
+
         # Менеджер интерфейса
         self.manager = gui.UIManager()
+        self.manager.on_resize(*self.settings['resolution'])
         self.manager.enable()
         
         self.anchor_layout = gui.UIAnchorLayout()
@@ -50,7 +58,7 @@ class MainMenu(arcade.View):
         settings_button = gui.UIFlatButton(
             text="Настройки", width=self.button_width
         )
-        settings_button.on_click = self.settings
+        settings_button.on_click = self.settings_menu
         self.box_layout.add(settings_button)
         
         # выйти
@@ -76,10 +84,9 @@ class MainMenu(arcade.View):
         self.window.show_view(game_view)
     
     def continue_game(self, event):
-        # self.manager.disable()
         print('continue game')
     
-    def settings(self, event):
+    def settings_menu(self, event):
         self.manager.disable()
         from .settings_menu import SettingsMenu
         self.window.show_view(SettingsMenu(self))

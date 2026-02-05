@@ -16,13 +16,13 @@ class InventorySlots:
         self.width = 50
         self.height = 50
 
-    def update(self):
+    def update(self, screen_width):
         self.current_slot = self.player.current_slot
-        self.get_textures()
+        self.get_textures(screen_width)
 
-    def draw(self):
+    def draw(self, screen_width):
         # Отрисовка самих слотов словтов
-        x = SCREEN_WIDTH // 2 - (self.width * self.num_of_slots + 10 * (self.num_of_slots - 1)) / 2
+        x = screen_width // 2 - (self.width * self.num_of_slots + 10 * (self.num_of_slots - 1)) / 2
         for i in range(self.num_of_slots):
             dx = (10 + self.width) * i
 
@@ -59,7 +59,7 @@ class InventorySlots:
             if self.slots[ind] is not None:
                 arcade.draw_sprite(self.slots[ind])
 
-    def get_textures(self):
+    def get_textures(self, screen_width):
         """ 
         Функция для получения текстур item'ов
         """
@@ -67,7 +67,7 @@ class InventorySlots:
         for i in range(len(self.slots)):
             slot = self.slots[i]
             if slot is not None:
-                slot.center_x = SCREEN_WIDTH // 2 - ((self.width + 10) * self.num_of_slots  - 10) / 2 + (10 + self.width) * i + self.width / 2
+                slot.center_x = screen_width // 2 - ((self.width + 10) * self.num_of_slots  - 10) / 2 + (10 + self.width) * i + self.width / 2
                 slot.center_y = 10 + self.height / 2
                 slot.width = self.width - 20
                 slot.height = self.height - 20

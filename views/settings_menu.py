@@ -2,6 +2,8 @@ import arcade
 import arcade.gui as gui
 import json
 
+from scripts import load_settings
+
 
 class SettingsMenu(arcade.View):
     def __init__(self, prev_view = None, background_color = None):
@@ -9,7 +11,7 @@ class SettingsMenu(arcade.View):
         
         self.prev_view = prev_view
         
-        self.load_settings_from_file()
+        self.settings = load_settings()
 
         # Менеджер интерфейса
         self.manager = gui.UIManager()
@@ -25,12 +27,6 @@ class SettingsMenu(arcade.View):
         self.anchor_settings.add(self.settigns_layout)
         self.manager.add(self.anchor_settings)
 
-    def load_settings_from_file(self):
-        with open(file='settings.json', mode='r', encoding='utf-8') as file:
-            data = json.load(file)
-
-        self.settings = data
-
     def setup_widgets(self):
         # buttons
         # Текст
@@ -45,6 +41,7 @@ class SettingsMenu(arcade.View):
 
         # settigns
         self.setup_sounds()
+        self.setup_screen()
 
         # Сохранить & нажать
         lower_layout = gui.UIBoxLayout(vertical=False, space_between=10)  # layout для кнопок сохранить и назал
@@ -64,6 +61,42 @@ class SettingsMenu(arcade.View):
         lower_layout.add(save_button)
 
         self.settigns_layout.add(lower_layout)
+
+    def setup_screen(self):
+        """ Раздел экрана """
+        screen_layout = gui.UIBoxLayout(vertical=True, space_between=10)
+        
+        # текст раздела
+        text = gui.UITextArea(
+            text="Экран", 
+            width=100,
+            height=40,
+            font_size=20,
+            bold=True
+        )
+        screen_layout.add(text)
+        
+        # Разрешение экрана
+        screen_resolution_text = gui.UIBoxLayout(vertical=False)
+        text = gui.UITextArea(
+            text='Разрешение:',
+            width=60,
+            height=20,
+            font_size=14,
+        )
+        screen_resolution_text.add(text)
+        
+        self.resolution_variants = gui.UIDropdown(
+            options=[
+                '1920x1080', '1280x720', '800x600', '640x480'
+            ],
+            width=self.button_width
+        )
+        self.resolution_variants.value = f'{self.settings["resolution"][0]}x{self.settings["resolution"][1]}'
+        self.resolution_variants.on_change = self.set_resolution
+        screen_layout.add(self.resolution_variants)
+
+        self.settigns_layout.add(screen_layout)
 
     def setup_sounds(self):
         """ Раздел звука """
@@ -114,7 +147,23 @@ class SettingsMenu(arcade.View):
 
         # обновление настроек
         data['sound_volume'] = self.volume_slider.value / 100
+        data['resolution'] = self.settings['resolution']
+        
+        # Применяем новые
+        if self.window.width != self.settings['resolution'][0]:
+            self.window.set_size(*self.settings['resolution'])
+            self.window.center_window()
+            
+            self.manager.on_resize(*self.settings['resolution'])
+            self.prev_view.manager.on_resize(*self.settings['resolution'])
+        
+        self.window.set_fullscreen(self.settings['fullscreen'])
 
         # загрузить обновление
         with open(file='settings.json', mode='w', encoding='utf-8') as file:
             file.write(json.dumps(data))
+
+    def set_resolution(self, event):
+        """ Новое разрешение """
+
+        self.settings['resolution'] = tuple(map(int, self.resolution_variants.value.split('x')))

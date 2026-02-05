@@ -1,12 +1,16 @@
 import arcade
 import math
 import json
+import random
 
 from entities import Player
 from systems import PhysicsSystem, GameCamera, SoundManager
 from scripts.gui import HealthBar, InventorySlots, OrbUi, EnemyUi, RollStamina
+from scripts import load_settings
 from levels import Level
 import config
+from math import cos, sin, radians
+from utils.particles import ParticleSystem
 
 
 class GameView(arcade.View):
@@ -14,7 +18,7 @@ class GameView(arcade.View):
         super().__init__()
         arcade.set_background_color(arcade.color.DARK_GREEN)
         
-        self.settings = self.load_settings()
+        self.settings = load_settings()
 
     def setup(self):
         self.collision_sprites = arcade.SpriteList()
@@ -69,6 +73,8 @@ class GameView(arcade.View):
         self.time_for_start_fight = 5  # Сколько секунд до начала боя
 
         self.enemy_bullets = arcade.SpriteList()
+        self.particles = ParticleSystem()
+        self.mouse_left_held = False
 
     def on_draw(self):
         self.clear()
@@ -92,6 +98,8 @@ class GameView(arcade.View):
         # отрисовываем пули
         self.bullets.draw()
         self.enemy_bullets.draw()
+        self.draw_bullet_trails()
+        self.particles.draw()
 
         # Активный предмет у игрока
         self.player.draw_item()
@@ -131,14 +139,16 @@ class GameView(arcade.View):
                     anchor_y="center"
                 )
 
-        self.haelth_bar.draw()
-        self.inventory_ui.draw()
-        self.orb_ui.draw()
-        self.roll_cooldown_ui.draw()
+        self.haelth_bar.draw(self.window.height)
+        self.inventory_ui.draw(self.window.width)
+        self.orb_ui.draw(self.window.width, self.window.height)
+        self.roll_cooldown_ui.draw(self.window.height)
 
         # Счётчик врагов
         if self.in_fight:
             self.enemy_counter_ui.draw()
+
+        self.draw_enemy_indicators()
 
         self.draw_minimap()
 
@@ -177,6 +187,7 @@ class GameView(arcade.View):
             self.window.show_view(deathview)
 
         self.enemy_sprites.update(delta_time)
+        self.particles.update(delta_time)
 
         # коллизия со стенами для енеми
         for engine in self.enemy_physics:
@@ -185,6 +196,7 @@ class GameView(arcade.View):
         # Двигаем пули
         self.bullets.update(delta_time)
         self.enemy_bullets.update(delta_time)
+        self.spawn_bullet_trails()
 
         # Обновляем врагов и переносим их пули в общий список
         # обновляем углы оружий енеми
@@ -199,6 +211,13 @@ class GameView(arcade.View):
                     enemy.spawned_bullets.clear()
                     if has_melee:
                         self.sfx.play("enemy_melee", volume=0.2)
+                        self.particles.emit_melee_swing(
+                            enemy.center_x,
+                            enemy.center_y,
+                            enemy.weapon_angle,
+                            max(enemy.weapon.bullet_radius, 30),
+                            color=(255, 200, 120),
+                        )
                     else:
                         self.sfx.play("enemy_attack", volume=0.25)
 
@@ -238,6 +257,18 @@ class GameView(arcade.View):
         for item in self.item_sprites_in_enventory:
             item.update()
 
+        # Зажатый ЛКМ: стрельба для автоматического оружия
+        if self.mouse_left_held and not self.player.is_dead:
+            item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
+            if item is not None and getattr(item, "clas", None) in ("gun", "magic"):
+                new_bullets = item.shoot()
+                if new_bullets:
+                    self.bullets.extend(new_bullets)
+                    if getattr(item, "weapon_type", "") in ("orb", "fire_wand"):
+                        self.sfx.play("magic")
+                    else:
+                        self.sfx.play("shoot")
+
         # Всасывание орбов
         self.orb_sprites.update(delta_time, self.player.position)
         self.money_sprites.update(delta_time, self.player.position)
@@ -252,7 +283,7 @@ class GameView(arcade.View):
 
         # Изменения GUI
         self.haelth_bar.update(delta_time)
-        self.inventory_ui.update()
+        self.inventory_ui.update(self.window.width)
         self.orb_ui.update(self.orbs, self.money)
         self.roll_cooldown_ui.update()
         if self.in_fight:
@@ -382,6 +413,7 @@ class GameView(arcade.View):
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT and not self.player.is_dead:
+            self.mouse_left_held = True
             item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
             if item != None and hasattr(item, "shoot"):
                 new_bullets = item.shoot()
@@ -389,8 +421,19 @@ class GameView(arcade.View):
                     self.bullets.extend(new_bullets)
                     if getattr(item, "clas", None) == "melee":
                         self.sfx.play("melee")
+                        self.particles.emit_melee_swing(
+                            self.player.center_x,
+                            self.player.center_y,
+                            self.player.view_angle,
+                            max(item.bullet_radius, 30),
+                            color=(255, 220, 140),
+                        )
                     else:
                         self.sfx.play("shoot")
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            self.mouse_left_held = False
 
     def add_item_to_inventory(self, item):
         self.item_sprites_on_floor.remove(item)
@@ -410,7 +453,10 @@ class GameView(arcade.View):
         self.mouse_y = y
 
         # Расчет под каким углом сейчас игрок смотрит
-        self.player_angel_view = math.atan2(self.mouse_y - self.center_y, self.mouse_x - self.center_x)
+        cam_x, cam_y = self.camera.camera.position
+        world_x = x + cam_x - (self.window.width / 2)
+        world_y = y + cam_y - (self.window.height / 2)
+        self.player_angel_view = math.atan2(world_y - self.player.center_y, world_x - self.player.center_x)
         self.player.view_angle = self.player_angel_view
 
     def is_dead(self) -> bool:
@@ -694,6 +740,103 @@ class GameView(arcade.View):
                         2
                     )
 
+    def draw_enemy_indicators(self):
+        if not self.enemy_sprites or not self.enemy_sprites.sprite_list:
+            return
+
+        cx = self.window.width / 2
+        cy = self.window.height / 2
+        radius = config.ENEMY_INDICATOR_RADIUS
+        size = config.ENEMY_INDICATOR_SIZE
+        max_count = config.ENEMY_INDICATOR_COUNT
+
+        enemies = []
+        for enemy in self.enemy_sprites.sprite_list:
+            dx = enemy.center_x - self.player.center_x
+            dy = enemy.center_y - self.player.center_y
+            dist = (dx * dx + dy * dy) ** 0.5
+            enemies.append((dist, dx, dy))
+
+        enemies.sort(key=lambda x: x[0])
+        for dist, dx, dy in enemies[:max_count]:
+            if dist <= max(config.ENEMY_INDICATOR_MIN_DISTANCE, 0.1):
+                continue
+            angle = math.atan2(dy, dx)
+            px = cx + math.cos(angle) * radius
+            py = cy + math.sin(angle) * radius
+
+            tip_x = px + math.cos(angle) * size
+            tip_y = py + math.sin(angle) * size
+            base_x = px - math.cos(angle) * size * 0.6
+            base_y = py - math.sin(angle) * size * 0.6
+            perp_x = -math.sin(angle) * size * 0.6
+            perp_y = math.cos(angle) * size * 0.6
+
+            left_x = base_x + perp_x
+            left_y = base_y + perp_y
+            right_x = base_x - perp_x
+            right_y = base_y - perp_y
+
+            arcade.draw_triangle_filled(
+                tip_x, tip_y,
+                left_x, left_y,
+                right_x, right_y,
+                arcade.color.ORANGE_RED
+            )
+
+    def spawn_bullet_trails(self):
+        def color_for(bullet):
+            if getattr(bullet, "damage_type", "") == "magic":
+                return (180, 160, 255)
+            if getattr(bullet, "damage_type", "") == "hit":
+                return (255, 180, 120)
+            return (240, 220, 160)
+
+        for bullet_list in (self.bullets, self.enemy_bullets):
+            for bullet in bullet_list:
+                if getattr(bullet, "damage_type", "") == "hit":
+                    continue
+                # редкий лёгкий след
+                skip = 0.35
+                if getattr(bullet, "damage_type", "") == "magic":
+                    skip = 0.1
+                if random.random() < skip:
+                    continue
+                count = 2 if getattr(bullet, "damage_type", "") == "magic" else 1
+                self.particles.emit(
+                    bullet.center_x,
+                    bullet.center_y,
+                    count=count,
+                    speed=20,
+                    spread=3.14,
+                    life=0.25 if getattr(bullet, "damage_type", "") == "magic" else 0.18,
+                    size=4 if getattr(bullet, "damage_type", "") == "magic" else 3,
+                    color=color_for(bullet),
+                    shape="spark",
+                )
+
+    def draw_bullet_trails(self):
+        for bullet_list in (self.bullets, self.enemy_bullets):
+            for bullet in bullet_list:
+                if getattr(bullet, "damage_type", "") == "hit":
+                    continue
+                length = getattr(bullet, "trail_length", 0.0)
+                if not length:
+                    continue
+                angle = radians(bullet.angle)
+                dx = cos(angle) * length
+                dy = -sin(angle) * length
+                color = getattr(bullet, "trail_color", (240, 220, 160, config.BULLET_TRAIL_ALPHA))
+                width = config.BULLET_TRAIL_WIDTH + int(bullet.width / 12)
+                arcade.draw_line(
+                    bullet.center_x - dx,
+                    bullet.center_y - dy,
+                    bullet.center_x,
+                    bullet.center_y,
+                    color,
+                    width,
+                )
+
     def check_doors(self):
         """
         Првоерка находятся ли закрытые и открытые двери в своих спрайт листах
@@ -748,6 +891,7 @@ class GameView(arcade.View):
                 if bullet not in enemy.bullets_hitted:
                     enemy.take_damage(bullet.damage)
                     self.sfx.play("hit")
+                    self.particles.emit_hit(bullet.center_x, bullet.center_y, color=(255, 120, 120))
                     if bullet.damage_type == 'bullet':
                         self.bullets.remove(bullet)
                         bullet.kill()
@@ -781,6 +925,7 @@ class GameView(arcade.View):
             if bullet not in self.player.bullets_hitted:
                 self.player.take_damage(bullet.damage)
                 self.sfx.play("hit")
+                self.particles.emit_hit(bullet.center_x, bullet.center_y, color=(255, 90, 90))
                 self.camera.shake(12, 0.2)
                 if bullet.damage_type == 'bullet':
                     self.enemy_bullets.remove(bullet)
@@ -848,13 +993,13 @@ class GameView(arcade.View):
         for sprite in collision_sprites:
             sprite.tips = True
 
-    def load_settings(self) -> dict:
-        """ Загрузка настроек из файла """
+    # def load_settings(self) -> dict:
+    #     """ Загрузка настроек из файла """
         
-        with open(file='settings.json', mode='r', encoding='utf-8') as file:
-            data = json.load(file)
+    #     with open(file='settings.json', mode='r', encoding='utf-8') as file:
+    #         data = json.load(file)
         
-        return data
+    #     return data
 
     def update_settings(self) -> None:
         """ Обновляем настройки после выхода из пузы """
@@ -863,3 +1008,14 @@ class GameView(arcade.View):
         
         for key in data:
             self.settings[key] = data[key]
+        
+        # self.window.set_size(*self.settings['resolution'])
+        self.window.on_resize(*self.settings['resolution'])
+        self.gui_camera.match_window()
+        self.camera.set_size()
+        
+        self.gui_camera.position = arcade.math.lerp_2d(
+            self.gui_camera.position,
+            (self.window.width / 2, self.window.height / 2),
+            1
+        )

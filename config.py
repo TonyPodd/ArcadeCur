@@ -18,6 +18,11 @@ MINIMAP_GAP = 2
 SFX_VOLUME = 0.5
 MELEE_REFLECT_TIME = 0.3
 
+ENEMY_INDICATOR_COUNT = 5
+ENEMY_INDICATOR_RADIUS = 140
+ENEMY_INDICATOR_SIZE = 10
+ENEMY_INDICATOR_MIN_DISTANCE = 120
+
 # player
 PLAYER_MOVEMENT_SPEED = 180
 PLAYER_ROLL_SPEED = 500
@@ -30,6 +35,10 @@ ENEMY_SCALING = 1.0
 ENEMY_SPEED = 120
 
 DEFAULT_BULLET_VELOCITY = 10
+
+# bullet styles
+BULLET_TRAIL_ALPHA = 200
+BULLET_TRAIL_WIDTH = 2
 
 # orbs
 ABSORPTION_RADIUS = 150
@@ -59,83 +68,102 @@ CHEST_TYPES = ['weapon', 'ability']
 ENEMY_TYPES = {
     'recrut' : {
         'name' : 'рекрут',
-        'hp' : 50,
+        'hp' : 45,
         'weapon' : "default_gun",
         'agr_range' : 300,
         'attack_range' : 220,
-        'speed' : 1.5,
+        'speed' : 1.7,
         'reaction_time' : 0.35,
-        'attack_cooldown' : 0.6,
+        'attack_cooldown' : 0.7,
         'burst_size' : 2,
         'burst_pause' : 0.7,
         'spread' : 3,
     },
     'grunt' : {
         'name' : 'штурмовик',
-        'hp' : 80,
+        'hp' : 75,
         'weapon' : "rifle",
         'agr_range' : 260,
         'attack_range' : 180,
-        'speed' : 3.5,
+        'speed' : 3.2,
         'reaction_time' : 0.25,
-        'attack_cooldown' : 0.35,
+        'attack_cooldown' : 0.4,
         'burst_size' : 3,
         'burst_pause' : 0.6,
         'spread' : 2,
     },
     'shotgunner' : {
         'name' : 'дробовик',
-        'hp' : 70,
+        'hp' : 80,
         'weapon' : "shotgun",
         'agr_range' : 220,
-        'attack_range' : 120,
-        'speed' : 3.2,
+        'attack_range' : 110,
+        'speed' : 3.0,
         'reaction_time' : 0.3,
-        'attack_cooldown' : 0.9,
+        'attack_cooldown' : 1.0,
         'burst_size' : 1,
         'burst_pause' : 0.9,
         'spread' : 7,
     },
     'sniper' : {
         'name' : 'снайпер',
-        'hp' : 55,
+        'hp' : 50,
         'weapon' : "sniper",
         'agr_range' : 360,
         'attack_range' : 320,
-        'speed' : 2.4,
+        'speed' : 2.2,
         'reaction_time' : 0.6,
-        'attack_cooldown' : 1.4,
+        'attack_cooldown' : 1.6,
         'burst_size' : 1,
         'burst_pause' : 1.2,
         'spread' : 0.6,
     },
     'brute' : {
         'name' : 'громила',
-        'hp' : 140,
+        'hp' : 160,
         'weapon' : "axe",
         'agr_range' : 200,
         'attack_range' : 70,
-        'speed' : 2.6,
+        'speed' : 2.4,
         'reaction_time' : 0.4,
-        'attack_cooldown' : 0.8,
+        'attack_cooldown' : 0.85,
         'burst_size' : 1,
         'burst_pause' : 0.6,
         'spread' : 10,
     },
     'slicer' : {
         'name' : 'саблист',
-        'hp' : 90,
+        'hp' : 85,
         'weapon' : "sword",
         'agr_range' : 210,
         'attack_range' : 90,
-        'speed' : 3.8,
+        'speed' : 4.2,
         'reaction_time' : 0.25,
-        'attack_cooldown' : 0.5,
+        'attack_cooldown' : 0.55,
         'burst_size' : 1,
         'burst_pause' : 0.4,
         'spread' : 8,
     }
 }
+
+# enemy visuals (procedural)
+ENEMY_RECT_BASE = 32
+ENEMY_VISUALS = {
+    "recrut": {"color": (80, 120, 230), "size": (28, 28)},
+    "grunt": {"color": (160, 80, 220), "size": (30, 34)},
+    "shotgunner": {"color": (220, 120, 60), "size": (32, 30)},
+    "sniper": {"color": (100, 200, 120), "size": (28, 32)},
+    "brute": {"color": (220, 80, 80), "size": (36, 36)},
+    "slicer": {"color": (80, 200, 200), "size": (30, 26)},
+}
+
+# procedural tiles/colors
+FLOOR_COLOR = (50, 70, 60)
+WALL_COLOR = (90, 90, 100)
+DOOR_OPEN_COLOR = (160, 130, 70)
+DOOR_CLOSED_COLOR = (80, 60, 40)
+CHEST_COLOR = (30, 150, 60)
+CHEST_OPEN_COLOR = (170, 200, 90)
 
 # enemy spawn от первого значения до последнего
 FIGHT_ROOM_ENEMY_COUNT_1X1 = (6, 10)
@@ -178,22 +206,22 @@ WEAPON_TYPES = {
     },
     'shotgun' : {
         'name' : 'дробовик',
-        'damage' : 15,
+        'damage' : 10,
         "weapon_type" : "gun",
         'damage_type' : "projectile",
-        'bullet_radius' : 20,
-        'shoot_timeout' : 1,
-        'bullet_speed' : 10,
-        'shots_per_tick' : 10,
-        'spread' : 16,
+        'bullet_radius' : 14,
+        'shoot_timeout' : 1.1,
+        'bullet_speed' : 9,
+        'shots_per_tick' : 7,
+        'spread' : 18,
     },
     'sniper' : {
         'name' : 'снайперка',
-        'damage' : 35,
+        'damage' : 32,
         "weapon_type" : "gun",
         'damage_type' : "projectile",
         'bullet_radius' : 3,
-        'shoot_timeout' : 1.0,
+        'shoot_timeout' : 1.2,
         'bullet_speed' : 10,
         'shots_per_tick' : 1,
         'spread' : 0.2,
@@ -222,22 +250,22 @@ WEAPON_TYPES = {
     },
     'sword' : {
         'name' : 'меч',
-        'damage' : 20,
+        'damage' : 18,
         "weapon_type" : "melee",
         'damage_type' : "hitscan",
-        'bullet_radius' : 40,
-        'shoot_timeout' : 0.5,
+        'bullet_radius' : 36,
+        'shoot_timeout' : 0.55,
         'bullet_speed' : 0,
         'shots_per_tick' : 1,
         'spread' : 10,
     },
     'axe' : {
         'name' : 'топор',
-        'damage' : 28,
+        'damage' : 24,
         "weapon_type" : "melee",
         'damage_type' : "hitscan",
-        'bullet_radius' : 30,
-        'shoot_timeout' : 0.2,
+        'bullet_radius' : 32,
+        'shoot_timeout' : 0.7,
         'bullet_speed' : 0,
         'shots_per_tick' : 1,
         'spread' : 14,
