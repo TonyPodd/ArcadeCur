@@ -32,7 +32,7 @@ class SettingsMenu(arcade.View):
         self.manager.add(self.anchor_settings)
 
     def load_settings_from_file(self):
-        with open(file='settigns.json', mode='r', encoding='utf-8') as file:
+        with open(file='settings.json', mode='r', encoding='utf-8') as file:
             data = json.load(file)
 
         self.volume_sound = data['sound_volume']
@@ -102,5 +102,5 @@ class SettingsMenu(arcade.View):
         data['sound_volume'] = self.volume_slider.value / 100
 
         # загрузить обновление
-        with open(file='settigns.json', mode='w', encoding='utf-8') as file:
+        with open(file='settings.json', mode='w', encoding='utf-8') as file:
             file.write(json.dumps(data))

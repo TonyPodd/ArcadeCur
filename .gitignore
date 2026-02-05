@@ -4,4 +4,4 @@ __pycache__/
 # Игнорировать скомпилированные файлы .pyc
 *.pyc
 
-settigns.json
+settings.json

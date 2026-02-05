@@ -845,7 +845,7 @@ class GameView(arcade.View):
 
     def update_settings(self) -> None:
         """ Обновляем настройки после выхода из пузы """
-        with open(file='settigns.json', mode='r', encoding='utf-8') as file:
+        with open(file='settings.json', mode='r', encoding='utf-8') as file:
             data = json.load(file)
         
         for key in data:
