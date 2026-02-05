@@ -12,11 +12,6 @@ class GameView(arcade.View):
     def __init__(self):
         super().__init__()
         arcade.set_background_color(arcade.color.DARK_GREEN)
-        self.perf_graph_list = arcade.SpriteList()
-        self.fps_graph = arcade.PerfGraph(150, 50, "FPS")
-        self.fps_graph.center_x = 75
-        self.fps_graph.center_y = 25
-        self.perf_graph_list.append(self.fps_graph)
 
     def setup(self):
         self.collision_sprites = arcade.SpriteList()
@@ -43,6 +38,10 @@ class GameView(arcade.View):
         self.orb_ui = OrbUi()
         self.enemy_counter_ui = EnemyUi()
         self.roll_cooldown_ui = RollStamina(self.player)
+        self.haelth_bar.x = 20
+        self.haelth_bar.y = 36
+        self.roll_cooldown_ui.x = 20
+        self.roll_cooldown_ui.y = 20
 
         # Камера
         self.camera = GameCamera()  # камера игрока
@@ -136,8 +135,7 @@ class GameView(arcade.View):
         if self.in_fight:
             self.enemy_counter_ui.draw()
 
-        # FPS
-        self.perf_graph_list.draw()
+        self.draw_minimap()
 
         self.draw_alerts()
 
@@ -594,6 +592,80 @@ class GameView(arcade.View):
                 anchor_x="center",
                 anchor_y="center"
             )
+
+    def draw_minimap(self):
+        level = self.all_levels[self.current_level_number]
+        grid = level.text_map
+        if not grid:
+            return
+
+        tile = config.MINIMAP_TILE_SIZE
+        gap = max(0, config.MINIMAP_GAP)
+        rows = len(grid)
+        cols = len(grid[0])
+        width = cols * tile + (cols - 1) * gap
+        height = rows * tile + (rows - 1) * gap
+        left = config.MINIMAP_MARGIN
+        bottom = self.window.height - config.MINIMAP_MARGIN - height
+        right = left + width
+        top = bottom + height
+
+        arcade.draw_lrbt_rectangle_filled(
+            left - 6,
+            right + 6,
+            bottom - 6,
+            top + 6,
+            (10, 10, 10, config.MINIMAP_BG_ALPHA)
+        )
+
+        type_colors = {
+            "spawn": arcade.color.BLUE_GRAY,
+            "fight": arcade.color.LIGHT_RED_OCHRE,
+            "loot": arcade.color.LIGHT_GREEN,
+            "shop": arcade.color.GOLD,
+            "boss": arcade.color.DARK_MAGENTA,
+        }
+
+        for y in range(rows):
+            for x in range(cols):
+                room_id = grid[y][x]
+                if room_id == 0:
+                    continue
+                room = level.rooms.get(room_id)
+                room_type = room.room_type if room else "fight"
+                color = type_colors.get(room_type, arcade.color.LIGHT_GRAY)
+                cell_left = left + x * (tile + gap)
+                cell_bottom = bottom + y * (tile + gap)
+                cell_right = cell_left + tile
+                cell_top = cell_bottom + tile
+
+                arcade.draw_lrbt_rectangle_filled(
+                    cell_left,
+                    cell_right,
+                    cell_bottom,
+                    cell_top,
+                    color
+                )
+
+                if room in level.completed_rooms:
+                    arcade.draw_lrbt_rectangle_outline(
+                        cell_left,
+                        cell_right,
+                        cell_bottom,
+                        cell_top,
+                        arcade.color.DARK_SLATE_GRAY,
+                        1
+                    )
+
+                if room == self.current_room:
+                    arcade.draw_lrbt_rectangle_outline(
+                        cell_left,
+                        cell_right,
+                        cell_bottom,
+                        cell_top,
+                        arcade.color.WHITE,
+                        2
+                    )
 
     def check_doors(self):
         """
