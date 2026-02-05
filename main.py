@@ -1,6 +1,6 @@
 import arcade
 
-from views import MenuView
+from views import MainMenu
 import config
 
 # Game loop
@@ -9,10 +9,8 @@ class Game(arcade.Window):
         super().__init__(width, height, title, center_window=True)
         arcade.enable_timings()
 
-        arcade.set_background_color(arcade.color.AMAZON)
-
     def setup(self):
-        menu_view = MenuView()
+        menu_view = MainMenu()
         self.show_view(menu_view)
 
 
