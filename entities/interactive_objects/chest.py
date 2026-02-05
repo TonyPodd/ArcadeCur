@@ -1,4 +1,5 @@
 import arcade
+import random
 
 from random import choice, randint
 
@@ -33,12 +34,13 @@ class Chest(InetactiveObject):
             return self.get_item()
 
     def get_item(self):
+        weapon_type = random.choice(list(WEAPON_TYPES.keys()))
         if self.chest_type == "weapon":
             # айтем падает чуть в стороне от сундука
             return Weapon(
                 center_x=int(self.center_x + randint(20, 40) * choice([-1, 1])),
                 center_y=int(self.center_y + randint(20, 40) * choice([-1, 1])),
-                type = 'shotgun'
+                type=weapon_type
             )
 
         return None

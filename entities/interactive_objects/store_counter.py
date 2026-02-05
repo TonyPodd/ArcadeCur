@@ -3,7 +3,7 @@ import random
 
 from config import *
 from .object import InetactiveObject
-from ..item import Item
+from ..weapon import Weapon
 
 
 class StoreCounter(InetactiveObject):
@@ -14,8 +14,8 @@ class StoreCounter(InetactiveObject):
         self.tips_text = 'E - купить'
         self.cost = 400
         
-        self.item = Item(
-            1, self.center_x, self.center_y, 
+        self.item = Weapon(
+            1, self.center_x, self.center_y, random.choice(list(WEAPON_TYPES.keys()))
         )
         self.item.is_on_floor = False
 

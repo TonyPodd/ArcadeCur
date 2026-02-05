@@ -9,7 +9,6 @@ import random
 class Weapon(Item):
     def __init__(self, scale=1, center_x=0, center_y=0, type='default_gun', clas = 'gun'):
         super().__init__(scale, center_x, center_y)
-
         self.bullets = arcade.SpriteList()
         self.clas = WEAPON_TYPES[type]["weapon_type"]
         self.can_shoot = True
