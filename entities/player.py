@@ -35,6 +35,8 @@ class Player(arcade.Sprite):
         self.is_roll = False
         self.roll_speed = config.PLAYER_ROLL_SPEED
         self.roll_timer = config.PLAYER_ROLL_TIMER
+        self.roll_cooldown = 2  # Время, которое нужно для следующего переката
+        self.roll_cooldown_timer = self.roll_cooldown # Время от прошлого переката
         self.roll_direction = {
             'x': 0,  # Направление переката по X
             'y': 0   # Направление переката по Y
@@ -57,6 +59,7 @@ class Player(arcade.Sprite):
             if not self.is_roll:
                 self.change_x = move_direction_x * self.max_speed * delta_time
                 self.change_y = move_direction_y * self.max_speed * delta_time
+                self.roll_cooldown_timer += delta_time
 
             # перекат
             elif self.is_roll:
@@ -75,12 +78,13 @@ class Player(arcade.Sprite):
                     self.roll_timer = config.PLAYER_ROLL_TIMER
                     self.is_roll = False
                     self.angle = 0
+                    self.roll_cooldown_timer = 0.0
         else:
             self.change_x = 0
             self.change_y = 0
 
     def do_roll(self):
-        if not self.is_dead:
+        if not self.is_dead and self.roll_cooldown_timer >= self.roll_cooldown:
             # Определяем направление по X
             if self.direction['left']:
                 self.roll_direction['x'] = -1
