@@ -94,5 +94,13 @@ class SettingsMenu(arcade.View):
         self.window.show_view(self.prev_view)
 
     def save_settigns(self, event):
-        # Сохранение в файл
-        ...
+        # Загрузка старых настроек
+        with open(file='settigns.json', mode='r', encoding='utf-8') as file:
+            data = json.load(file)
+
+        # обновление настроек
+        data['sound_volume'] = self.volume_slider.value / 100
+
+        # загрузить обновление
+        with open(file='settigns.json', mode='w', encoding='utf-8') as file:
+            file.write(json.dumps(data))
