@@ -68,17 +68,22 @@ class MainMenu(arcade.View):
         self.manager.draw()
     
     def new_game(self, event):
+        self.manager.disable()
         from game import GameView
         game_view = GameView()
         game_view.setup()
+        self.on_hide_view()
         self.window.show_view(game_view)
     
     def continue_game(self, event):
+        # self.manager.disable()
         print('continue game')
     
     def settings(self, event):
+        self.manager.disable()
         from .settings_menu import SettingsMenu
         self.window.show_view(SettingsMenu(self))
 
     def exit_game(self, event):
+        self.manager.disable()
         arcade.exit()

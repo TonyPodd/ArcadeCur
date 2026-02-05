@@ -46,9 +46,6 @@ class PauseMenu(arcade.View):
         )
         main_menu_button.on_click = self.go_main_menu
         self.box_layout.add(main_menu_button)
-    
-    def on_show_view(self) -> None:
-        arcade.set_background_color(arcade.color.AMAZON)
 
     def on_draw(self):
         self.clear()
@@ -56,8 +53,10 @@ class PauseMenu(arcade.View):
         self.manager.draw()
 
     def go_main_menu(self, event):
+        self.manager.disable()
         from .main_menu import MainMenu
         self.window.show_view(MainMenu())
         
     def go_game(self, event):
+        self.manager.disable()
         self.window.show_view(self.prev_view)

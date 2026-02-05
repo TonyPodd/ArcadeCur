@@ -43,12 +43,11 @@ class SettingsMenu(arcade.View):
         back_button.on_click = self.go_back
         self.box_layout.add(back_button)
 
-    def on_show_view(self) -> None:
-        arcade.set_background_color(arcade.color.AMAZON)
-
     def on_draw(self):
         self.clear()
         self.manager.draw()
 
     def go_back(self, enent):
+        self.manager.disable()
+        self.prev_view.manager.enable()
         self.window.show_view(self.prev_view)
