@@ -761,6 +761,19 @@ class GameView(arcade.View):
         collide_bullets = arcade.check_for_collision_with_list(self.player, self.enemy_bullets)
 
         for bullet in collide_bullets:
+            active_item = self.player.first_item if self.player.current_slot == 0 else self.player.second_item
+            if (
+                active_item is not None
+                and hasattr(active_item, "is_melee_active")
+                and active_item.is_melee_active()
+                and bullet.damage_type != "hit"
+            ):
+                # отражаем пулю обратно
+                self.enemy_bullets.remove(bullet)
+                bullet.angle = -math.degrees(self.player.view_angle)
+                bullet.damage_type = "bullet"
+                self.bullets.append(bullet)
+                continue
             # Впитываем урон, если не сталкивались с пуей
             if bullet not in self.player.bullets_hitted:
                 self.player.take_damage(bullet.damage)

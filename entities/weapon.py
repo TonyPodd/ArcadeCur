@@ -5,6 +5,7 @@ from .item import Item
 from .bullet import Bullet
 from math import degrees, cos, sin, radians
 import random
+import time
 
 class Weapon(Item):
     def __init__(self, scale=1, center_x=0, center_y=0, type='default_gun', clas = 'gun'):
@@ -20,6 +21,7 @@ class Weapon(Item):
         self.bullet_speed = WEAPON_TYPES[type]["bullet_speed"]
         self.shots_per_tick = WEAPON_TYPES[type]["shots_per_tick"]
         self.spread = WEAPON_TYPES[type].get("spread", 0)
+        self.melee_active_until = 0.0
 
 
     def shoot(self):
@@ -27,6 +29,8 @@ class Weapon(Item):
             self.can_shoot = False
             arcade.schedule_once(self.update_can_shoot, self.shoot_timeout)
             bullets_to_return = []
+            if self.clas == "melee":
+                self.melee_active_until = time.time() + MELEE_REFLECT_TIME
             for _ in range(self.shots_per_tick):
                 temp_bullet = Bullet()
                 temp_bullet.center_x = self.center_x
@@ -63,6 +67,9 @@ class Weapon(Item):
 
         else:
             return None
+
+    def is_melee_active(self):
+        return self.clas == "melee" and time.time() < self.melee_active_until
 
     def update_can_shoot(self, timer):
         self.can_shoot = True
