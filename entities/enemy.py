@@ -224,6 +224,7 @@ class Enemy(arcade.Sprite):
         if self.player and self.state == 'attack':
             target_angle = atan2(self.player.center_y - self.center_y, self.player.center_x - self.center_x)
             self.weapon_angle = target_angle
+            self.view_angle = target_angle
         else:
             target_angle = self.view_angle
             if self.state == 'idle':

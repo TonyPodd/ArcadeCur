@@ -1,8 +1,8 @@
 import arcade
 import math
 
-from entities import Player, Chest
-from systems import PhysicsSystem, GameCamera
+from entities import Player
+from systems import PhysicsSystem, GameCamera, SoundManager
 from scripts.gui import HealthBar, InventorySlots, OrbUi, EnemyUi, RollStamina
 from levels import Level
 import config
@@ -12,11 +12,6 @@ class GameView(arcade.View):
     def __init__(self):
         super().__init__()
         arcade.set_background_color(arcade.color.DARK_GREEN)
-        self.perf_graph_list = arcade.SpriteList()
-        self.fps_graph = arcade.PerfGraph(150, 50, "FPS")
-        self.fps_graph.center_x = 75
-        self.fps_graph.center_y = 25
-        self.perf_graph_list.append(self.fps_graph)
 
     def setup(self):
         self.collision_sprites = arcade.SpriteList()
@@ -43,6 +38,12 @@ class GameView(arcade.View):
         self.orb_ui = OrbUi()
         self.enemy_counter_ui = EnemyUi()
         self.roll_cooldown_ui = RollStamina(self.player)
+        self.sfx = SoundManager()
+        self.death_sound_played = False
+        self.haelth_bar.x = 20
+        self.haelth_bar.y = 36
+        self.roll_cooldown_ui.x = 20
+        self.roll_cooldown_ui.y = 20
 
         # Камера
         self.camera = GameCamera()  # камера игрока
@@ -136,8 +137,7 @@ class GameView(arcade.View):
         if self.in_fight:
             self.enemy_counter_ui.draw()
 
-        # FPS
-        self.perf_graph_list.draw()
+        self.draw_minimap()
 
         self.draw_alerts()
 
@@ -191,8 +191,13 @@ class GameView(arcade.View):
             if not dead:
                 enemy.weapon.update()
                 if enemy.spawned_bullets:
+                    has_melee = any(getattr(b, "damage_type", None) == "hit" for b in enemy.spawned_bullets)
                     self.enemy_bullets.extend(enemy.spawned_bullets)
                     enemy.spawned_bullets.clear()
+                    if has_melee:
+                        self.sfx.play("enemy_melee", volume=0.2)
+                    else:
+                        self.sfx.play("enemy_attack", volume=0.25)
 
             else:
                 # получение денег и орбов
@@ -237,8 +242,10 @@ class GameView(arcade.View):
         # Подбор орбов
         for sprite in arcade.check_for_collision_with_lists(self.player, [self.money_sprites]):
             self.money += sprite.picked_up()
+            self.sfx.play("coin")
         for sprite in arcade.check_for_collision_with_list(self.player, self.orb_sprites):
             self.orbs += sprite.picked_up()
+            self.sfx.play("coin")
 
         # Изменения GUI
         self.haelth_bar.update(delta_time)
@@ -266,7 +273,11 @@ class GameView(arcade.View):
         # дэш/перекат/рывок
         if (key == arcade.key.LCTRL or key == arcade.key.LSHIFT) and not self.player.is_roll:
             if any(self.player.direction.values()):
-                self.player.do_roll()
+                if self.player.roll_cooldown_timer >= self.player.roll_cooldown:
+                    self.player.do_roll()
+                    self.sfx.play("dash")
+                else:
+                    self.player.do_roll()
 
         if (key == arcade.key.E):
             # Проверяем какие предметы есть на полу под игроком
@@ -288,6 +299,7 @@ class GameView(arcade.View):
                     # Если есть свободные слоты
                     if sprite is True:
                         self.add_item_to_inventory(item)
+                        self.sfx.play("pickup")
                     # Если игрок умер
                     elif sprite is False:
                         pass
@@ -295,6 +307,7 @@ class GameView(arcade.View):
                     else:
                         self.add_item_to_inventory(item)
                         self.drop_inventory_item(sprite)
+                        self.sfx.play("pickup")
             
             elif counter_sprites:
                 for counter in counter_sprites:
@@ -305,6 +318,7 @@ class GameView(arcade.View):
                             self.money -= delta_money
                             self.item_sprites_on_floor.append(item)
                             self.interaction = False
+                            self.sfx.play("open")
                         continue
 
             elif interactive_objects:
@@ -313,6 +327,7 @@ class GameView(arcade.View):
                 if item is not None:
                     self.item_sprites_on_floor.append(item)
                     self.interactive_sprites.remove(object_sprite)
+                    self.sfx.play("open")
 
         # Выбросить айтем
         if (key == arcade.key.Q):
@@ -348,8 +363,8 @@ class GameView(arcade.View):
         # Взаимодействия с интерфейсом
         # Пауза
         if key == arcade.key.ESCAPE:
-            from views import PauseView
-            pause = PauseView(self)
+            from views import PauseMenu
+            pause = PauseMenu(self)
             self.window.show_view(pause)
 
     def on_key_release(self, key, modifiers) -> None:
@@ -369,6 +384,10 @@ class GameView(arcade.View):
                 new_bullets = item.shoot()
                 if new_bullets != None:
                     self.bullets.extend(new_bullets)
+                    if getattr(item, "clas", None) == "melee":
+                        self.sfx.play("melee")
+                    else:
+                        self.sfx.play("shoot")
 
     def add_item_to_inventory(self, item):
         self.item_sprites_on_floor.remove(item)
@@ -394,6 +413,9 @@ class GameView(arcade.View):
     def is_dead(self) -> bool:
         """ Проверка умер ли игрок """
         if self.player.hp <= 0:
+            if not self.death_sound_played:
+                self.sfx.play("death", volume=0.7)
+                self.death_sound_played = True
             self.player.on_die()
             return True
         return False
@@ -595,6 +617,80 @@ class GameView(arcade.View):
                 anchor_y="center"
             )
 
+    def draw_minimap(self):
+        level = self.all_levels[self.current_level_number]
+        grid = level.text_map
+        if not grid:
+            return
+
+        tile = config.MINIMAP_TILE_SIZE
+        gap = max(0, config.MINIMAP_GAP)
+        rows = len(grid)
+        cols = len(grid[0])
+        width = cols * tile + (cols - 1) * gap
+        height = rows * tile + (rows - 1) * gap
+        left = config.MINIMAP_MARGIN
+        bottom = self.window.height - config.MINIMAP_MARGIN - height
+        right = left + width
+        top = bottom + height
+
+        arcade.draw_lrbt_rectangle_filled(
+            left - 6,
+            right + 6,
+            bottom - 6,
+            top + 6,
+            (10, 10, 10, config.MINIMAP_BG_ALPHA)
+        )
+
+        type_colors = {
+            "spawn": arcade.color.BLUE_GRAY,
+            "fight": arcade.color.LIGHT_RED_OCHRE,
+            "loot": arcade.color.LIGHT_GREEN,
+            "shop": arcade.color.GOLD,
+            "boss": arcade.color.DARK_MAGENTA,
+        }
+
+        for y in range(rows):
+            for x in range(cols):
+                room_id = grid[y][x]
+                if room_id == 0:
+                    continue
+                room = level.rooms.get(room_id)
+                room_type = room.room_type if room else "fight"
+                color = type_colors.get(room_type, arcade.color.LIGHT_GRAY)
+                cell_left = left + x * (tile + gap)
+                cell_bottom = bottom + y * (tile + gap)
+                cell_right = cell_left + tile
+                cell_top = cell_bottom + tile
+
+                arcade.draw_lrbt_rectangle_filled(
+                    cell_left,
+                    cell_right,
+                    cell_bottom,
+                    cell_top,
+                    color
+                )
+
+                if room in level.completed_rooms:
+                    arcade.draw_lrbt_rectangle_outline(
+                        cell_left,
+                        cell_right,
+                        cell_bottom,
+                        cell_top,
+                        arcade.color.DARK_SLATE_GRAY,
+                        1
+                    )
+
+                if room == self.current_room:
+                    arcade.draw_lrbt_rectangle_outline(
+                        cell_left,
+                        cell_right,
+                        cell_bottom,
+                        cell_top,
+                        arcade.color.WHITE,
+                        2
+                    )
+
     def check_doors(self):
         """
         Првоерка находятся ли закрытые и открытые двери в своих спрайт листах
@@ -648,6 +744,7 @@ class GameView(arcade.View):
                 # Наносим урон врагу, если он с ней не сталкивался
                 if bullet not in enemy.bullets_hitted:
                     enemy.take_damage(bullet.damage)
+                    self.sfx.play("hit")
                     if bullet.damage_type == 'bullet':
                         self.bullets.remove(bullet)
                         bullet.kill()
@@ -667,6 +764,7 @@ class GameView(arcade.View):
             # Впитываем урон, если не сталкивались с пуей
             if bullet not in self.player.bullets_hitted:
                 self.player.take_damage(bullet.damage)
+                self.sfx.play("hit")
                 self.camera.shake(12, 0.2)
                 if bullet.damage_type == 'bullet':
                     self.enemy_bullets.remove(bullet)

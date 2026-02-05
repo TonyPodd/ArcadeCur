@@ -58,17 +58,20 @@ class FightRoom(Room):
         """
         Создание врагов в комнате
         """
-        enemy_count = len(valid_tiles_sprites.sprite_list)
+        enemy_types = list(ENEMY_TYPES.keys())
+        if not enemy_types:
+            return arcade.SpriteList()
         
         if 'enemy' not in self.all_sprites:
             self.all_sprites['enemy'] = arcade.SpriteList()
             
         for tile in valid_tiles_sprites:
+            enemy_type = random.choice(enemy_types)
             self.all_sprites['enemy'].append(Enemy(
                 tile.center_x,
                 tile.center_y,
-                difficulty=self.difficulty,
-                type=random.choice(list(ENEMY_TYPES.keys()))
+                type=enemy_type,
+                difficulty=self.difficulty
             ))
 
         return self.all_sprites['enemy']
