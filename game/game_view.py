@@ -1,5 +1,6 @@
 import arcade
 import math
+import json
 
 from entities import Player
 from systems import PhysicsSystem, GameCamera, SoundManager
@@ -12,6 +13,8 @@ class GameView(arcade.View):
     def __init__(self):
         super().__init__()
         arcade.set_background_color(arcade.color.DARK_GREEN)
+        
+        self.settings = self.load_settings()
 
     def setup(self):
         self.collision_sprites = arcade.SpriteList()
@@ -38,7 +41,7 @@ class GameView(arcade.View):
         self.orb_ui = OrbUi()
         self.enemy_counter_ui = EnemyUi()
         self.roll_cooldown_ui = RollStamina(self.player)
-        self.sfx = SoundManager()
+        self.sfx = SoundManager(self.settings)
         self.death_sound_played = False
         self.haelth_bar.x = 20
         self.haelth_bar.y = 36
@@ -831,3 +834,19 @@ class GameView(arcade.View):
 
         for sprite in collision_sprites:
             sprite.tips = True
+
+    def load_settings(self) -> dict:
+        """ Загрузка настроек из файла """
+        
+        with open(file='settigns.json', mode='r', encoding='utf-8') as file:
+            data = json.load(file)
+        
+        return data
+
+    def update_settings(self) -> None:
+        """ Обновляем настройки после выхода из пузы """
+        with open(file='settigns.json', mode='r', encoding='utf-8') as file:
+            data = json.load(file)
+        
+        for key in data:
+            self.settings[key] = data[key]

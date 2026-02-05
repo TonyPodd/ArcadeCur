@@ -40,6 +40,13 @@ class PauseMenu(arcade.View):
         continue_button.on_click = self.go_game
         self.box_layout.add(continue_button)
         
+        # settings
+        settings_button = gui.UIFlatButton(
+            text="Настройки", width=self.button_width
+        )
+        settings_button.on_click = self.go_settigns
+        self.box_layout.add(settings_button)
+        
         # в меню
         main_menu_button = gui.UIFlatButton(
             text="Назад", width=self.button_width
@@ -56,7 +63,13 @@ class PauseMenu(arcade.View):
         self.manager.disable()
         from .main_menu import MainMenu
         self.window.show_view(MainMenu())
+
+    def go_settigns(self, event):
+        self.manager.disable()
+        from .settings_menu import SettingsMenu
+        self.window.show_view(SettingsMenu(self))
         
     def go_game(self, event):
         self.manager.disable()
+        self.prev_view.update_settings()
         self.window.show_view(self.prev_view)
