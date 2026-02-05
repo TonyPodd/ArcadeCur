@@ -63,6 +63,7 @@ class Player(arcade.Sprite):
 
             # перекат
             elif self.is_roll:
+                self.roll_cooldown_timer = 0.0
                 self.change_x = self.roll_speed * self.roll_direction['x'] * delta_time
                 self.change_y = self.roll_speed * self.roll_direction['y'] * delta_time
                 self.roll_timer -= delta_time
@@ -78,7 +79,6 @@ class Player(arcade.Sprite):
                     self.roll_timer = config.PLAYER_ROLL_TIMER
                     self.is_roll = False
                     self.angle = 0
-                    self.roll_cooldown_timer = 0.0
         else:
             self.change_x = 0
             self.change_y = 0

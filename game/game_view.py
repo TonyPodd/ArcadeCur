@@ -3,7 +3,7 @@ import math
 
 from entities import Player, Chest
 from systems import PhysicsSystem, GameCamera
-from scripts.gui import HealthBar, InventorySlots, OrbUi, EnemyUi
+from scripts.gui import HealthBar, InventorySlots, OrbUi, EnemyUi, RollStamina
 from levels import Level
 import config
 
@@ -42,6 +42,7 @@ class GameView(arcade.View):
         self.inventory_ui = InventorySlots(self.player)
         self.orb_ui = OrbUi()
         self.enemy_counter_ui = EnemyUi()
+        self.roll_cooldown_ui = RollStamina(self.player)
 
         # Камера
         self.camera = GameCamera()  # камера игрока
@@ -134,26 +135,13 @@ class GameView(arcade.View):
         self.haelth_bar.draw()
         self.inventory_ui.draw()
         self.orb_ui.draw()
+        self.roll_cooldown_ui.draw()
 
+        # Счётчик врагов
         if self.in_fight:
             self.enemy_counter_ui.draw()
 
-        # Координаты игрока
-        # arcade.draw_text(
-        #     f"X: {int(self.player.center_x)}, Y: {int(self.player.center_y)}",
-        #     10,
-        #     self.window.height - 30,
-        #     arcade.color.WHITE,
-        #     14
-        # )
-        # Комната в которой сейчас игрок
-        # arcade.draw_text(
-        #     f"Номер комнаты: {self.current_room_num}, Тип комнаты: {self.current_room_type}",
-        #     10,
-        #     self.window.height - 70,
-        #     arcade.color.WHITE,
-        #     14
-        # )
+        # FPS
         self.perf_graph_list.draw()
 
         self.draw_alerts()
@@ -255,6 +243,7 @@ class GameView(arcade.View):
         self.haelth_bar.update(delta_time)
         self.inventory_ui.update()
         self.orb_ui.update(self.orbs, self.money)
+        self.roll_cooldown_ui.update()
         if self.in_fight:
             self.enemy_counter_ui.update(len(list(self.enemy_sprites)))
 

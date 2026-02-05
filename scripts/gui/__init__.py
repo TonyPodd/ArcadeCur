@@ -4,3 +4,4 @@ from .health_line import HealthLine
 from .engine_ui import EnginUi
 from .orb_ui import OrbUi
 from .enemy_ui import EnemyUi
+from .roll_ui import RollStamina
