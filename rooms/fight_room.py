@@ -4,7 +4,7 @@ import csv
 from pathlib import Path
 
 from .room import Room
-from entities import Enemy
+from entities import Enemy, Wall, Floor
 from config import *
 
 
@@ -48,34 +48,34 @@ class FightRoom(Room):
 
     def begin_fight(self):
         self.close_doors()
-
-        return self.spawn_enemies()
+        return self.valid_spawn_tiles()
 
     def end_fight(self):
         self.status = 1
         self.open_doors()
-        self.spawn_chest()
 
-    def spawn_enemies(self):
+    def spawn_enemies(self, valid_tiles_sprites: arcade.SpriteList) -> arcade.SpriteList:
         """
         Создание врагов в комнате
         """
-        wall_tiles = set(self.data.get('2', []))
-        floor_tiles = set(self.data.get('1', []))
+        enemy_count = len(valid_tiles_sprites.sprite_list)
+        
+        if 'enemy' not in self.all_sprites:
+            self.all_sprites['enemy'] = arcade.SpriteList()
+            
+        for tile in valid_tiles_sprites:
+            self.all_sprites['enemy'].append(Enemy(
+                tile.center_x,
+                tile.center_y,
+                difficulty=self.difficulty
+            ))
 
-        def is_clear(tile):
-            if tile not in floor_tiles:
-                return False
-            x, y = tile
-            neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
-            for n in neighbors:
-                if n in wall_tiles:
-                    return False
-            return True
+        return self.all_sprites['enemy']
 
-        valid_tiles = [t for t in floor_tiles if is_clear(t)]
-        if not valid_tiles:
-            return
+    def valid_spawn_tiles(self) -> arcade.SpriteList:
+        """ Находит все места, на которых может заспавниться враг """
+        spawn_sprites = arcade.SpriteList()
+        floor_sprites = self.all_sprites['floor'].sprite_list.copy()
 
         room_size = len(self.text_map)
         if room_size == 1:
@@ -84,24 +84,22 @@ class FightRoom(Room):
             min_count, max_count = FIGHT_ROOM_ENEMY_COUNT_2X2
 
         enemy_count = random.randint(min_count, max_count)
-        enemy_count = min(enemy_count, len(valid_tiles))
-
-        if 'enemy' not in self.all_sprites:
-            self.all_sprites['enemy'] = arcade.SpriteList()
-
-        used = set()
+        
         for _ in range(enemy_count):
-            tile = random.choice(valid_tiles)
-            while tile in used and len(used) < len(valid_tiles):
-                tile = random.choice(valid_tiles)
-            used.add(tile)
+            tile = random.choice(floor_sprites)
+            sprite = arcade.Sprite(
+                arcade.make_circle_texture(
+                    TILE_SIZE,
+                    (214, 17, 60)
+                ),
+                1,
+                tile.center_x,
+                tile.center_y
+            )
+            spawn_sprites.append(sprite)
+            floor_sprites.remove(tile)
 
-            tile_x, tile_y = tile
-            center_x = self.x * CHUNCK_SIZE[0] * TILE_SIZE + TILE_SIZE * (tile_x + 1)
-            center_y = self.y * CHUNCK_SIZE[1] * TILE_SIZE + TILE_SIZE * (tile_y + 1)
-            self.all_sprites['enemy'].append(Enemy(center_x, center_y, difficulty=self.difficulty))
-
-        return self.all_sprites['enemy']
+        return spawn_sprites
 
     def close_doors(self):
         for door in self.all_sprites['door']:
@@ -114,8 +112,3 @@ class FightRoom(Room):
         """
         for door in self.all_sprites['door']:
             door.open_door()
-
-    def spawn_chest(self):
-        """
-        Спавн сундука в конце зачистки
-        """

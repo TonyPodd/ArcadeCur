@@ -20,6 +20,7 @@ class GameView(arcade.View):
 
     def setup(self):
         self.collision_sprites = arcade.SpriteList()
+        self.spawn_sprites = arcade.SpriteList()
         # Алерты
         self.alerts = []
 
@@ -33,7 +34,6 @@ class GameView(arcade.View):
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player)
         self.item_sprites_in_enventory = arcade.SpriteList()
-        self.in_fight = False  # Идёт ли сейчас сражение
         self.money = 0  # кол-во денег
         self.orbs = 0  # кол-во орбов
 
@@ -60,7 +60,9 @@ class GameView(arcade.View):
         self.current_room, self.current_room_type = 0, 'None'
         self.create_level('start')  # Стартовый уровень
         self.push_alert("Локация: Старт")
-
+        self.start_fight_timer = 0  # Таймер до начала боя
+        self.in_fight = False  # Идёт ли сейчас сражение
+        self.time_for_start_fight = 5  # Сколько секунд до начала боя
 
         self.enemy_bullets = arcade.SpriteList()
 
@@ -72,6 +74,8 @@ class GameView(arcade.View):
 
         # Отрисовывается до игрока
         self.floor_sprites.draw()
+        if self.in_fight:
+            self.spawn_sprites.draw()
         self.door_sprites.draw()
         self.interactive_sprites.draw()
         for sprite in self.counter_sprites:
@@ -97,15 +101,6 @@ class GameView(arcade.View):
 
         self.orb_sprites.draw()
         self.money_sprites.draw()
-
-        # arcade.draw_line(
-        #     self.player.center_x,
-        #     self.player.center_y,
-        #     self.player.center_x + math.cos(self.player_angel_view) * 100,
-        #     self.player.center_y + math.sin(self.player_angel_view) * 100,
-        #     arcade.color.RED,
-        #     3
-        # )
 
         # ui
         for sprite in self.interactive_sprites:
@@ -145,9 +140,9 @@ class GameView(arcade.View):
         self.perf_graph_list.draw()
 
         self.draw_alerts()
-        
 
     def on_update(self, delta_time: float) -> None:
+        # player
         self.player.update(delta_time)
         self.physics_system.update()
         self.camera.update(delta_time)
@@ -160,10 +155,16 @@ class GameView(arcade.View):
         # Начинаем бой если тип комнаты - fight, и она не зачищена
         if self.current_room not in self.all_levels[self.current_level_number].completed_rooms:
             if self.current_room_type == 'fight':
-                self.start_fight(collide_floor)
+                self.create_fight(collide_floor)
+        
+        if self.in_fight and self.start_fight_timer >= self.time_for_start_fight:
+            if self.spawn_sprites.sprite_list:
+                self.spawn_enemies(self.spawn_sprites)
+        else:
+            self.start_fight_timer += delta_time
 
         # Заканчиваем бой, если враги - всё
-        if self.in_fight and not self.enemy_sprites.sprite_list:
+        if self.in_fight and not self.enemy_sprites.sprite_list and not self.spawn_sprites:
             self.end_fight()
 
         # Проверка умер ли игрок
@@ -674,22 +675,10 @@ class GameView(arcade.View):
                 # добавляем пули к уже столкнувшимся
                 self.player.bullets_hitted.append(bullet)
 
-    def start_fight(self, collide_floor: arcade.SpriteList):
+    def create_fight(self, collide_floor: arcade.SpriteList):
+        """ Инициализация боя """
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
-        self.enemy_sprites = self.current_room.begin_fight()
-
-        # Спрайты коллизии для врагов
-        self.enemy_col_sprites = arcade.SpriteList(use_spatial_hash=True)
-        self.enemy_col_sprites.extend(self.current_room.all_sprites['wall'])
-        self.enemy_col_sprites.extend(self.current_room.all_sprites['door'])
-
-        for enemy in self.enemy_sprites:
-            engine = arcade.PhysicsEngineSimple(enemy, self.enemy_col_sprites)
-            self.enemy_physics.append(engine)
-
-        for enemy in self.enemy_sprites:
-            enemy.player = self.player
-            enemy.walls = self.current_room.all_sprites['wall']
+        self.spawn_sprites = self.current_room.begin_fight()
 
         # Проверяем закрылись ли двери
         self.check_doors()
@@ -699,16 +688,32 @@ class GameView(arcade.View):
         x, y = floor.center_x, floor.center_y
         self.player.set_position(x, y)
         self.in_fight = True
+        self.start_fight_timer = 0.0
         
-        self.enemy_counter_ui.set_num_of_enemy(len(list(self.enemy_sprites)))
         self.push_alert("Локация: 'Fight'")
+
+    def spawn_enemies(self, spawn_sprites: arcade.SpriteList):
+        self.enemy_sprites = self.current_room.spawn_enemies(self.spawn_sprites)
+        self.spawn_sprites.clear()
+        # Спрайты коллизии для врагов
+        self.enemy_col_sprites = arcade.SpriteList(use_spatial_hash=True)
+        self.enemy_col_sprites.extend(self.current_room.all_sprites['wall'])
+        self.enemy_col_sprites.extend(self.current_room.all_sprites['door'])
+        
+        # Движёк для коллизии врагов
+        for enemy in self.enemy_sprites:
+            engine = arcade.PhysicsEngineSimple(enemy, self.enemy_col_sprites)
+            self.enemy_physics.append(engine)
+
+        for enemy in self.enemy_sprites:
+            enemy.player = self.player
+            enemy.walls = self.current_room.all_sprites['wall']
+
+        self.enemy_counter_ui.set_num_of_enemy(len(list(self.enemy_sprites)))
 
     def end_fight(self):
         self.current_room.end_fight()
         # чистим коллизии/движки врагов, чтобы не копились между комнатами
-        for enemy in list(self.enemy_sprites.sprite_list):
-            if enemy in self.collision_sprites:
-                self.collision_sprites.remove(enemy)
         self.enemy_sprites = arcade.SpriteList()
         self.enemy_physics.clear()
         self.enemy_col_sprites.clear()

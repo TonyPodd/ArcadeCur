@@ -121,7 +121,6 @@ class Enemy(arcade.Sprite):
         else:
             self.state = "idle"
 
-
     def move_to(self, x, y):
         dx = x - self.center_x
         dy = y - self.center_y
@@ -183,7 +182,6 @@ class Enemy(arcade.Sprite):
         else:
             self._idle_stuck_timer = 0.0
         self._last_pos = cur_pos
-
 
     def draw_item(self):
         """ Отрисовывать предмет в руках """
