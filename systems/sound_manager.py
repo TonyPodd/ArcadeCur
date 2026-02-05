@@ -43,7 +43,7 @@ class SoundManager:
                 sounds.append(arcade.load_sound(str(path)))
         return sounds
 
-    def play(self, name: str):
+    def play(self, name: str, volume: float=None):
         sounds = self.sounds.get(name)
         if not sounds:
             return
