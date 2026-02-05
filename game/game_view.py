@@ -851,7 +851,7 @@ class GameView(arcade.View):
     def load_settings(self) -> dict:
         """ Загрузка настроек из файла """
         
-        with open(file='settigns.json', mode='r', encoding='utf-8') as file:
+        with open(file='settings.json', mode='r', encoding='utf-8') as file:
             data = json.load(file)
         
         return data
