@@ -1,6 +1,5 @@
 import arcade
 
-from views import MenuView
 
 class DeathView(arcade.View):
     def __init__(self):
@@ -48,5 +47,6 @@ class DeathView(arcade.View):
 
         # Перейти в меню
         elif key == arcade.key.ESCAPE:
-            menu = MenuView()
+            from views import MainMenu
+            menu = MainMenu()
             self.window.show_view(menu)

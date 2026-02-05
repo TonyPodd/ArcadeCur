@@ -1,7 +1,7 @@
 import arcade
 import math
 
-from entities import Player, Chest
+from entities import Player
 from systems import PhysicsSystem, GameCamera
 from scripts.gui import HealthBar, InventorySlots, OrbUi, EnemyUi, RollStamina
 from levels import Level
@@ -348,8 +348,8 @@ class GameView(arcade.View):
         # Взаимодействия с интерфейсом
         # Пауза
         if key == arcade.key.ESCAPE:
-            from views import PauseView
-            pause = PauseView(self)
+            from views import PauseMenu
+            pause = PauseMenu(self)
             self.window.show_view(pause)
 
     def on_key_release(self, key, modifiers) -> None:
