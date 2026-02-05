@@ -7,7 +7,7 @@ import config
 
 
 class SoundManager:
-    def __init__(self):
+    def __init__(self, settings):
         base = Path(__file__).resolve().parent.parent / "assets" / "sfx" / "8bit" / "8-Bit Sound Library" / "Wav"
         self.sounds = {
             "shoot": self._load_list(base, ["Shoot_00.wav", "Shoot_01.wav", "Shoot_02.wav", "Shoot_03.wav"]),
@@ -32,7 +32,8 @@ class SoundManager:
             "coin": 0.08,
             "death": 0.5,
         }
-        self.volume = getattr(config, "SFX_VOLUME", 0.5)
+        
+        self.settings = settings
 
     def _load_list(self, base: Path, files: list[str]):
         sounds = []
@@ -42,7 +43,7 @@ class SoundManager:
                 sounds.append(arcade.load_sound(str(path)))
         return sounds
 
-    def play(self, name: str, volume: float | None = None):
+    def play(self, name: str):
         sounds = self.sounds.get(name)
         if not sounds:
             return
@@ -52,4 +53,4 @@ class SoundManager:
             return
         self.last_played[name] = now
         sound = random.choice(sounds)
-        arcade.play_sound(sound, volume if volume is not None else self.volume)
+        arcade.play_sound(sound, self.settings['sound_volume'])
