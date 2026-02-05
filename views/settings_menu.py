@@ -95,7 +95,7 @@ class SettingsMenu(arcade.View):
 
     def save_settigns(self, event):
         # Загрузка старых настроек
-        with open(file='settigns.json', mode='r', encoding='utf-8') as file:
+        with open(file='settings.json', mode='r', encoding='utf-8') as file:
             data = json.load(file)
 
         # обновление настроек
