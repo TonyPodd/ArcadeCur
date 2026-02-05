@@ -74,6 +74,10 @@ class Enemy(arcade.Sprite):
         self.idle_stuck_time = 0.6
         self._idle_stuck_timer = 0.0
         self._last_pos = (self.center_x, self.center_y)
+        self._stuck_timer = 0.0
+        self.stuck_time = 0.8
+        self._last_pos_global = (self.center_x, self.center_y)
+        self.attack_strafe_dir = 1
 
         self.money = arcade.SpriteList()
         self.orbs = arcade.SpriteList()
@@ -214,7 +218,7 @@ class Enemy(arcade.Sprite):
             # в атаке двигаем чела стрейфами, чтобы он не просто стоял
             dx = self.player.center_x - self.center_x
             dy = self.player.center_y - self.center_y
-            angle = atan2(dy, dx) + 1.57
+            angle = atan2(dy, dx) + 1.57 * self.attack_strafe_dir
             self.center_x += (self.max_speed * 0.4) * cos(angle)
             self.center_y += (self.max_speed * 0.4) * sin(angle)
         else:
@@ -244,6 +248,7 @@ class Enemy(arcade.Sprite):
 
         self.health_line.set_current_hp(self.hp)
         self.health_line.set_coords(self.left, self.bottom)
+        self.handle_stuck(delta_time)
 
     def try_attack(self):
         if self.player is None or self.reaction_timer > 0 or self.cooldown_timer > 0:
@@ -265,6 +270,31 @@ class Enemy(arcade.Sprite):
             self.burst_left = self.burst_size
         else:
             self.cooldown_timer = self.attack_cooldown
+
+    def handle_stuck(self, delta_time):
+        if self.state == "idle":
+            self._last_pos_global = (self.center_x, self.center_y)
+            self._stuck_timer = 0.0
+            return
+
+        dx = self.center_x - self._last_pos_global[0]
+        dy = self.center_y - self._last_pos_global[1]
+        moved = (dx * dx + dy * dy) >= 1.0
+        if moved:
+            self._stuck_timer = 0.0
+        else:
+            self._stuck_timer += delta_time
+            if self._stuck_timer >= self.stuck_time:
+                if self.state == "attack":
+                    self.attack_strafe_dir *= -1
+                else:
+                    self.last_seen = None
+                    self.idle_target = None
+                    self.idle_timer = self.idle_wait_time
+                    self.state = "idle"
+                self._stuck_timer = 0.0
+
+        self._last_pos_global = (self.center_x, self.center_y)
 
     def take_damage(self, damage):
         """
