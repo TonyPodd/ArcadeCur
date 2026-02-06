@@ -19,6 +19,10 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.DARK_GREEN)
         
         self.settings = load_settings()
+        self.result = {
+            'Количество убитых врагов': 0,
+            'Количество пройденных уровней': 0
+        }
 
     def setup(self):
         self.collision_sprites = arcade.SpriteList()
@@ -182,8 +186,12 @@ class GameView(arcade.View):
 
         # Проверка умер ли игрок
         if self.is_dead():
+            # Обновление результатов
+            self.result['Количество убитых врагов'] -= len(self.enemy_sprites.sprite_list)
+            self.result['Количество пройденных уровней'] = len(self.all_levels) - 1
+            
             from views import DeathView
-            deathview = DeathView()
+            deathview = DeathView(self.result)
             self.window.show_view(deathview)
 
         self.enemy_sprites.update(delta_time)
@@ -938,6 +946,8 @@ class GameView(arcade.View):
         """ Инициализация боя """
         self.all_levels[self.current_level_number].completed_rooms.append(self.current_room)
         self.spawn_sprites = self.current_room.begin_fight()
+
+        self.result['Количество убитых врагов'] += len(self.spawn_sprites.sprite_list)
 
         # Проверяем закрылись ли двери
         self.check_doors()

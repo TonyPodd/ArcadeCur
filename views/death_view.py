@@ -2,10 +2,14 @@ import arcade
 
 
 class DeathView(arcade.View):
-    def __init__(self):
+    def __init__(self, result: dict=None):
         super().__init__()
-        
         """ Экран после смерти """
+        
+        if result is not None:
+            self.result = result
+        else:
+            self.result = dict()
     
     def on_draw(self) -> None:
         self.clear()
@@ -18,6 +22,27 @@ class DeathView(arcade.View):
             font_size=50,
             anchor_x="center"
         )
+        
+        x = self.window.width / 3 * 2
+        y = self.window.height / 3 + 50
+        arcade.draw_text(
+            'Результаты:',
+            x,
+            y
+        )
+        for name in self.result:
+            y -= 20
+            # Название раздела
+            arcade.draw_text(
+                name,
+                x,
+                y
+            )
+            arcade.draw_text(
+                self.result[name],
+                x + 300,
+                y
+            )
         
         arcade.draw_text(
             "ESC - Выход в меню",

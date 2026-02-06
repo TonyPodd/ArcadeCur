@@ -47,12 +47,12 @@ class MainMenu(arcade.View):
         new_game_button.on_click = self.new_game
         self.box_layout.add(new_game_button)
 
-        # Продолжить игру
-        continue_game_button = gui.UIFlatButton(
-            text="Продолжить игру", width=self.button_width
-        )
-        continue_game_button.on_click = self.continue_game
-        self.box_layout.add(continue_game_button)
+        # # Продолжить игру
+        # continue_game_button = gui.UIFlatButton(
+        #     text="Продолжить игру", width=self.button_width
+        # )
+        # continue_game_button.on_click = self.continue_game
+        # self.box_layout.add(continue_game_button)
         
         # Настройки
         settings_button = gui.UIFlatButton(
