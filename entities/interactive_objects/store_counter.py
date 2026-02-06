@@ -14,8 +14,10 @@ class StoreCounter(InetactiveObject):
         self.tips_text = 'E - купить'
         self.cost = random.randint(500, 700)
         
+        weapon_pool = [k for k in WEAPON_TYPES.keys() if k != "boss_staff"]
+        weapon_type = random.choice(weapon_pool) if weapon_pool else random.choice(list(WEAPON_TYPES.keys()))
         self.item = Weapon(
-            1, self.center_x, self.center_y, random.choice(list(WEAPON_TYPES.keys()))
+            1, self.center_x, self.center_y, weapon_type
         )
         self.item.is_on_floor = False
 

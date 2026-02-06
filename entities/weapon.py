@@ -148,6 +148,12 @@ class Weapon(Item):
             glow = _tint((170, 220, 255), 1.0)
             self.texture = weapon_texture(size - 8, size, staff, _tint(staff, 0.7), glow, _tint(staff, 0.9))
             self.handle_offset = size * 0.28
+        elif weapon_type == "boss_staff":
+            size = 32
+            staff = _tint((120, 70, 90), 1.0)
+            glow = _tint((255, 120, 160), 1.0)
+            self.texture = weapon_texture(size - 6, size, staff, _tint(staff, 0.7), glow, _tint(staff, 0.9))
+            self.handle_offset = size * 0.3
         elif weapon_type == "sword":
             size = 28
             blade = _tint((170, 180, 200), 1.0)

@@ -135,7 +135,7 @@ class Level:
         elif room_type == 'boss':
             size = self.boss_room_size(x_from, y_from)
             self.rooms[current_room_number] = BossRoom(
-                'boss', current_room_number, x_from, y_from, size
+                'boss', current_room_number, x_from, y_from, size, self.difficulty
             )
             self.room_path[current_room_number] = [(x_from, y_from, 'down')]
             # debug print removed

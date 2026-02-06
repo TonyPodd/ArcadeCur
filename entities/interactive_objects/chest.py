@@ -50,7 +50,8 @@ class Chest(InetactiveObject):
             return self.get_item()
 
     def get_item(self):
-        weapon_type = random.choice(list(WEAPON_TYPES.keys()))
+        weapon_pool = [k for k in WEAPON_TYPES.keys() if k != "boss_staff"]
+        weapon_type = random.choice(weapon_pool) if weapon_pool else random.choice(list(WEAPON_TYPES.keys()))
         # weapon_type = 'axe'
         if self.chest_type == "weapon":
             # айтем падает чуть в стороне от сундука

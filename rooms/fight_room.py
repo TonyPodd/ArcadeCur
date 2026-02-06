@@ -58,7 +58,7 @@ class FightRoom(Room):
         """
         Создание врагов в комнате
         """
-        enemy_types = list(ENEMY_TYPES.keys())
+        enemy_types = [k for k in ENEMY_TYPES.keys() if k != "boss"]
         if not enemy_types:
             return arcade.SpriteList()
         

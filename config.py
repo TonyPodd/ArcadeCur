@@ -182,6 +182,19 @@ ENEMY_TYPES = {
         'burst_size' : 2,
         'burst_pause' : 0.8,
         'spread' : 4,
+    },
+    'boss' : {
+        'name' : 'босс',
+        'hp' : 420,
+        'weapon' : "boss_staff",
+        'agr_range' : 520,
+        'attack_range' : 460,
+        'speed' : 2.2,
+        'reaction_time' : 0.2,
+        'attack_cooldown' : 0.4,
+        'burst_size' : 1,
+        'burst_pause' : 0.2,
+        'spread' : 6,
     }
 }
 
@@ -197,6 +210,7 @@ ENEMY_VISUALS = {
     "imp": {"color": (240, 120, 160), "size": (22, 22), "shape": "diamond"},
     "tank": {"color": (120, 140, 160), "size": (46, 38), "shape": "chunky"},
     "shaman": {"color": (150, 120, 230), "size": (26, 36), "shape": "round"},
+    "boss": {"color": (200, 80, 120), "size": (56, 56), "shape": "hex"},
 }
 
 # procedural tiles/colors
@@ -344,6 +358,17 @@ WEAPON_TYPES = {
         'bullet_speed' : 6,
         'shots_per_tick' : 1,
         'spread' : 3,
+    },
+    'boss_staff' : {
+        'name' : 'посох босса',
+        'damage' : 18,
+        "weapon_type" : "magic",
+        'damage_type' : "projectile",
+        'bullet_radius' : 7,
+        'shoot_timeout' : 0.25,
+        'bullet_speed' : 8,
+        'shots_per_tick' : 1,
+        'spread' : 4,
     },
     'sword' : {
         'name' : 'меч',

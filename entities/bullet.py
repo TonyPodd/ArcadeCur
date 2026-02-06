@@ -138,6 +138,8 @@ class Bullet(arcade.Sprite):
                 style = "streak"
             elif variant == "smg":
                 style = "needle"
+        if variant == "boss":
+            style = "streak"
         key = (size, color, style)
         if key not in self._tex_cache:
             self._tex_cache[key] = _make_bullet_texture(size, color, style)
@@ -159,7 +161,7 @@ class Bullet(arcade.Sprite):
             self.trail_length = size * 1.0
         else:
             self.trail_length = size * 1.2
-        if variant in ("sniper", "railgun"):
+        if variant in ("sniper", "railgun", "boss"):
             self.trail_length *= 1.4
         elif variant == "smg":
             self.trail_length *= 0.9

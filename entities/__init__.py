@@ -3,6 +3,7 @@
 """
 from .player import Player
 from .enemy import Enemy
+from .boss import Boss
 from .wall import Wall
 from .floor import Floor
 from .door import Door

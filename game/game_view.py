@@ -167,7 +167,7 @@ class GameView(arcade.View):
 
         # Начинаем бой если тип комнаты - fight, и она не зачищена
         if self.current_room not in self.all_levels[self.current_level_number].completed_rooms:
-            if self.current_room_type == 'fight':
+            if self.current_room_type in ('fight', 'boss'):
                 self.create_fight(collide_floor)
         
         if self.in_fight and self.start_fight_timer >= self.time_for_start_fight:
@@ -949,7 +949,10 @@ class GameView(arcade.View):
         self.in_fight = True
         self.start_fight_timer = 0.0
         
-        self.push_alert("Локация: 'Fight'")
+        if self.current_room_type == "boss":
+            self.push_alert("Локация: 'Boss'")
+        else:
+            self.push_alert("Локация: 'Fight'")
 
     def spawn_enemies(self, spawn_sprites: arcade.SpriteList):
         self.enemy_sprites = self.current_room.spawn_enemies(self.spawn_sprites)
