@@ -138,6 +138,15 @@ class Enemy(arcade.Sprite):
                     (size // 2 - 3 + ox, 4 + oy, 6, 6, tint(base_color, 1.2)),
                     (size // 2 - 2 + ox, size - 10 + oy, 4, 4, tint(base_color, 0.9)),
                 ]
+            if enemy_type == "boss":
+                core = tint(base_color, 1.15)
+                glow = tint(base_color, 1.3)
+                return [
+                    (size // 2 - 8 + ox, size // 2 - 8 + oy, 16, 16, core),
+                    (size // 2 - 4 + ox, size // 2 - 4 + oy, 8, 8, glow),
+                    (size // 2 - 18 + ox, size // 2 - 2 + oy, 6, 4, eye),
+                    (size // 2 + 12 + ox, size // 2 - 2 + oy, 6, 4, eye),
+                ]
             if enemy_type == "sniper":
                 return [(size // 2 - 2 + ox, 2 + oy, 4, 6, tint(base_color, 1.2))]
             if enemy_type == "shotgunner":
