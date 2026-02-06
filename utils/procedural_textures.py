@@ -107,11 +107,56 @@ def chest_texture(size, base, outline, lid, latch):
     return tex
 
 
-def enemy_frame(size, base, outline, accents):
-    key = _key("enemy", size, base, outline, tuple(accents))
+def enemy_frame(size, base, outline, accents, shape="rect"):
+    key = _key("enemy", size, base, outline, tuple(accents), shape)
     if key in _cache:
         return _cache[key]
-    tex = rect_texture(size, size, base, outline=outline, outline_thickness=2, accents=accents)
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    if shape == "diamond":
+        pts = [(size // 2, 1), (size - 2, size // 2), (size // 2, size - 2), (1, size // 2)]
+        draw.polygon(pts, fill=outline)
+        inset = 3
+        pts2 = [(size // 2, inset), (size - inset, size // 2), (size // 2, size - inset), (inset, size // 2)]
+        draw.polygon(pts2, fill=base)
+    elif shape == "chunky":
+        draw.rectangle([0, 0, size - 1, size - 1], fill=outline)
+        draw.rectangle([3, 3, size - 4, size - 4], fill=base)
+        draw.rectangle([2, size // 3, size - 3, size // 3 + 2], fill=_tint(base, 0.8))
+    elif shape == "round":
+        radius = max(4, size // 6)
+        try:
+            draw.rounded_rectangle([1, 1, size - 2, size - 2], radius=radius, fill=base, outline=outline, width=2)
+        except Exception:
+            draw.rectangle([1, 1, size - 2, size - 2], fill=base, outline=outline)
+    elif shape == "hex":
+        pts = [
+            (size // 4, 1),
+            (size * 3 // 4, 1),
+            (size - 2, size // 2),
+            (size * 3 // 4, size - 2),
+            (size // 4, size - 2),
+            (1, size // 2),
+        ]
+        draw.polygon(pts, fill=outline)
+        inset = 3
+        pts2 = [
+            (size // 4 + inset, inset),
+            (size * 3 // 4 - inset, inset),
+            (size - inset, size // 2),
+            (size * 3 // 4 - inset, size - inset),
+            (size // 4 + inset, size - inset),
+            (inset, size // 2),
+        ]
+        draw.polygon(pts2, fill=base)
+    else:
+        draw.rectangle([0, 0, size - 1, size - 1], fill=outline)
+        draw.rectangle([2, 2, size - 3, size - 3], fill=base)
+
+    if accents:
+        for x, y, w, h, col in accents:
+            draw.rectangle([x, y, x + w - 1, y + h - 1], fill=col)
+    tex = arcade.Texture(img)
     _cache[key] = tex
     return tex
 

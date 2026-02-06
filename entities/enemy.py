@@ -54,11 +54,11 @@ class Enemy(arcade.Sprite):
 
 
         # Самописные текстуры и анимации
-        visuals = config.ENEMY_VISUALS.get(self.type, {"color": (200, 80, 80), "size": (30, 30)})
+        visuals = config.ENEMY_VISUALS.get(self.type, {"color": (200, 80, 80), "size": (30, 30), "shape": "rect"})
         size_x, size_y = visuals["size"]
         self.base_scale_x = size_x / config.ENEMY_RECT_BASE
         self.base_scale_y = size_y / config.ENEMY_RECT_BASE
-        self.animations, self.anim_scales = self.build_procedural_animations(visuals["color"], self.type)
+        self.animations, self.anim_scales = self.build_procedural_animations(visuals["color"], self.type, visuals.get("shape", "rect"))
         self.anim_state = "idle"
         self.frame_index = 0
         self.frame_timer = 0.0
@@ -98,7 +98,7 @@ class Enemy(arcade.Sprite):
         self.money = arcade.SpriteList()
         self.orbs = arcade.SpriteList()
 
-    def build_procedural_animations(self, base_color, enemy_type):
+    def build_procedural_animations(self, base_color, enemy_type, shape):
         size = config.ENEMY_RECT_BASE
 
         def tint(color, factor):
@@ -123,29 +123,44 @@ class Enemy(arcade.Sprite):
                     (2 + ox, size // 2 - 1 + oy, 6, 2, (230, 230, 230)),
                     (size - 8 + ox, size // 2 - 1 + oy, 6, 2, (230, 230, 230)),
                 ]
+            if enemy_type == "imp":
+                return [
+                    (size // 2 - 2 + ox, size // 2 - 6 + oy, 4, 4, eye),
+                    (size // 2 - 2 + ox, size // 2 + 2 + oy, 4, 4, eye),
+                ]
+            if enemy_type == "tank":
+                return [
+                    (4 + ox, size // 2 - 2 + oy, 8, 4, tint(base_color, 1.1)),
+                    (size - 12 + ox, size // 2 - 2 + oy, 8, 4, tint(base_color, 1.1)),
+                ]
+            if enemy_type == "shaman":
+                return [
+                    (size // 2 - 3 + ox, 4 + oy, 6, 6, tint(base_color, 1.2)),
+                    (size // 2 - 2 + ox, size - 10 + oy, 4, 4, tint(base_color, 0.9)),
+                ]
             if enemy_type == "sniper":
                 return [(size // 2 - 2 + ox, 2 + oy, 4, 6, tint(base_color, 1.2))]
             if enemy_type == "shotgunner":
                 return [(size - 10 + ox, size // 2 - 2 + oy, 6, 4, tint(base_color, 1.1))]
             return [(size // 2 - 2 + ox, size // 2 - 2 + oy, 4, 4, eye)]
 
-        idle = [enemy_frame(size, base_color, outline, accents_idle())]
+        idle = [enemy_frame(size, base_color, outline, accents_idle(), shape=shape)]
         move = [
-            enemy_frame(size, tint(base_color, 1.03), outline, accents_idle((0, 0))),
-            enemy_frame(size, tint(base_color, 0.99), outline, accents_idle((1, 0))),
-            enemy_frame(size, tint(base_color, 1.0), outline, accents_idle((0, 1))),
-            enemy_frame(size, tint(base_color, 0.98), outline, accents_idle((-1, 0))),
+            enemy_frame(size, tint(base_color, 1.03), outline, accents_idle((0, 0)), shape=shape),
+            enemy_frame(size, tint(base_color, 0.99), outline, accents_idle((1, 0)), shape=shape),
+            enemy_frame(size, tint(base_color, 1.0), outline, accents_idle((0, 1)), shape=shape),
+            enemy_frame(size, tint(base_color, 0.98), outline, accents_idle((-1, 0)), shape=shape),
         ]
         attack = [
-            enemy_frame(size, (255, 90, 90), outline, accents_idle((0, 0), alert=True)),
-            enemy_frame(size, tint(base_color, 1.12), outline, accents_idle((1, -1), alert=True)),
-            enemy_frame(size, tint(base_color, 1.05), outline, accents_idle((-1, 1), alert=True)),
-            enemy_frame(size, tint(base_color, 1.0), outline, accents_idle((0, 0), alert=True)),
+            enemy_frame(size, (255, 90, 90), outline, accents_idle((0, 0), alert=True), shape=shape),
+            enemy_frame(size, tint(base_color, 1.12), outline, accents_idle((1, -1), alert=True), shape=shape),
+            enemy_frame(size, tint(base_color, 1.05), outline, accents_idle((-1, 1), alert=True), shape=shape),
+            enemy_frame(size, tint(base_color, 1.0), outline, accents_idle((0, 0), alert=True), shape=shape),
         ]
         death = [
-            enemy_frame(size, (70, 70, 70), (40, 40, 40), []),
-            enemy_frame(size - 4, (60, 60, 60), (30, 30, 30), []),
-            enemy_frame(max(8, size - 8), (50, 50, 50), (20, 20, 20), []),
+            enemy_frame(size, (70, 70, 70), (40, 40, 40), [], shape=shape),
+            enemy_frame(size - 4, (60, 60, 60), (30, 30, 30), [], shape=shape),
+            enemy_frame(max(8, size - 8), (50, 50, 50), (20, 20, 20), [], shape=shape),
         ]
         animations = {
             "idle": idle,

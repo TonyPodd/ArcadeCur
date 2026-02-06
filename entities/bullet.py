@@ -42,6 +42,16 @@ def _make_bullet_texture(size, color, style):
             (cx - diamond, cx),
         ]
         draw.polygon(points, fill=(255, 255, 255, 220))
+    elif style == "streak":
+        core_h = max(4, size // 4)
+        draw.ellipse([0, cx - core_h, size - 1, cx + core_h], fill=color)
+        draw.rectangle([2, cx - 1, size - 3, cx + 1], fill=(255, 255, 255, 220))
+    elif style == "needle":
+        draw.ellipse([0, cx - 2, size - 1, cx + 2], fill=color)
+        draw.rectangle([2, cx - 1, size - 3, cx + 1], fill=(255, 255, 255, 180))
+    elif style == "pellet":
+        draw.ellipse([pad, pad, size - pad - 1, size - pad - 1], fill=color)
+        draw.ellipse([cx - 2, cx - 2, cx + 2, cx + 2], fill=(255, 255, 255, 200))
     elif style == "hit":
         outer = (
             min(255, int(color[0] * 0.8)),
@@ -105,10 +115,29 @@ class Bullet(arcade.Sprite):
             self.size_scale = random.uniform(0.85, 1.2)
             if self.damage_type == "magic":
                 self.size_scale = random.uniform(0.95, 1.35)
+            variant = getattr(self, "variant", None)
+            if variant == "shotgun":
+                self.size_scale *= 0.65
+            elif variant == "sniper":
+                self.size_scale *= 1.15
+            elif variant == "smg":
+                self.size_scale *= 0.8
+            elif variant == "heavy_rifle":
+                self.size_scale *= 1.1
+            elif variant == "railgun":
+                self.size_scale *= 1.25
         base = self.bullet_radius * 2 + 10 if self.bullet_radius else 18
         size = max(16, int(base * self.size_scale))
         color = _bullet_color(self.damage_type)
         style = _bullet_style(self.damage_type)
+        variant = getattr(self, "variant", None)
+        if style == "bullet":
+            if variant == "shotgun":
+                style = "pellet"
+            elif variant in ("sniper", "railgun"):
+                style = "streak"
+            elif variant == "smg":
+                style = "needle"
         key = (size, color, style)
         if key not in self._tex_cache:
             self._tex_cache[key] = _make_bullet_texture(size, color, style)
@@ -130,6 +159,10 @@ class Bullet(arcade.Sprite):
             self.trail_length = size * 1.0
         else:
             self.trail_length = size * 1.2
+        if variant in ("sniper", "railgun"):
+            self.trail_length *= 1.4
+        elif variant == "smg":
+            self.trail_length *= 0.9
 
     def update(self, delta_time):
         if self.life_frames is not None:

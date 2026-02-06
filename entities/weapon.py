@@ -52,6 +52,8 @@ class Weapon(Item):
                     temp_bullet.damage_type = 'magic'
                 else:
                     temp_bullet.damage_type = 'hit'
+                temp_bullet.variant = self.weapon_type
+                temp_bullet.size_scale = None
                 temp_bullet.apply_stats()
                 temp_bullet.update_texture()
 
@@ -98,6 +100,16 @@ class Weapon(Item):
             stock = _tint(base, 0.7)
             self.texture = gun_texture(size, _tint(base, 0.95), outline, barrel, grip, stock, profile="rifle")
             self.handle_offset = size * 0.28
+        elif weapon_type == "smg":
+            size = 22
+            stock = _tint(base, 0.75)
+            self.texture = gun_texture(size, _tint(base, 0.9), outline, barrel, _tint(grip, 0.85), stock, profile="pistol")
+            self.handle_offset = size * 0.12
+        elif weapon_type == "burst_rifle":
+            size = 28
+            stock = _tint(base, 0.7)
+            self.texture = gun_texture(size, _tint(base, 0.95), outline, barrel, grip, stock, profile="rifle")
+            self.handle_offset = size * 0.26
         elif weapon_type == "shotgun":
             size = 28
             stock = _tint(base, 0.85)
@@ -108,6 +120,16 @@ class Weapon(Item):
             stock = _tint(base, 0.7)
             self.texture = gun_texture(size, _tint(base, 0.85), outline, _tint(barrel, 1.1), grip, stock, profile="sniper")
             self.handle_offset = size * 0.32
+        elif weapon_type == "heavy_rifle":
+            size = 32
+            stock = _tint(base, 0.65)
+            self.texture = gun_texture(size, _tint(base, 0.8), outline, _tint(barrel, 1.15), _tint(grip, 0.9), stock, profile="rifle")
+            self.handle_offset = size * 0.3
+        elif weapon_type == "railgun":
+            size = 34
+            stock = _tint(base, 0.6)
+            self.texture = gun_texture(size, _tint(base, 0.75), outline, _tint(barrel, 1.3), _tint(grip, 0.8), stock, profile="sniper")
+            self.handle_offset = size * 0.33
         elif weapon_type == "orb":
             size = 26
             staff = _tint((120, 80, 160), 1.0)
@@ -120,16 +142,32 @@ class Weapon(Item):
             glow = _tint((255, 140, 80), 1.0)
             self.texture = weapon_texture(size - 8, size, staff, _tint(staff, 0.7), glow, _tint(staff, 0.9))
             self.handle_offset = size * 0.28
+        elif weapon_type == "ice_wand":
+            size = 26
+            staff = _tint((90, 120, 180), 1.0)
+            glow = _tint((170, 220, 255), 1.0)
+            self.texture = weapon_texture(size - 8, size, staff, _tint(staff, 0.7), glow, _tint(staff, 0.9))
+            self.handle_offset = size * 0.28
         elif weapon_type == "sword":
             size = 28
             blade = _tint((170, 180, 200), 1.0)
             self.texture = sword_texture(size, blade, _tint(blade, 0.7), _tint((120, 80, 50), 1.0), _tint((90, 60, 40), 1.0))
             self.handle_offset = size * 0.4
+        elif weapon_type == "dagger":
+            size = 22
+            blade = _tint((190, 200, 210), 1.0)
+            self.texture = sword_texture(size, blade, _tint(blade, 0.7), _tint((120, 80, 50), 1.0), _tint((90, 60, 40), 1.0))
+            self.handle_offset = size * 0.35
         elif weapon_type == "axe":
             size = 28
             head = _tint((190, 200, 210), 1.0)
             self.texture = axe_texture(size, head, _tint(head, 0.7), _tint((120, 80, 50), 1.0))
             self.handle_offset = size * 0.4
+        elif weapon_type == "hammer":
+            size = 30
+            head = _tint((180, 190, 200), 1.0)
+            self.texture = axe_texture(size, head, _tint(head, 0.7), _tint((110, 70, 40), 1.0))
+            self.handle_offset = size * 0.42
         else:
             size = (26, 10)
             self.texture = weapon_texture(size[0], size[1], base, outline, barrel, grip)
