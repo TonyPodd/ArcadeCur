@@ -70,7 +70,7 @@ class GameView(arcade.View):
         self.push_alert("Локация: Старт")
         self.start_fight_timer = 0  # Таймер до начала боя
         self.in_fight = False  # Идёт ли сейчас сражение
-        self.time_for_start_fight = 5  # Сколько секунд до начала боя
+        self.time_for_start_fight = 2  # Сколько секунд до начала боя
 
         self.enemy_bullets = arcade.SpriteList()
         self.particles = ParticleSystem()

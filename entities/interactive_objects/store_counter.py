@@ -12,7 +12,7 @@ class StoreCounter(InetactiveObject):
         self.texture = arcade.make_soft_square_texture(TILE_SIZE, (222, 124, 4), outer_alpha=255)
         
         self.tips_text = 'E - купить'
-        self.cost = 400
+        self.cost = random.randint(500, 700)
         
         self.item = Weapon(
             1, self.center_x, self.center_y, random.choice(list(WEAPON_TYPES.keys()))
